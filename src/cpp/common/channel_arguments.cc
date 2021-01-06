@@ -166,6 +166,18 @@ void ChannelArguments::SetServiceConfigJSON(
   SetString(GRPC_ARG_SERVICE_CONFIG, service_config_json);
 }
 
+void ChannelArguments::SetExecutor(Executor& executor) {
+  SetPointer(GRPC_ARG_EXECUTOR, &executor);
+}
+
+void ChannelArguments::SetIOEngine(IOEngine& io) {
+  SetPointer(GRPC_ARG_IO_ENGINE, &io);
+}
+
+void ChannelArguments::SetResolver(Resolver& resolver) {
+  SetPointer(GRPC_ARG_RESOLVER, &resolver);
+}
+
 void ChannelArguments::SetInt(const std::string& key, int value) {
   grpc_arg arg;
   arg.type = GRPC_ARG_INTEGER;

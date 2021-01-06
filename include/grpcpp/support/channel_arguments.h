@@ -26,6 +26,7 @@
 #include <grpc/grpc.h>
 #include <grpcpp/resource_quota.h>
 #include <grpcpp/support/config.h>
+#include <grpcpp/io.h>
 
 namespace grpc {
 class SecureChannelCredentials;
