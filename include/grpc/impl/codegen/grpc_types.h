@@ -417,15 +417,9 @@ typedef struct {
 #define GRPC_ARG_CHANNEL_POOL_DOMAIN "grpc.channel_pooling_domain"
 /** gRPC Objective-C channel pooling id. */
 #define GRPC_ARG_CHANNEL_ID "grpc.channel_id"
-/** Custom executor provided per channel. This will be used instead of the
+/** Custom event engine provided per channel. This will be used instead of the
  * global instance if provided. */
-#define GRPC_ARG_EXECUTOR "grpc.channel_executor"
-/** Custom io logic for a channel. This will be used instead of the global
- * instance if provided.  */
-#define GRPC_ARG_IO_ENGINE "grpc.channel_io"
-/** Custom resolver for a channel. This will be used instead of the global
- * instance if provided. */
-#define GRPC_ARG_RESOLVER "grpc.channel_resolver"
+#define GRPC_ARG_EVENT_ENGINE "grpc.channel_event_engine"
 /** \} */
 
 /** Result of a grpc call. If the caller satisfies the prerequisites of a

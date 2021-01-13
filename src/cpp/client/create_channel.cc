@@ -65,7 +65,7 @@ namespace experimental {
 std::shared_ptr<grpc::Channel> CreateCustomChannelWithInterceptors(
     const std::string& target,
     const std::shared_ptr<grpc::ChannelCredentials>& creds,
-    const grpc::ChannelArguments& args,
+    const grpc::ChannelArgsuments& args,
     std::vector<
         std::unique_ptr<grpc::experimental::ClientInterceptorFactoryInterface>>
         interceptor_creators) {

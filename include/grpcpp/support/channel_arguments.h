@@ -99,7 +99,10 @@ class ChannelArguments {
   /// Primarily meant for use in unit tests.
   void SetServiceConfigJSON(const std::string& service_config_json);
 
-  // Generic channel argument setter. Only for advanced use cases.
+  /// Set a custom EventEngine to be used for this channel.
+  void SetEventEngine(EventEngine& engine);
+
+  // Generic channel argument setters. Only for advanced use cases.
   /// Set an integer argument \a value under \a key.
   void SetInt(const std::string& key, int value);
 
