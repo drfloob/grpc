@@ -71,7 +71,7 @@ class EventEngine {
   // expired, `CANCELLED` will be sent.
   using Callback = std::function<void(absl::Status)>;
   // A callback handle, used to cancel a callback.
-  using CBHandle = size_t;
+  using TaskHandle = intptr_t;
 
   // An Endpoint represents one end of a connection between gRPC client
   // and server.
@@ -127,21 +127,39 @@ class EventEngine {
       absl::string_view addr, const ChannelArguments& args,
       const Endpoint::OnConnectCallback& on_connect, absl::Time deadline) = 0;
 
-  // Called with the collection of addresses that were resolved from a given
-  // target address.
+  // TODO: define and vet the family of sockaddr types. Possibly expose
+  // grpc_sockaddr_*.
+  using GrpcSockaddr = sockaddr;
+  struct GrpcSRVRecord {
+    std::string host;
+    int port = 0;
+  };
+  // A task handle for DNS Resolution requests.
+  using LookupTaskHandle = intptr_t;
   // TODO: Be explicit about the meaning of Statuses.
-  using ResolveCallback =
-      std::function<void(absl::Status, std::vector<std::string>)>;
+  // A callback method that's called with the collection of sockaddrs that
+  // were resolved from a given target address.
+  using LookupHostnameCallback =
+      std::function<void(absl::Status, std::vector<GrpcSockaddr>)>;
+  using LookupSRVCallback =
+      std::function<void(absl::Status, std::vector<GrpcSRVRecord>)>;
+  using LookupTXTCallback = std::function<void(absl::Status, std::string)>;
   // Asynchronously resolve an address. `port` may be a non-numeric named
   // service port.
-  virtual void Resolve(absl::string_view address, absl::string_view port,
-                       const ResolveCallback& on_resolve,
-                       absl::Time deadline) = 0;
+  virtual absl::StatusOr<LookupTaskHandle> LookupHostname(
+      absl::string_view address, absl::string_view port,
+      const ResolveCallback& on_resolve, absl::Time deadline) = 0;
+  virtual absl::StatusOr<LookupTaskHandle> LookupSRV(
+      absl::string_view name, const LookupSRVCallback& on_resolve,
+      absl::Time deadline) = 0;
+  virtual absl::StatusOr<LookupTaskHandle> LookupTXT(
+      absl::string_view name, const LookupTXTCallback& on_resolve,
+      absl::Time deadline) = 0;
   // TODO: might these Run* methods want to return errors?
   // Run a callback as soon as possible.
-  virtual CBHandle Run(const Callback& fn) = 0;
+  virtual TaskHandle Run(const Callback& fn) = 0;
   // Synonymous with scheduling an alarm to run at time N.
-  virtual CBHandle RunAt(absl::Time when, const Callback& fn) = 0;
+  virtual TaskHandle RunAt(absl::Time when, const Callback& fn) = 0;
   // Immediately cancel a callback.
   //
   // There are three scenarios in which we may cancel a scheduled function:
@@ -149,13 +167,19 @@ class EventEngine {
   //   2. The callback has already run
   //   3. We can't cancel it because it is "in flight".
   //
-  //   In all of these cases, the cancellation is still considered successful.
-  //   They are essentially distinguished in that the callback will be run
-  //   exactly once from either the cancellation or from the activation.
-  virtual absl::Status Cancel(const CBHandle& handle);
+  //   In all of these cases, the cancellation is still considered
+  //   successful. They are essentially distinguished in that the callback
+  //   will be run exactly once from either the cancellation or from the
+  //   activation.
+  virtual absl::Status Cancel(const TaskHandle& handle);
   // Immediately run all callbacks with status indicating the shutdown
   virtual absl::Status Shutdown() = 0;
 };
+
+absl::StatusOr<std::string> BlockingResolve(EventEngine& engine,
+                                            absl::string_view address,
+                                            absl::string_view port,
+                                            absl::Time deadline);
 
 // Global registration of custom EventEngine. This instance will be used except
 // when an EventEngine is provided at the Channel-level.
