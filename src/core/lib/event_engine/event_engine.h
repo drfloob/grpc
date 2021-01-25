@@ -43,6 +43,8 @@
 
 namespace grpc {
 
+using TBDType = (void*);
+
 ////////////////////////////////////////////////////////////////////////////////
 // The EventEngine encapsulates all platform-specific behaviors related to low
 // level network I/O, timers, asynchronous function and callback execution, and
@@ -64,7 +66,7 @@ namespace grpc {
 class EventEngine {
  public:
   // Arbitrary data sent/received over the network.
-  using DataBuffer = std::pair<void*, size_t>;
+  using DataBuffer = TBDType;
   // A basic callback. The first argument to all callbacks is an absl::Status
   // indicating the status of the operation associated with this callback.
   // For example, when cancelling a scheduled function before the timer has
@@ -72,6 +74,13 @@ class EventEngine {
   using Callback = std::function<void(absl::Status)>;
   // A callback handle, used to cancel a callback.
   using TaskHandle = intptr_t;
+  // A string representation of an address URI. TODO: define format
+  using Sockaddr = TBDType;
+  // A DNS SRV record type.
+  struct SRVRecord {
+    std::string host;
+    int port = 0;
+  };
 
   // An Endpoint represents one end of a connection between gRPC client
   // and server.
@@ -97,8 +106,8 @@ class EventEngine {
                        absl::Time deadline) = 0;
     // TODO: be explicit about on_close Status meanings.
     virtual void Close(const Callback& on_close) = 0;
-    virtual absl::string_view GetPeerAddress() = 0;
-    virtual absl::string_view GetLocalAddress() = 0;
+    virtual Sockaddr GetPeerAddress() = 0;
+    virtual Sockaddr GetLocalAddress() = 0;
   };
   // An EventEngine server listens for incoming connection requests from gRPC
   // clients and initiates request processing once connections are
@@ -127,39 +136,40 @@ class EventEngine {
       absl::string_view addr, const ChannelArguments& args,
       const Endpoint::OnConnectCallback& on_connect, absl::Time deadline) = 0;
 
-  // TODO: define and vet the family of sockaddr types. Possibly expose
-  // grpc_sockaddr_*.
-  using GrpcSockaddr = sockaddr;
-  struct GrpcSRVRecord {
-    std::string host;
-    int port = 0;
+  class DNSResolver {
+    // TODO: Be explicit about the meaning of Statuses.
+    // A task handle for DNS Resolution requests.
+    using LookupTaskHandle = intptr_t;
+    // A callback method that's called with the collection of sockaddrs that
+    // were resolved from a given target address.
+    using LookupHostnameCallback =
+        std::function<void(absl::Status, std::vector<Sockaddr>)>;
+    using LookupSRVCallback =
+        std::function<void(absl::Status, std::vector<SRVRecord>)>;
+    using LookupTXTCallback = std::function<void(absl::Status, std::string)>;
+    // Asynchronously resolve an address. `port` may be a non-numeric named
+    // service port.
+    virtual absl::StatusOr<LookupTaskHandle> LookupHostname(
+        absl::string_view address, absl::string_view port,
+        const LookupHostnameCallback& on_resolve, absl::Time deadline) = 0;
+    virtual absl::StatusOr<LookupTaskHandle> LookupSRV(
+        absl::string_view name, const LookupSRVCallback& on_resolve,
+        absl::Time deadline) = 0;
+    virtual absl::StatusOr<LookupTaskHandle> LookupTXT(
+        absl::string_view name, const LookupTXTCallback& on_resolve,
+        absl::Time deadline) = 0;
+    // Cancel an asynchronous lookup operation.
+    virtual absl::Status CancelLookup(const LookupTaskHandle& handle) = 0;
   };
-  // A task handle for DNS Resolution requests.
-  using LookupTaskHandle = intptr_t;
-  // TODO: Be explicit about the meaning of Statuses.
-  // A callback method that's called with the collection of sockaddrs that
-  // were resolved from a given target address.
-  using LookupHostnameCallback =
-      std::function<void(absl::Status, std::vector<GrpcSockaddr>)>;
-  using LookupSRVCallback =
-      std::function<void(absl::Status, std::vector<GrpcSRVRecord>)>;
-  using LookupTXTCallback = std::function<void(absl::Status, std::string)>;
-  // Asynchronously resolve an address. `port` may be a non-numeric named
-  // service port.
-  virtual absl::StatusOr<LookupTaskHandle> LookupHostname(
-      absl::string_view address, absl::string_view port,
-      const ResolveCallback& on_resolve, absl::Time deadline) = 0;
-  virtual absl::StatusOr<LookupTaskHandle> LookupSRV(
-      absl::string_view name, const LookupSRVCallback& on_resolve,
-      absl::Time deadline) = 0;
-  virtual absl::StatusOr<LookupTaskHandle> LookupTXT(
-      absl::string_view name, const LookupTXTCallback& on_resolve,
-      absl::Time deadline) = 0;
-  // TODO: might these Run* methods want to return errors?
+  // Retrieves an instance of a DNSResolver.
+  virtual absl::StatusOr<DNSResolver> GetDNSResolver() = 0;
+
+  // TODO: establish need, then specify meanings of Status values
   // Run a callback as soon as possible.
-  virtual TaskHandle Run(const Callback& fn) = 0;
+  virtual absl::StatusOr<TaskHandle> Run(const Callback& fn) = 0;
   // Synonymous with scheduling an alarm to run at time N.
-  virtual TaskHandle RunAt(absl::Time when, const Callback& fn) = 0;
+  virtual absl::StatusOr<TaskHandle> RunAt(absl::Time when,
+                                           const Callback& fn) = 0;
   // Immediately cancel a callback.
   //
   // There are three scenarios in which we may cancel a scheduled function:
@@ -176,10 +186,9 @@ class EventEngine {
   virtual absl::Status Shutdown() = 0;
 };
 
-absl::StatusOr<std::string> BlockingResolve(EventEngine& engine,
-                                            absl::string_view address,
-                                            absl::string_view port,
-                                            absl::Time deadline);
+absl::StatusOr<std::vector<Sockaddr>> BlockingLookupHostname(
+    EventEngine& engine, absl::string_view address, absl::string_view port,
+    absl::Time deadline);
 
 // Global registration of custom EventEngine. This instance will be used except
 // when an EventEngine is provided at the Channel-level.
