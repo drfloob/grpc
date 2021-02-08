@@ -35,90 +35,91 @@
 // TODO:
 // - explicitly define lifetimes and ownership of objects.
 // - elaborate on constraints & pre-conditions for API usage.
-// - where do we need to support resource users? Can that be wrapped around this
-//   API, or does it need to be embedded within it?
 // - supporting an escape hatch for those who want to work with FDs. Discussed
 //   specifically treating our default & g3 EE impls specially using EE
 //   identifiers.
 
-namespace grpc {
+namespace {
+class SliceBuffer;
+class ResourceManager;
+}  // namespace
 
-using TBDType = (void*);
+namespace grpc_core {
 
 ////////////////////////////////////////////////////////////////////////////////
 // The EventEngine encapsulates all platform-specific behaviors related to low
-// level network I/O, timers, asynchronous function and callback execution, and
-// DNS resolution.
+// level network I/O, timers, asynchronous execution, and DNS resolution.
 //
 // A default cross-platform EventEngine instance is provided by gRPC, and can be
-// overriden either globally or on a channel-by-channel basis. One may want to
-// provide an EventEngine instance for each channel to better insulate network
-// I/O from other channels, to control which threads run which callbacks, etc.
+// overriden per channel or per server. Motivating uses cases for supporting
+// custom EventEngines include the ability to hook into external event loops,
+// and using different EventEngine instances for each channel to better insulate
+// network I/O and callback processing from other channels.
 //
 // LIFESPAN AND OWNERSHIP
 //
-// EventEngines are internally ref-counted, and therefore valid as long as
-// there are references to them.
+// gRPC takes shared ownership of EventEngines via std::shared_ptrs, and
+// therefore EventEngines should remain valid as long as there are references to
+// them.
 //
 // TODO: grpc_init() appears to be called multiple times (see
 // grpc_channel_create).
 ////////////////////////////////////////////////////////////////////////////////
 class EventEngine {
  public:
-  // Arbitrary data sent/received over the network.
-  using DataBuffer = TBDType;
-  // A basic callback. The first argument to all callbacks is an absl::Status
-  // indicating the status of the operation associated with this callback.
-  // For example, when cancelling a scheduled function before the timer has
-  // expired, `CANCELLED` will be sent.
+  // A basic callable function. The first argument to all callbacks is an
+  // absl::Status indicating the status of the operation associated with this
+  // callback.
+  //
+  // All callback types share these common Status meanings:
+  // * OK: The callback is executed normally, no errors were encountered.
+  // * CANCELLED: The callback was explicitly cancelled via the EventEngine API.
   using Callback = std::function<void(absl::Status)>;
   // A callback handle, used to cancel a callback.
   using TaskHandle = intptr_t;
-  // A string representation of an address URI. TODO: define format
-  using Sockaddr = TBDType;
-  // A DNS SRV record type.
-  struct SRVRecord {
-    std::string host;
-    int port = 0;
-  };
 
   // An Endpoint represents one end of a connection between gRPC client
-  // and server.
+  // and server. Endpoints are created once connections are established, and
+  // Endpoint operations are gRPC's means of communicating between clients and
+  // servers.
   //
-  // Endpoints are created once connections are established, and Endpoint
-  // operations are gRPC's means of communicating between clients and servers.
+  // Endpoints must use the ResourceManager for all data buffer memory
+  // allocations. gRPC allows applications to set memory constraints per Channel
+  // using `ResourceQuota`s, and the implementation depends on all dynamic
+  // memory allocation being handled by the quota system.
   class Endpoint {
    public:
     // Called when a new connection is established. This callback takes
     // ownership of the Endpoint and is responsible for ensuring the object is
     // destroyed.
-    // DNS: expecting std::move(endpoint) into the callback argument.
-    // TODO: Be explicit about the meaning of Statuses passed to the cb.
     using OnConnectCallback = std::function<void(absl::Status, Endpoint)>;
     // Called in response to an Endpoint::Read request with the data that was
-    // retrieved. If the status is not `absl::StatusCode::kOk`, the read was
+    // retrieved. If the status is not `OK`, the read was
     // unsuccessful and the content of the `data` buffer is undefined.
     using ReadCallback =
-        std::function<void(absl::Status status, const DataBuffer& data)>;
-    virtual void Read(const ReadCallback& on_read, absl::Time deadline) = 0;
+        std::function<void(absl::Status status, const SliceBuffer& data)>;
+    virtual void Read(ReadCallback on_read, absl::Time deadline) = 0;
     // Write data out on the connection.
-    virtual void Write(const DataBuffer& data, const Callback& on_write, ,
+    virtual void Write(Callback on_write, const SliceBuffer& data, ,
                        absl::Time deadline) = 0;
-    // TODO: be explicit about on_close Status meanings.
-    virtual void Close(const Callback& on_close) = 0;
-    virtual Sockaddr GetPeerAddress() = 0;
-    virtual Sockaddr GetLocalAddress() = 0;
+    virtual void Close(Callback on_close) = 0;
+    // These methods return an address in the format described in DNSResolver.
+    virtual std::string GetPeerAddress() = 0;
+    virtual std::string GetLocalAddress() = 0;
   };
+
   // An EventEngine server listens for incoming connection requests from gRPC
   // clients and initiates request processing once connections are
   // established.
+  //
+  // Note: a server can be bound to multiple addresses/ports via `Server::Bind`
+  // before `Server::Start` is called.
   class Server {
    public:
     // Called when the server has accepted a new client connection. This
     // callback takes ownership of the Endpoint and is responsible for ensuring
     // the object is destroyed.
     //
-    // TODO: ask yang about the data buffer on accept.
     // TODO: does the accept callback need to mutate the Server?
     using AcceptCallback = std::function<void(absl::Status, Endpoint, Server&)>;
     virtual absl::Status Bind(absl::string_view address,
@@ -126,15 +127,18 @@ class EventEngine {
     virtual absl::Status Start() = 0;
     virtual absl::Status Shutdown() = 0;
   };
+
   // Factory method to create network server.
-  // TODO: be explicit about on_close Status meanings.
-  virtual absl::StatusOr<Server> CreateServer(
-      const ChannelArguments& args, const Server::AcceptCallback& on_accept,
-      const Callback& on_shutdown) = 0;
+  virtual absl::StatusOr<Server> CreateServer(Server::AcceptCallback on_accept,
+                                              Callback on_shutdown,
+                                              const ChannelArguments& args,
+                                              SliceFactory& slice_factory) = 0;
   // Creates a network connection to a remote network server.
-  virtual absl::Status CreateConnection(
-      absl::string_view addr, const ChannelArguments& args,
-      const Endpoint::OnConnectCallback& on_connect, absl::Time deadline) = 0;
+  virtual absl::Status CreateConnection(Endpoint::OnConnectCallback on_connect,
+                                        absl::string_view addr,
+                                        const ChannelArguments& args,
+                                        SliceFactory& slice_factory,
+                                        absl::Time deadline) = 0;
 
   class DNSResolver {
     // TODO: Be explicit about the meaning of Statuses.
@@ -149,39 +153,38 @@ class EventEngine {
     using LookupTXTCallback = std::function<void(absl::Status, std::string)>;
     // Asynchronously resolve an address. `port` may be a non-numeric named
     // service port.
-    virtual absl::StatusOr<LookupTaskHandle> LookupHostname(
-        absl::string_view address, absl::string_view port,
-        const LookupHostnameCallback& on_resolve, absl::Time deadline) = 0;
-    virtual absl::StatusOr<LookupTaskHandle> LookupSRV(
-        absl::string_view name, const LookupSRVCallback& on_resolve,
-        absl::Time deadline) = 0;
-    virtual absl::StatusOr<LookupTaskHandle> LookupTXT(
-        absl::string_view name, const LookupTXTCallback& on_resolve,
-        absl::Time deadline) = 0;
+    virtual LookupTaskHandle LookupHostname(LookupHostnameCallback on_resolve,
+                                            absl::string_view address,
+                                            absl::string_view port,
+                                            absl::Time deadline) = 0;
+    virtual LookupTaskHandle LookupSRV(LookupSRVCallback on_resolve,
+                                       absl::string_view name,
+                                       absl::Time deadline) = 0;
+    virtual LookupTaskHandle LookupTXT(LookupTXTCallback on_resolve,
+                                       absl::string_view name,
+                                       absl::Time deadline) = 0;
     // Cancel an asynchronous lookup operation.
-    virtual absl::Status CancelLookup(const LookupTaskHandle& handle) = 0;
+    virtual void TryCancelLookup(LookupTaskHandle handle) = 0;
   };
   // Retrieves an instance of a DNSResolver.
   virtual absl::StatusOr<DNSResolver> GetDNSResolver() = 0;
 
-  // TODO: establish need, then specify meanings of Status values
   // Run a callback as soon as possible.
-  virtual absl::StatusOr<TaskHandle> Run(const Callback& fn) = 0;
+  virtual TaskHandle Run(Callback fn) = 0;
   // Synonymous with scheduling an alarm to run at time N.
-  virtual absl::StatusOr<TaskHandle> RunAt(absl::Time when,
-                                           const Callback& fn) = 0;
-  // Immediately cancel a callback.
+  virtual TaskHandle RunAt(absl::Time when, Callback fn) = 0;
+  // Immediately tries to cancel a callback.
+  // Note that this is a "best effort" cancellation. No guarantee is made that
+  // the callback will be cancelled, the call could be in any stage.
   //
   // There are three scenarios in which we may cancel a scheduled function:
-  //   1. We normally cancel the execution
-  //   2. The callback has already run
+  //   1. We cancel the execution before it has run.
+  //   2. The callback has already run.
   //   3. We can't cancel it because it is "in flight".
   //
-  //   In all of these cases, the cancellation is still considered
-  //   successful. They are essentially distinguished in that the callback
-  //   will be run exactly once from either the cancellation or from the
-  //   activation.
-  virtual absl::Status Cancel(const TaskHandle& handle);
+  // In all cases, the cancellation is still considered successful, the callback
+  // will be run exactly once from either cancellation or from its activation.
+  virtual void TryCancel(TaskHandle handle) = 0;
   // Immediately run all callbacks with status indicating the shutdown
   virtual absl::Status Shutdown() = 0;
 };
@@ -190,23 +193,12 @@ absl::StatusOr<std::vector<Sockaddr>> BlockingLookupHostname(
     EventEngine& engine, absl::string_view address, absl::string_view port,
     absl::Time deadline);
 
-// Global registration of custom EventEngine. This instance will be used except
-// when an EventEngine is provided at the Channel-level.
-//
-// gRPC does not assume ownership of this EventEngine. The application is
-// responsible for ensuring that the EventEngine is valid until gRPC is shut
-// down.
-// TODO: confirm lifetime
-// TODO: if a default EE is replaced, at what point can the previous EE be
-// freed?
-void grpc_set_default_event_engine(EventEngine* event_engine);
-
 // This is just here for discussion, it should be internal to gRPC. The purpose
 // is to lazily instantiate a default EE instance if no global instance is
 // provided, or return the explicitly-set global instance.
-EventEngine* grpc_get_default_event_engine();
+std::shared_ptr<EventEngine> grpc_get_default_event_engine();
 
-}  // namespace grpc
+}  // namespace grpc_core
 
 #endif /* GRPC_EVENT_ENGINE */
 #endif /* GRPC_CORE_LIB_EVENT_ENGINE_IOMGR_IOMGR_EVENT_ENGINE_H */
