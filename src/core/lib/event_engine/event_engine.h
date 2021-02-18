@@ -108,37 +108,36 @@ class EventEngine {
     virtual std::string GetLocalAddress() = 0;
   };
 
-  // An EventEngine server listens for incoming connection requests from gRPC
+  // An EventEngine Listener listens for incoming connection requests from gRPC
   // clients and initiates request processing once connections are
   // established.
-  //
-  // Note: a server can be bound to multiple addresses/ports via `Server::Bind`
-  // before `Server::Start` is called.
-  class Server {
+  class Listener {
    public:
-    // Called when the server has accepted a new client connection. This
+    // Called when the listener has accepted a new client connection. This
     // callback takes ownership of the Endpoint and is responsible for ensuring
     // the object is destroyed.
     //
-    // TODO: does the accept callback need to mutate the Server?
-    using AcceptCallback = std::function<void(absl::Status, Endpoint, Server&)>;
+    // TODO: does the accept callback need to mutate the Listener?
+    using AcceptCallback =
+        std::function<void(absl::Status, Endpoint, Listener&)>;
+    // Bind an address/port to this Listener. Multiple ports can be bound to
+    // this Listener before Listener::Start has been called.
     virtual absl::Status Bind(absl::string_view address,
                               absl::string_view port) = 0;
     virtual absl::Status Start() = 0;
     virtual absl::Status Shutdown() = 0;
   };
 
-  // Factory method to create network server.
-  virtual absl::StatusOr<Server> CreateServer(Server::AcceptCallback on_accept,
-                                              Callback on_shutdown,
-                                              const ChannelArguments& args,
-                                              SliceFactory& slice_factory) = 0;
-  // Creates a network connection to a remote network server.
-  virtual absl::Status CreateConnection(Endpoint::OnConnectCallback on_connect,
-                                        absl::string_view addr,
-                                        const ChannelArguments& args,
-                                        SliceFactory& slice_factory,
-                                        absl::Time deadline) = 0;
+  // Factory method to create network listener.
+  virtual absl::StatusOr<Listener> CreateListener(
+      Listener::AcceptCallback on_accept, Callback on_shutdown,
+      const ChannelArguments& args, SliceFactory& slice_factory) = 0;
+  // Creates a network connection to a remote network listener.
+  virtual absl::Status Connect(Endpoint::OnConnectCallback on_connect,
+                               absl::string_view addr,
+                               const ChannelArguments& args,
+                               SliceFactory& slice_factory,
+                               absl::Time deadline) = 0;
 
   class DNSResolver {
     // TODO: Be explicit about the meaning of Statuses.
