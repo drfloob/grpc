@@ -41,7 +41,8 @@
 
 namespace {
 class SliceBuffer;
-class ResourceManager;
+class SliceAllocator;
+class SliceAllocatorFactory;
 }  // namespace
 
 namespace grpc_core {
@@ -83,7 +84,7 @@ class EventEngine {
   // Endpoint operations are gRPC's means of communicating between clients and
   // servers.
   //
-  // Endpoints must use the ResourceManager for all data buffer memory
+  // Endpoints must use the provided SliceAllocator for all data buffer memory
   // allocations. gRPC allows applications to set memory constraints per Channel
   // using `ResourceQuota`s, and the implementation depends on all dynamic
   // memory allocation being handled by the quota system.
@@ -131,12 +132,13 @@ class EventEngine {
   // Factory method to create network listener.
   virtual absl::StatusOr<Listener> CreateListener(
       Listener::AcceptCallback on_accept, Callback on_shutdown,
-      const ChannelArguments& args, SliceFactory& slice_factory) = 0;
+      const ChannelArguments& args,
+      SliceAllocatorFactory& slice_allocator_factory) = 0;
   // Creates a network connection to a remote network listener.
   virtual absl::Status Connect(Endpoint::OnConnectCallback on_connect,
                                absl::string_view addr,
                                const ChannelArguments& args,
-                               SliceFactory& slice_factory,
+                               SliceAllocator& slice_allocator,
                                absl::Time deadline) = 0;
 
   class DNSResolver {
@@ -201,3 +203,28 @@ std::shared_ptr<EventEngine> grpc_get_default_event_engine();
 
 #endif /* GRPC_EVENT_ENGINE */
 #endif /* GRPC_CORE_LIB_EVENT_ENGINE_IOMGR_IOMGR_EVENT_ENGINE_H */
+
+namespace DONOTSUBMIT {
+class SliceAllocator {
+ public:
+  using AllocateCallback =
+      std::function<void(absl::Status, SliceBuffer* buffer)>;
+  // Requests `size` bytes from the Resource Quota, and populates `dest` with
+  // the allocated slices. Ownership of the `SliceBuffer` is not transferred.
+  //
+  // Note: thin layer above grpc_resource_user_alloc_slices
+  absl::Status Allocate(size_t size, SliceBuffer* dest,
+                        SliceAllocator::AllocateCallback cb);
+  // TODO: destructor unrefs the resource user
+ private:
+  grpc_resource_user* resource_user_;
+}
+
+class SliceAllocatorFactory {
+ public:
+  SliceAllocator CreateSliceAllocator(absl::string_view name);
+  // TODO: destructor unrefs the resource quota
+ private:
+  grpc_resource_quota* resource_quota_;
+}
+}  // namespace DONOTSUBMIT
