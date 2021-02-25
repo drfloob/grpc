@@ -59,9 +59,7 @@ namespace grpc_core {
 //
 // LIFESPAN AND OWNERSHIP
 //
-// gRPC takes shared ownership of EventEngines via std::shared_ptrs, and
-// therefore EventEngines should remain valid as long as there are references to
-// them.
+// gRPC takes shared ownership of EventEngines via std::shared_ptrs.
 //
 // TODO: grpc_init() appears to be called multiple times (see
 // grpc_channel_create).
@@ -86,22 +84,24 @@ class EventEngine {
   //
   // Endpoints must use the provided SliceAllocator for all data buffer memory
   // allocations. gRPC allows applications to set memory constraints per Channel
-  // using `ResourceQuota`s, and the implementation depends on all dynamic
-  // memory allocation being handled by the quota system.
+  // or Server, and the implementation depends on all dynamic memory allocation
+  // being handled by the quota system.
   class Endpoint {
    public:
     // Called when a new connection is established. This callback takes
-    // ownership of the Endpoint and is responsible for ensuring the object is
-    // destroyed.
+    // ownership of the Endpoint and is responsible for its destruction.
     using OnConnectCallback = std::function<void(absl::Status, Endpoint)>;
-    // Called in response to an Endpoint::Read request with the data that was
-    // retrieved. If the status is not `OK`, the read was
-    // unsuccessful and the content of the `data` buffer is undefined.
-    using ReadCallback =
-        std::function<void(absl::Status status, const SliceBuffer& data)>;
-    virtual void Read(ReadCallback on_read, absl::Time deadline) = 0;
+    // Read data from the Endpoint.
+    //
+    // Ownership of `buffer` is not transferred. The data read from the Endpoint
+    // is populated into the `buffer`, and the `on_read` callback must ensure
+    // it has access the `buffer` when it's later executed, via std::bind or
+    // by other means.
+    virtual void Read(Callback on_read, SliceBuffer* buffer,
+                      absl::Time deadline) = 0;
     // Write data out on the connection.
-    virtual void Write(Callback on_write, const SliceBuffer& data, ,
+    // TODO: make explicit guarantees about buffer state after write.
+    virtual void Write(Callback on_write, SliceBuffer* data,
                        absl::Time deadline) = 0;
     virtual void Close(Callback on_close) = 0;
     // These methods return an address in the format described in DNSResolver.
@@ -110,17 +110,13 @@ class EventEngine {
   };
 
   // An EventEngine Listener listens for incoming connection requests from gRPC
-  // clients and initiates request processing once connections are
-  // established.
+  // clients and initiates request processing once connections are established.
   class Listener {
    public:
     // Called when the listener has accepted a new client connection. This
-    // callback takes ownership of the Endpoint and is responsible for ensuring
-    // the object is destroyed.
-    //
-    // TODO: does the accept callback need to mutate the Listener?
-    using AcceptCallback =
-        std::function<void(absl::Status, Endpoint, Listener&)>;
+    // callback takes ownership of the Endpoint and is responsible its
+    // destruction.
+    using AcceptCallback = std::function<void(absl::Status, Endpoint)>;
     // Bind an address/port to this Listener. Multiple ports can be bound to
     // this Listener before Listener::Start has been called.
     virtual absl::Status Bind(absl::string_view address,
@@ -129,26 +125,41 @@ class EventEngine {
     virtual absl::Status Shutdown() = 0;
   };
 
-  // Factory method to create network listener.
+  // Factory method to create a network listener.
   virtual absl::StatusOr<Listener> CreateListener(
       Listener::AcceptCallback on_accept, Callback on_shutdown,
       const ChannelArguments& args,
-      SliceAllocatorFactory& slice_allocator_factory) = 0;
+      SliceAllocatorFactory slice_allocator_factory) = 0;
   // Creates a network connection to a remote network listener.
   virtual absl::Status Connect(Endpoint::OnConnectCallback on_connect,
                                absl::string_view addr,
                                const ChannelArguments& args,
-                               SliceAllocator& slice_allocator,
+                               SliceAllocator slice_allocator,
                                absl::Time deadline) = 0;
 
+  // The DNSResolver provides asynchronous resolution.
+  //
+  // Addresses are represented by strings that conform to:
+  // * RFC 3986 - `host:port` spec for IPv4address, IPv6address, and IP-literal
+  // * RFC 6874 - IPv6 scoped address URI
+  // EventEngine implementations are expected to support strings that represent
+  //
+  // either IPv4 or IPv6 addresses.
   class DNSResolver {
-    // TODO: Be explicit about the meaning of Statuses.
     // A task handle for DNS Resolution requests.
     using LookupTaskHandle = intptr_t;
-    // A callback method that's called with the collection of sockaddrs that
-    // were resolved from a given target address.
+    // A DNS SRV record type.
+    struct SRVRecord {
+      std::string host;
+      int port = 0;
+      int priority = 0;
+      int weight = 0;
+    };
+    // Called with the collection of sockaddrs that were resolved from a given
+    // target address.
     using LookupHostnameCallback =
-        std::function<void(absl::Status, std::vector<Sockaddr>)>;
+        std::function<void(absl::Status, std::vector<std::string>)>;
+    // Called with a collection of SRV records.
     using LookupSRVCallback =
         std::function<void(absl::Status, std::vector<SRVRecord>)>;
     using LookupTXTCallback = std::function<void(absl::Status, std::string)>;
@@ -167,12 +178,13 @@ class EventEngine {
     // Cancel an asynchronous lookup operation.
     virtual void TryCancelLookup(LookupTaskHandle handle) = 0;
   };
+
   // Retrieves an instance of a DNSResolver.
   virtual absl::StatusOr<DNSResolver> GetDNSResolver() = 0;
 
   // Run a callback as soon as possible.
   virtual TaskHandle Run(Callback fn) = 0;
-  // Synonymous with scheduling an alarm to run at time N.
+  // Synonymous with scheduling an alarm to run at time `when`.
   virtual TaskHandle RunAt(absl::Time when, Callback fn) = 0;
   // Immediately tries to cancel a callback.
   // Note that this is a "best effort" cancellation. No guarantee is made that
@@ -188,6 +200,8 @@ class EventEngine {
   virtual void TryCancel(TaskHandle handle) = 0;
   // Immediately run all callbacks with status indicating the shutdown
   virtual absl::Status Shutdown() = 0;
+
+  virtual absl::string_view GetName() = 0;
 };
 
 absl::StatusOr<std::vector<Sockaddr>> BlockingLookupHostname(
