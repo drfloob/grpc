@@ -23,7 +23,7 @@
 #include "absl/status/statusor.h"
 #include "absl/time/time.h"
 
-#include "grpc/event_engine/channel_args.h"
+#include "grpc/event_engine/endpoint_config.h"
 #include "grpc/event_engine/port.h"
 #include "grpc/event_engine/slice_allocator.h"
 
@@ -199,7 +199,7 @@ class EventEngine {
   /// for Endpoint construction.
   virtual absl::StatusOr<std::unique_ptr<Listener>> CreateListener(
       Listener::AcceptCallback on_accept, Callback on_shutdown,
-      const ChannelArgs& args,
+      const EndpointConfig& args,
       SliceAllocatorFactory slice_allocator_factory) = 0;
   /// Creates a client network connection to a remote network listener.
   ///
@@ -216,7 +216,7 @@ class EventEngine {
   /// SliceAllocator API for more information.
   virtual absl::Status Connect(OnConnectCallback on_connect,
                                const ResolvedAddress& addr,
-                               const ChannelArgs& args,
+                               const EndpointConfig& args,
                                SliceAllocator slice_allocator,
                                absl::Time deadline) = 0;
 
@@ -281,6 +281,15 @@ class EventEngine {
   virtual ~EventEngine() = default;
 
   virtual bool IsWorkerThread() = 0;
+
+  /// Verifies that all expected config settings are correct.
+  ///
+  /// It is fine if the \a EndpointConfig contains settings that the EventEngine
+  /// does not need. This method should verify that all expected settings are of
+  /// the correct type, that all required settings are present, and perform any
+  /// other verifications required. If any setting is invalid, this method
+  /// should return an INVALID_ARGUMENT error.
+  virtual absl::Status IsValidEndpointConfig(const EndpointConfig& config);
 
   // TODO(hork): define return status codes
   /// Retrieves an instance of a DNSResolver.

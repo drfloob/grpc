@@ -11,12 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#if defined(GRPC_EVENT_ENGINE_TEST)
-
 #include <grpc/support/port_platform.h>
 
+#ifdef GRPC_USE_EVENT_ENGINE
 #include <grpc/event_engine/event_engine.h>
 
+#include "src/core/lib/debug/trace.h"
 #include "src/core/lib/iomgr/closure.h"
 #include "src/core/lib/iomgr/iomgr_internal.h"
 #include "src/core/lib/iomgr/tcp_client.h"
@@ -30,6 +30,9 @@ extern grpc_timer_vtable grpc_event_engine_timer_vtable;
 extern grpc_pollset_vtable grpc_event_engine_pollset_vtable;
 extern grpc_pollset_set_vtable grpc_event_engine_pollset_set_vtable;
 extern grpc_address_resolver_vtable grpc_event_engine_resolver_vtable;
+
+grpc_core::DebugOnlyTraceFlag grpc_polling_trace(
+    false, "polling"); /* Disabled by default */
 
 namespace {
 
@@ -74,4 +77,4 @@ void grpc_set_default_iomgr_platform() {
 
 bool grpc_iomgr_run_in_background() { return false; }
 
-#endif
+#endif  // GRPC_USE_EVENT_ENGINE

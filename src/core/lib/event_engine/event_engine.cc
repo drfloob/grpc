@@ -13,9 +13,14 @@
 // limitations under the License.
 #include <grpc/support/port_platform.h>
 
+#include <grpc/event_engine/endpoint_config.h>
 #include <grpc/event_engine/event_engine.h>
 #include <grpc/event_engine/port.h>
+#include <grpc/impl/codegen/grpc_types.h>
 #include <grpc/support/log.h>
+
+#include "absl/strings/str_format.h"
+#include "absl/strings/str_join.h"
 
 #include "src/core/lib/event_engine/sockaddr.h"
 
@@ -34,6 +39,46 @@ const struct sockaddr* EventEngine::ResolvedAddress::address() const {
 }
 
 socklen_t EventEngine::ResolvedAddress::size() const { return size_; }
+
+std::shared_ptr<grpc_event_engine::experimental::EventEngine>
+DefaultEventEngineFactory() {
+  // TODO(nnoble): delete when uv-ee is merged
+  abort();
+}
+
+absl::Status EventEngine::IsValidEndpointConfig(const EndpointConfig& config) {
+  std::vector<std::string> errors;
+  EndpointConfig::Setting setting = config.Get(GRPC_ARG_TCP_READ_CHUNK_SIZE);
+  if (!absl::holds_alternative<absl::monostate>(setting) &&
+      !absl::holds_alternative<int>(setting)) {
+    errors.push_back(absl::StrFormat("'%s' must be an integer.",
+                                     GRPC_ARG_TCP_READ_CHUNK_SIZE));
+  }
+  setting = config.Get(GRPC_ARG_TCP_MIN_READ_CHUNK_SIZE);
+  if (!absl::holds_alternative<absl::monostate>(setting) &&
+      !absl::holds_alternative<int>(setting)) {
+    errors.push_back(absl::StrFormat("'%s' must be an integer.",
+                                     GRPC_ARG_TCP_MIN_READ_CHUNK_SIZE));
+  }
+  setting = config.Get(GRPC_ARG_TCP_MAX_READ_CHUNK_SIZE);
+  if (!absl::holds_alternative<absl::monostate>(setting) &&
+      !absl::holds_alternative<int>(setting)) {
+    errors.push_back(absl::StrFormat("'%s' must be an integer.",
+                                     GRPC_ARG_TCP_MAX_READ_CHUNK_SIZE));
+  }
+  setting = config.Get(GRPC_ARG_EXPAND_WILDCARD_ADDRS);
+  if (!(absl::holds_alternative<absl::monostate>(setting) ||
+        (absl::holds_alternative<int>(setting) &&
+         (0 == absl::get<int>(setting) || absl::get<int>(setting) == 1)))) {
+    errors.push_back(absl::StrFormat("'%s' must be boolean (int 0 or 1).",
+                                     GRPC_ARG_EXPAND_WILDCARD_ADDRS));
+  }
+
+  if (!errors.empty()) {
+    return absl::InvalidArgumentError(absl::StrJoin(errors, " "));
+  }
+  return absl::OkStatus();
+}
 
 }  // namespace experimental
 }  // namespace grpc_event_engine

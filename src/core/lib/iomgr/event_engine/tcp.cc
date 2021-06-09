@@ -11,10 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#if defined(GRPC_EVENT_ENGINE_TEST)
-
 #include <grpc/support/port_platform.h>
 
+#ifdef GRPC_USE_EVENT_ENGINE
 #include <grpc/event_engine/event_engine.h>
 
 #include "src/core/lib/address_utils/sockaddr_utils.h"
@@ -31,7 +30,7 @@
 extern grpc_core::TraceFlag grpc_tcp_trace;
 
 namespace {
-using ::grpc_event_engine::experimental::ChannelArgs;
+using ::grpc_event_engine::experimental::EndpointConfig;
 using ::grpc_event_engine::experimental::EventEngine;
 using ::grpc_event_engine::experimental::GrpcClosureToCallback;
 using ::grpc_event_engine::experimental::SliceAllocator;
@@ -108,9 +107,9 @@ void tcp_connect(grpc_closure* on_connect, grpc_endpoint** endpoint,
                                   addr->len);
   absl::Time ee_deadline = grpc_core::ToAbslTime(
       grpc_millis_to_timespec(deadline, GPR_CLOCK_MONOTONIC));
-  // TODO(hork): Convert channel_args to ChannelArgs
-  ChannelArgs ca;
-  absl::Status connected = g_event_engine->Connect(ee_on_connect, ra, ca,
+  // TODO(hork): Convert channel_args to EndpointConfig
+  EndpointConfig ecfg;
+  absl::Status connected = g_event_engine->Connect(ee_on_connect, ra, ecfg,
                                                    std::move(sa), ee_deadline);
   if (!connected.ok()) {
     // EventEngine failed to start an asynchronous connect.
@@ -125,7 +124,7 @@ grpc_error* tcp_server_create(grpc_closure* shutdown_complete,
                               const grpc_channel_args* args,
                               grpc_tcp_server** server) {
   // TODO(hork): Convert channel_args to ChannelArgs
-  ChannelArgs ca;
+  EndpointConfig ecfg;
   grpc_resource_quota* rq = grpc_resource_quota_from_channel_args(args);
   if (rq == nullptr) {
     rq = grpc_resource_quota_create(nullptr);
@@ -148,7 +147,7 @@ grpc_error* tcp_server_create(grpc_closure* shutdown_complete,
             exec_ctx.Flush();
             pollset_ee_broadcast_event();
           },
-          GrpcClosureToCallback(shutdown_complete), ca,
+          GrpcClosureToCallback(shutdown_complete), ecfg,
           SliceAllocatorFactory(rq));
   if (!listener.ok()) {
     return absl_status_to_grpc_error(listener.status());
@@ -246,4 +245,4 @@ grpc_endpoint* grpc_tcp_client_create_from_fd(
   return nullptr;
 }
 
-#endif
+#endif  // GRPC_USE_EVENT_ENGINE
