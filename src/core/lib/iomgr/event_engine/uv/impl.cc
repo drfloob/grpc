@@ -18,10 +18,6 @@
 
 extern grpc_core::TraceFlag grpc_tcp_trace;
 
-#ifdef GRPC_EVENT_ENGINE_TEST
-grpc_core::DebugOnlyTraceFlag grpc_polling_trace(false, "polling");
-#endif
-
 namespace {
 static void hexdump(const std::string& prefix, const void* data_, size_t size) {
   const uint8_t* data = static_cast<const uint8_t*>(data_);
@@ -94,12 +90,12 @@ class uvTCPlistener final : public uvTCPbase {
       grpc_event_engine::experimental::EventEngine::Listener::AcceptCallback
           on_accept,
       grpc_event_engine::experimental::EventEngine::Callback on_shutdown,
-      const grpc_event_engine::experimental::ChannelArgs& args,
+      const grpc_event_engine::experimental::EndpointConfig& args,
       grpc_event_engine::experimental::SliceAllocatorFactory
           slice_allocator_factory)
       : on_accept_(std::move(on_accept)),
         on_shutdown_(std::move(on_shutdown)),
-        args_(args),
+        args_(&args),
         slice_allocator_factory_(std::move(slice_allocator_factory)) {
     if (GRPC_TRACE_FLAG_ENABLED(grpc_tcp_trace)) {
       gpr_log(GPR_DEBUG, "EE::UV::uvTCPlistener:%p created", this);
@@ -109,16 +105,16 @@ class uvTCPlistener final : public uvTCPbase {
   grpc_event_engine::experimental::EventEngine::Listener::AcceptCallback
       on_accept_;
   grpc_event_engine::experimental::EventEngine::Callback on_shutdown_;
-  grpc_event_engine::experimental::ChannelArgs args_;
+  const grpc_event_engine::experimental::EndpointConfig* args_;
   grpc_event_engine::experimental::SliceAllocatorFactory
       slice_allocator_factory_;
 };
 
 class uvTCP final : public uvTCPbase {
  public:
-  uvTCP(const grpc_event_engine::experimental::ChannelArgs& args,
+  uvTCP(const grpc_event_engine::experimental::EndpointConfig& args,
         grpc_event_engine::experimental::SliceAllocator slice_allocator)
-      : args_(args), slice_allocator_(std::move(slice_allocator)) {}
+      : args_(&args), slice_allocator_(std::move(slice_allocator)) {}
   virtual ~uvTCP() {
     GPR_ASSERT(write_bufs_ == nullptr);
     GPR_ASSERT(on_read_ == nullptr);
@@ -127,7 +123,7 @@ class uvTCP final : public uvTCPbase {
   int init(uvEngine* engine);
   uv_timer_t write_timer_;
   uv_timer_t read_timer_;
-  const grpc_event_engine::experimental::ChannelArgs args_;
+  const grpc_event_engine::experimental::EndpointConfig* args_;
   grpc_event_engine::experimental::SliceAllocator slice_allocator_;
   uv_write_t write_req_;
   uv_buf_t* write_bufs_ = nullptr;
@@ -145,7 +141,7 @@ class uvListener final
  public:
   uvListener(Listener::AcceptCallback on_accept,
              grpc_event_engine::experimental::EventEngine::Callback on_shutdown,
-             const grpc_event_engine::experimental::ChannelArgs& args,
+             const grpc_event_engine::experimental::EndpointConfig& args,
              grpc_event_engine::experimental::SliceAllocatorFactory
                  slice_allocator_factory);
 
@@ -204,7 +200,7 @@ class uvDNSResolver final
 class uvEndpoint final
     : public grpc_event_engine::experimental::EventEngine::Endpoint {
  public:
-  uvEndpoint(const grpc_event_engine::experimental::ChannelArgs& args,
+  uvEndpoint(const grpc_event_engine::experimental::EndpointConfig& args,
              grpc_event_engine::experimental::SliceAllocator slice_allocator)
       : uvTCP_(new uvTCP(args, std::move(slice_allocator))) {
     if (GRPC_TRACE_FLAG_ENABLED(grpc_tcp_trace)) {
@@ -310,7 +306,7 @@ class uvEngine final : public grpc_event_engine::experimental::EventEngine {
     }
   }
 
-  virtual bool IsWorkerThread() {
+  virtual bool IsWorkerThread() override {
     return worker_thread_id_ == std::this_thread::get_id();
   }
 
@@ -369,7 +365,7 @@ class uvEngine final : public grpc_event_engine::experimental::EventEngine {
 
   virtual absl::StatusOr<std::unique_ptr<Listener>> CreateListener(
       Listener::AcceptCallback on_accept, Callback on_shutdown,
-      const grpc_event_engine::experimental::ChannelArgs& args,
+      const grpc_event_engine::experimental::EndpointConfig& args,
       grpc_event_engine::experimental::SliceAllocatorFactory
           slice_allocator_factory) override final {
     std::unique_ptr<uvListener> ret = absl::make_unique<uvListener>(
@@ -384,7 +380,7 @@ class uvEngine final : public grpc_event_engine::experimental::EventEngine {
 
   virtual absl::Status Connect(
       OnConnectCallback on_connect, const ResolvedAddress& addr,
-      const grpc_event_engine::experimental::ChannelArgs& args,
+      const grpc_event_engine::experimental::EndpointConfig& args,
       grpc_event_engine::experimental::SliceAllocator slice_allocator,
       absl::Time deadline) override final {
     uvEndpoint* e = new uvEndpoint(args, std::move(slice_allocator));
@@ -514,7 +510,7 @@ int uvTCP::init(uvEngine* engine) {
 uvListener::uvListener(
     Listener::AcceptCallback on_accept,
     grpc_event_engine::experimental::EventEngine::Callback on_shutdown,
-    const grpc_event_engine::experimental::ChannelArgs& args,
+    const grpc_event_engine::experimental::EndpointConfig& args,
     grpc_event_engine::experimental::SliceAllocatorFactory
         slice_allocator_factory)
     : uvTCP_(new uvTCPlistener(on_accept, on_shutdown, args,
@@ -619,7 +615,7 @@ absl::Status uvListener::Start() {
           if (status < 0) return;
           uvTCPlistener* l = static_cast<uvTCPlistener*>(server->data);
           std::unique_ptr<uvEndpoint> e = absl::make_unique<uvEndpoint>(
-              l->args_,
+              *l->args_,
               l->slice_allocator_factory_.CreateSliceAllocator("foo"));
           uvEngine* engine = static_cast<uvEngine*>(server->loop->data);
           e->init(engine);

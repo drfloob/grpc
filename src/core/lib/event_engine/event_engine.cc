@@ -40,11 +40,11 @@ const struct sockaddr* EventEngine::ResolvedAddress::address() const {
 
 socklen_t EventEngine::ResolvedAddress::size() const { return size_; }
 
-std::shared_ptr<grpc_event_engine::experimental::EventEngine>
-DefaultEventEngineFactory() {
-  // TODO(nnoble): delete when uv-ee is merged
-  abort();
-}
+// std::shared_ptr<grpc_event_engine::experimental::EventEngine>
+// DefaultEventEngineFactory() {
+//   // TODO(nnoble): delete when uv-ee is merged
+//   abort();
+// }
 
 absl::Status EventEngine::IsValidEndpointConfig(const EndpointConfig& config) {
   std::vector<std::string> errors;
