@@ -8,19 +8,17 @@
 #include "absl/strings/str_format.h"
 
 #include "grpc/event_engine/event_engine.h"
+
 #include "src/core/lib/address_utils/sockaddr_utils.h"
 #include "src/core/lib/gprpp/host_port.h"
 #include "src/core/lib/gprpp/mpscq.h"
 #include "src/core/lib/gprpp/sync.h"
 #include "src/core/lib/gprpp/thd.h"
+#include "src/core/lib/iomgr/event_engine/uv/impl.h"
 #include "src/core/lib/iomgr/exec_ctx.h"
 #include "src/core/lib/iomgr/socket_utils.h"
 
 extern grpc_core::TraceFlag grpc_tcp_trace;
-
-#ifdef GRPC_EVENT_ENGINE_TEST
-grpc_core::DebugOnlyTraceFlag grpc_polling_trace(false, "polling");
-#endif
 
 namespace {
 static void hexdump(const std::string& prefix, const void* data_, size_t size) {
@@ -67,26 +65,16 @@ class uvLookupTask;
 // the base class to hold libuv socket information for both listeners and
 // endpoints. it holds the uv_tcp_t object as well as the uvCloseCB counter,
 // that allows it to self-delete once libuv is done with its object.
-class uvTCPbase {
- public:
-  uvTCPbase() = default;
-  virtual ~uvTCPbase() = default;
-  static void uvCloseCB(uv_handle_t* handle) {
-    uvTCPbase* tcp = reinterpret_cast<uvTCPbase*>(handle->data);
-    if (GRPC_TRACE_FLAG_ENABLED(grpc_tcp_trace)) {
-      gpr_log(GPR_DEBUG, "EE::UV::uvTCPbase:%p close CB, callbacks pending: %i",
-              tcp, tcp->to_close_ - 1);
-    }
-    if (--tcp->to_close_ == 0) {
-      delete tcp;
-    }
+void uvTCPbase::uvCloseCB(uv_handle_t* handle) {
+  uvTCPbase* tcp = reinterpret_cast<uvTCPbase*>(handle->data);
+  if (GRPC_TRACE_FLAG_ENABLED(grpc_tcp_trace)) {
+    gpr_log(GPR_DEBUG, "EE::UV::uvTCPbase:%p close CB, callbacks pending: %i",
+            tcp, tcp->to_close_ - 1);
   }
-
-  int init(uvEngine* engine);
-
-  uv_tcp_t tcp_;
-  int to_close_ = 0;
-};
+  if (--tcp->to_close_ == 0) {
+    delete tcp;
+  }
+}
 
 class uvTCPlistener final : public uvTCPbase {
  public:
@@ -112,31 +100,6 @@ class uvTCPlistener final : public uvTCPbase {
   grpc_event_engine::experimental::EndpointConfig args_;
   grpc_event_engine::experimental::SliceAllocatorFactory
       slice_allocator_factory_;
-};
-
-class uvTCP final : public uvTCPbase {
- public:
-  uvTCP(const grpc_event_engine::experimental::EndpointConfig& args,
-        grpc_event_engine::experimental::SliceAllocator slice_allocator)
-      : args_(args), slice_allocator_(std::move(slice_allocator)) {}
-  virtual ~uvTCP() {
-    GPR_ASSERT(write_bufs_ == nullptr);
-    GPR_ASSERT(on_read_ == nullptr);
-  };
-
-  int init(uvEngine* engine);
-  uv_timer_t write_timer_;
-  uv_timer_t read_timer_;
-  const grpc_event_engine::experimental::EndpointConfig args_;
-  grpc_event_engine::experimental::SliceAllocator slice_allocator_;
-  uv_write_t write_req_;
-  uv_buf_t* write_bufs_ = nullptr;
-  size_t write_bufs_count_ = 0;
-  grpc_event_engine::experimental::SliceBuffer* read_sb_;
-  grpc_event_engine::experimental::EventEngine::Callback on_writable_;
-  grpc_event_engine::experimental::EventEngine::Callback on_read_;
-  grpc_event_engine::experimental::EventEngine::ResolvedAddress peer_address_;
-  grpc_event_engine::experimental::EventEngine::ResolvedAddress local_address_;
 };
 
 // the listener class; only holds a pointer to a uvTCPlistener and nothing else
@@ -196,82 +159,37 @@ class uvDNSResolver final
   uvEngine* engine_;
 };
 
-// the uv endpoint, a bit like the listener, is the wrapper around uvTCP,
-// and doesn't have anything of its own beyond the uvTCP pointer, and
-// the connect request data; the connect request data will be used
-// before it's converted into a unique_ptr so it's fine to be stored
-// there instead of the uvTCP class
-class uvEndpoint final
-    : public grpc_event_engine::experimental::EventEngine::Endpoint {
- public:
-  uvEndpoint(const grpc_event_engine::experimental::EndpointConfig& args,
-             grpc_event_engine::experimental::SliceAllocator slice_allocator)
-      : uvTCP_(new uvTCP(args, std::move(slice_allocator))) {
-    if (GRPC_TRACE_FLAG_ENABLED(grpc_tcp_trace)) {
-      gpr_log(GPR_DEBUG, "EE::UV::uvEndpoint:%p created", this);
-    }
+uvEndpoint::uvEndpoint(
+    const grpc_event_engine::experimental::EndpointConfig& args,
+    grpc_event_engine::experimental::SliceAllocator slice_allocator)
+    : uvTCP_(new uvTCP(args, std::move(slice_allocator))) {
+  ru_ = uvTCP_->slice_allocator_.GetResourceUser();
+  if (GRPC_TRACE_FLAG_ENABLED(grpc_tcp_trace)) {
+    gpr_log(GPR_DEBUG, "EE::UV::uvEndpoint:%p created", this);
   }
-  virtual ~uvEndpoint() override final;
-  int init(uvEngine* engine);
-  int populateAddressesUnsafe() {
-    auto populate =
-        [this](
-            std::function<int(const uv_tcp_t*, struct sockaddr*, int*)> f,
-            grpc_event_engine::experimental::EventEngine::ResolvedAddress* a) {
-          int namelen;
-          sockaddr_storage addr;
-          int ret =
-              f(&uvTCP_->tcp_, reinterpret_cast<sockaddr*>(&addr), &namelen);
-          *a = grpc_event_engine::experimental::EventEngine::ResolvedAddress(
-              reinterpret_cast<sockaddr*>(&addr), namelen);
-          return ret;
-        };
-    int r = 0;
-    r |= populate(uv_tcp_getsockname, &uvTCP_->local_address_);
-    r |= populate(uv_tcp_getpeername, &uvTCP_->peer_address_);
-    if (GRPC_TRACE_FLAG_ENABLED(grpc_tcp_trace)) {
-      gpr_log(GPR_DEBUG, "EE::UV::uvEndpoint@%p::populateAddresses, r=%d",
-              uvTCP_, r);
-    }
-    return r;
+}
+
+int uvEndpoint::populateAddressesUnsafe() {
+  auto populate =
+      [this](std::function<int(const uv_tcp_t*, struct sockaddr*, int*)> f,
+             grpc_event_engine::experimental::EventEngine::ResolvedAddress* a) {
+        int namelen;
+        sockaddr_storage addr;
+        int ret =
+            f(&uvTCP_->tcp_, reinterpret_cast<sockaddr*>(&addr), &namelen);
+        *a = grpc_event_engine::experimental::EventEngine::ResolvedAddress(
+            reinterpret_cast<sockaddr*>(&addr), namelen);
+        return ret;
+      };
+  int r = 0;
+  r |= populate(uv_tcp_getsockname, &uvTCP_->local_address_);
+  r |= populate(uv_tcp_getpeername, &uvTCP_->peer_address_);
+  if (GRPC_TRACE_FLAG_ENABLED(grpc_tcp_trace)) {
+    gpr_log(GPR_DEBUG, "EE::UV::uvEndpoint@%p::populateAddresses, r=%d", uvTCP_,
+            r);
   }
-
-  virtual void Read(
-      grpc_event_engine::experimental::EventEngine::Callback on_read,
-      grpc_event_engine::experimental::SliceBuffer* buffer,
-      absl::Time deadline) override final;
-
-  virtual void Write(
-      grpc_event_engine::experimental::EventEngine::Callback on_writable,
-      grpc_event_engine::experimental::SliceBuffer* data,
-      absl::Time deadline) override final;
-
-  virtual const grpc_event_engine::experimental::EventEngine::ResolvedAddress*
-  GetPeerAddress() const override final {
-    return &uvTCP_->peer_address_;
-  };
-
-  virtual const grpc_event_engine::experimental::EventEngine::ResolvedAddress*
-  GetLocalAddress() const override final {
-    return &uvTCP_->local_address_;
-  };
-
-  absl::Status Connect(
-      uvEngine* engine,
-      grpc_event_engine::experimental::EventEngine::OnConnectCallback
-          on_connect,
-      const grpc_event_engine::experimental::EventEngine::ResolvedAddress&
-          addr);
-
-  uvEngine* getEngine() {
-    return reinterpret_cast<uvEngine*>(uvTCP_->tcp_.loop->data);
-  }
-
-  uvTCP* uvTCP_ = nullptr;
-  uv_connect_t connect_;
-  grpc_event_engine::experimental::EventEngine::OnConnectCallback on_connect_ =
-      nullptr;
-};
+  return r;
+}
 
 struct schedulingRequest : grpc_core::MultiProducerSingleConsumerQueue::Node {
   typedef std::function<void(uvEngine*)> functor;

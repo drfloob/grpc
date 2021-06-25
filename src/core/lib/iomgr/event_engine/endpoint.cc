@@ -28,6 +28,7 @@
 #include "src/core/lib/iomgr/error.h"
 #include "src/core/lib/iomgr/event_engine/closure.h"
 #include "src/core/lib/iomgr/event_engine/pollset.h"
+#include "src/core/lib/iomgr/event_engine/uv/impl.h"
 #include "src/core/lib/iomgr/pollset.h"
 #include "src/core/lib/iomgr/pollset_set.h"
 #include "src/core/lib/iomgr/resource_quota.h"
@@ -168,7 +169,10 @@ grpc_event_engine_endpoint* grpc_tcp_server_endpoint_create(
     std::unique_ptr<EventEngine::Endpoint> ee_endpoint) {
   auto endpoint = new grpc_event_engine_endpoint;
   endpoint->base.vtable = &grpc_event_engine_endpoint_vtable;
-  // TODO(hork): populate endpoint->ru from the uvEngine's subclass
+  // TODO(hork): The ru population should be conditional upon using the default
+  // EventEngine.
+  const auto* uv_endpoint = static_cast<uvEndpoint*>(ee_endpoint.get());
+  endpoint->ru = uv_endpoint->GetSliceAllocator()->GetResourceUser();
   endpoint->endpoint = std::move(ee_endpoint);
   return endpoint;
 }

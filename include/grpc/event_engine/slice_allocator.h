@@ -56,6 +56,9 @@ class SliceAllocator {
   absl::Status Allocate(size_t size, SliceBuffer* dest,
                         SliceAllocator::AllocateCallback cb);
 
+  // TODO(hork): temporary hack
+  grpc_resource_user* GetResourceUser() { return resource_user_; }
+
  private:
   static void OnAllocated(void* arg, grpc_error* error);
 
