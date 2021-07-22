@@ -39,7 +39,9 @@ class EndpointConfig {
   /// Returns an EndpointConfig Setting. If there is no Setting associated with
   /// \a key in the EndpointConfig, an \a absl::monostate type will be
   /// returned. Caller does not take ownership of resulting value.
-  virtual Setting Get(absl::string_view key) const = 0;
+  virtual Setting Get(absl::string_view key) const {
+    return Setting();
+  } /* TODO(nnoble) for merge: = 0*/;
 };
 
 }  // namespace experimental

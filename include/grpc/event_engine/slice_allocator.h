@@ -20,20 +20,16 @@
 
 #include "absl/status/status.h"
 
+#include <grpc/event_engine/slice_buffer.h>
+
 // forward-declaring an internal struct, not used publicly.
+struct grpc_error;
 struct grpc_resource_quota;
 struct grpc_resource_user;
-struct grpc_slice_buffer;
+struct grpc_resource_user_slice_allocator;
 
 namespace grpc_event_engine {
 namespace experimental {
-
-// TODO(hork): stubbed out here, to be replaced with a real version in next PR.
-class SliceBuffer {
- public:
-  SliceBuffer() { abort(); }
-  explicit SliceBuffer(grpc_slice_buffer*) { abort(); }
-};
 
 class SliceAllocator {
  public:
@@ -48,7 +44,7 @@ class SliceAllocator {
   ~SliceAllocator();
 
   using AllocateCallback =
-      std::function<void(absl::Status, SliceBuffer* buffer)>;
+      std::function<void(absl::Status)>;
   /// Requests \a size bytes from gRPC, and populates \a dest with the allocated
   /// slices. Ownership of the \a SliceBuffer is not transferred.
   ///
@@ -61,7 +57,14 @@ class SliceAllocator {
                         SliceAllocator::AllocateCallback cb);
 
  private:
+  static void OnAllocated(void* arg, grpc_error* error);
+
   grpc_resource_user* resource_user_;
+  grpc_resource_user_slice_allocator* slice_allocator_;
+  // True if there are async allocations in progress.
+  // TODO(hork): this may need to be atomic, given async allocation.
+  bool allocations_in_flight_ = false;
+  AllocateCallback cb_;
 };
 
 class SliceAllocatorFactory {

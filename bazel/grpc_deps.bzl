@@ -160,7 +160,7 @@ def grpc_deps():
     )
 
     native.bind(
-        name = "libuv",
+        name = "uv",
         actual = "@libuv//:libuv",
     )
 
