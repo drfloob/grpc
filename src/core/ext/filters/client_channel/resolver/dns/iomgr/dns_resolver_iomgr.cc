@@ -71,7 +71,7 @@ class IomgrDnsResolver : public Resolver {
       absl::StatusOr<std::vector<EventEngine::DNSResolver::SRVRecord>> records);
   static void OnBalancerResolved(
       IomgrDnsResolver* self,
-      absl::StatusOr<std::vector<EventEngine::ResolvedAddress>> addresses);
+      absl::StatusOr<std::vector<EventEngine::ResolvedAddress>> balancers);
   static void OnTxtResolved(IomgrDnsResolver* self,
                             absl::StatusOr<std::string> txt_record);
 
