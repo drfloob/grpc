@@ -25,7 +25,7 @@ import sys
 import time
 import uuid
 
-from . import massage_qps_stats
+import massage_qps_stats
 
 gcp_utils_dir = os.path.abspath(
     os.path.join(os.path.dirname(__file__), '../../gcp/utils'))
@@ -222,8 +222,10 @@ def _populate_node_metadata_from_file(scenario_result, node_info_file):
         'PodIP': 'podIP',
         'NodeName': 'nodeName',
     }
-    with open(node_info_file, 'r') as f:
-        file_metadata = json.loads(f.read())
+
+    if os.access(node_info_file, os.R_OK):
+        with open(node_info_file, 'r') as f:
+            file_metadata = json.loads(f.read())
         for key, value in _node_info_to_bq_node_metadata_key_map.items():
             node_metadata['driver'][value] = file_metadata['Driver'][key]
         for clientNodeInfo in file_metadata['Clients']:
@@ -236,6 +238,7 @@ def _populate_node_metadata_from_file(scenario_result, node_info_file):
                 value: serverNodeInfo[key] for key, value in
                 _node_info_to_bq_node_metadata_key_map.items()
             })
+
     scenario_result['nodeMetadata'] = node_metadata
 
 
