@@ -14,17 +14,18 @@
 
 #include <grpc/impl/codegen/port_platform.h>
 
-#include <uv.h>
-
 #include <atomic>
 #include <functional>
 #include <thread>
 #include <unordered_map>
 
+#include <uv.h>
+
 #include "absl/strings/str_format.h"
 
 #include <grpc/event_engine/event_engine.h>
 #include <grpc/event_engine/slice_buffer.h>
+
 #include "src/core/lib/address_utils/sockaddr_utils.h"
 #include "src/core/lib/gprpp/host_port.h"
 #include "src/core/lib/gprpp/mpscq.h"
