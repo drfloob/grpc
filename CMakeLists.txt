@@ -1882,6 +1882,7 @@ add_library(grpc
   src/core/lib/event_engine/endpoint_config.cc
   src/core/lib/event_engine/event_engine.cc
   src/core/lib/event_engine/sockaddr.cc
+  src/core/lib/event_engine/uv/impl.cc
   src/core/lib/http/format_request.cc
   src/core/lib/http/httpcli.cc
   src/core/lib/http/httpcli_security_connector.cc
@@ -1912,7 +1913,6 @@ add_library(grpc
   src/core/lib/iomgr/event_engine/resolver.cc
   src/core/lib/iomgr/event_engine/tcp.cc
   src/core/lib/iomgr/event_engine/timer.cc
-  src/core/lib/iomgr/event_engine/uv/impl.cc
   src/core/lib/iomgr/exec_ctx.cc
   src/core/lib/iomgr/executor.cc
   src/core/lib/iomgr/executor/mpmcqueue.cc
@@ -2525,6 +2525,7 @@ add_library(grpc_unsecure
   src/core/lib/event_engine/endpoint_config.cc
   src/core/lib/event_engine/event_engine.cc
   src/core/lib/event_engine/sockaddr.cc
+  src/core/lib/event_engine/uv/impl.cc
   src/core/lib/http/format_request.cc
   src/core/lib/http/httpcli.cc
   src/core/lib/http/parser.cc
@@ -2554,7 +2555,6 @@ add_library(grpc_unsecure
   src/core/lib/iomgr/event_engine/resolver.cc
   src/core/lib/iomgr/event_engine/tcp.cc
   src/core/lib/iomgr/event_engine/timer.cc
-  src/core/lib/iomgr/event_engine/uv/impl.cc
   src/core/lib/iomgr/exec_ctx.cc
   src/core/lib/iomgr/executor.cc
   src/core/lib/iomgr/executor/mpmcqueue.cc

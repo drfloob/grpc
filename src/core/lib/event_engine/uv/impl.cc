@@ -78,7 +78,7 @@ void hexdump(const std::string& prefix, const void* data_, size_t size) {
 
 struct SchedulingRequest : grpc_core::MultiProducerSingleConsumerQueue::Node {
   typedef std::function<void(LibuvEventEngine*)> functor;
-  SchedulingRequest(functor&& f) : f(std::move(f)) {}
+  explicit SchedulingRequest(functor&& f) : f(std::move(f)) {}
   functor f;
 };
 
@@ -273,7 +273,7 @@ void LibuvEventEngine::RunThread() {
   sigset_t set;
   sigemptyset(&set);
   sigaddset(&set, SIGPIPE);
-  pthread_sigmask(SIG_BLOCK, &set, NULL);
+  pthread_sigmask(SIG_BLOCK, &set, nullptr);
 
   // Setting up the loop.
   worker_thread_id_ = std::this_thread::get_id();
