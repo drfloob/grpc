@@ -81,7 +81,7 @@ class SimpleEventEngine : public grpc_event_engine::experimental::EventEngine {
 
   bool IsWorkerThread() override { return false; }
 
-  ~SimpleEventEngine() {
+  ~SimpleEventEngine() override {
     shutting_down_ = true;
     for (std::thread& t : threads_) {
       t.join();
