@@ -44,15 +44,18 @@ class Handler(six.moves.BaseHTTPServer.BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-Type', 'text/html')
         self.end_headers()
-        self.wfile.write('<html><head><title>Hello world!</title></head>'.encode('ascii'))
-        self.wfile.write('<body><p>This is a test</p></body></html>'.encode('ascii'))
+        self.wfile.write(
+            '<html><head><title>Hello world!</title></head>'.encode('ascii'))
+        self.wfile.write(
+            '<body><p>This is a test</p></body></html>'.encode('ascii'))
 
     def do_GET(self):
         if self.path == '/get':
             self.good()
 
     def do_POST(self):
-        content = self.rfile.read(int(self.headers['content-length'])).decode('utf-8')
+        content = self.rfile.read(int(
+            self.headers['content-length'])).decode('utf-8')
         if self.path == '/post' and content == 'hello':
             self.good()
 

@@ -1724,6 +1724,8 @@ src/core/lib/event_engine/endpoint_config_internal.h \
 src/core/lib/event_engine/event_engine.cc \
 src/core/lib/event_engine/sockaddr.cc \
 src/core/lib/event_engine/sockaddr.h \
+src/core/lib/event_engine/uv/impl.cc \
+src/core/lib/event_engine/uv/libuv_event_engine.h \
 src/core/lib/gpr/alloc.cc \
 src/core/lib/gpr/alloc.h \
 src/core/lib/gpr/atm.cc \
@@ -1860,7 +1862,6 @@ src/core/lib/iomgr/event_engine/resolved_address_internal.h \
 src/core/lib/iomgr/event_engine/resolver.cc \
 src/core/lib/iomgr/event_engine/tcp.cc \
 src/core/lib/iomgr/event_engine/timer.cc \
-src/core/lib/iomgr/event_engine/uv/impl.cc \
 src/core/lib/iomgr/exec_ctx.cc \
 src/core/lib/iomgr/exec_ctx.h \
 src/core/lib/iomgr/executor.cc \
