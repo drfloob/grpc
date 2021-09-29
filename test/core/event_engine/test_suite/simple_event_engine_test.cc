@@ -42,7 +42,7 @@ constexpr absl::Duration SLEEP_TIME = absl::Milliseconds(100);
 // * Eggregious locking for the sake of simplicity
 class SimpleEventEngine : public grpc_event_engine::experimental::EventEngine {
  public:
-  ~SimpleEventEngine() {
+  ~SimpleEventEngine() override {
     shutting_down_.store(true);
     for (auto& iter : threads_) {
       iter.second.join();
