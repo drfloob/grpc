@@ -13135,7 +13135,7 @@ target_include_directories(libuv_event_engine_test
 target_link_libraries(libuv_event_engine_test
   ${_gRPC_PROTOBUF_LIBRARIES}
   ${_gRPC_ALLTARGETS_LIBRARIES}
-  grpc
+  grpc_test_util
 )
 
 
@@ -15407,7 +15407,7 @@ target_include_directories(simple_event_engine_test
 target_link_libraries(simple_event_engine_test
   ${_gRPC_PROTOBUF_LIBRARIES}
   ${_gRPC_ALLTARGETS_LIBRARIES}
-  grpc
+  grpc_test_util
 )
 
 
