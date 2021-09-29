@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("//bazel:grpc_build_system.bzl", "grpc_cc_test", "grpc_package", "grpc_cc_library")
+load("//bazel:grpc_build_system.bzl", "grpc_cc_library", "grpc_cc_test", "grpc_package")
 
 licenses(["notice"])
 
@@ -32,8 +32,8 @@ grpc_cc_test(
 grpc_cc_library(
     name = "event_engine_test_suite",
     srcs = [
-      "test_suite/event_engine_test.cc",
-      "test_suite/timer_test.cc",
+        "test_suite/event_engine_test.cc",
+        "test_suite/timer_test.cc",
     ],
     hdrs = ["test_suite/event_engine_test.h"],
     external_deps = ["gtest"],
