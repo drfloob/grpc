@@ -16,6 +16,7 @@
 #define GRPC_CORE_LIB_EVENT_ENGINE_UV_LIBUV_EVENT_ENGINE_H
 
 #include <grpc/impl/codegen/port_platform.h>
+#include <grpc/support/port_platform.h>
 
 #include <functional>
 #include <thread>
@@ -42,7 +43,7 @@ class LibuvEventEngine final
     : public grpc_event_engine::experimental::EventEngine {
  public:
   LibuvEventEngine();
-  ~LibuvEventEngine();
+  ~LibuvEventEngine() override;
 
   void Run(std::function<void()> fn) override;
   TaskHandle RunAt(absl::Time when, std::function<void()> fn) override;
