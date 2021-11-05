@@ -1594,8 +1594,8 @@ grpc_cc_library(
     ],
     hdrs = GRPC_PUBLIC_EVENT_ENGINE_HDRS,
     deps = [
-      "gpr_platform"
-    ]
+        "gpr_platform",
+    ],
 )
 
 grpc_cc_library(
