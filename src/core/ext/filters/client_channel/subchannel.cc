@@ -900,7 +900,7 @@ void Subchannel::MaybeStartConnectingLocked() {
               this, key_.ToString().c_str(), time_til_next);
     }
     retry_alarm_handle_ = GetDefaultEventEngine()->RunAt(
-        grpc_core::ToAbslTime(grpc_millis_to_timespec(next_attempt_deadline_,
+        ToAbslTime(grpc_millis_to_timespec(next_attempt_deadline_,
                                                       GPR_CLOCK_MONOTONIC)),
         absl::bind_front(&Subchannel::OnRetryAlarm, this));
   }
