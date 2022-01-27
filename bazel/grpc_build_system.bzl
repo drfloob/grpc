@@ -351,8 +351,8 @@ def grpc_cc_test(name, srcs = [], deps = [], external_deps = [], args = [], data
         native.cc_test(
             name = name + "@poller=" + poller + "@engine=" + EVENT_ENGINES[0]["name"],
             env = {
-              "GRPC_POLL_STRATEGY": poller,
-              "GRPC_EVENTENGINE_STRATEGY": EVENT_ENGINES[0]["name"],
+                "GRPC_POLL_STRATEGY": poller,
+                "GRPC_EVENTENGINE_STRATEGY": EVENT_ENGINES[0]["name"],
             },
             tags = (tags + EVENT_ENGINES[0]["tags"] + ["no_windows", "no_mac"]),
             **args
@@ -366,8 +366,8 @@ def grpc_cc_test(name, srcs = [], deps = [], external_deps = [], args = [], data
         native.cc_test(
             name = name + "@poller=" + POLLERS[0] + "@engine=" + engine["name"],
             env = {
-              "GRPC_POLL_STRATEGY": POLLERS[0],
-              "GRPC_EVENTENGINE_STRATEGY": engine["name"],
+                "GRPC_POLL_STRATEGY": POLLERS[0],
+                "GRPC_EVENTENGINE_STRATEGY": engine["name"],
             },
             tags = (tags + engine["tags"] + ["no_windows", "no_mac"]),
             **args

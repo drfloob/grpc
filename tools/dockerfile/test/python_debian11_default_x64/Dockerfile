@@ -70,7 +70,6 @@ RUN cd /tmp && \
     tar xzvf Python-3.6.9.tgz && \
     cd Python-3.6.9 && \
     ./configure && \
-    make -j4 && \
     make install
 
 RUN cd /tmp && \
@@ -112,7 +111,6 @@ RUN cd /tmp && \
     tar xzvf Python-3.8.0b4.tgz && \
     cd Python-3.8.0b4 && \
     ./configure && \
-    make -j4 && \
     make install
 
 RUN cd /tmp && \
