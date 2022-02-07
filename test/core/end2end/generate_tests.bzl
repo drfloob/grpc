@@ -445,7 +445,7 @@ def grpc_end2end_tests():
     )
 
     for f, fopt in END2END_FIXTURES.items():
-        grpc_cc_binary(
+        grpc_cc_library(
             name = "%s_test_lib" % f,
             srcs = ["fixtures/%s.cc" % f],
             language = "C++",
@@ -463,8 +463,8 @@ def grpc_end2end_tests():
                 "//test/core/compression:args_utils",
             ],
             tags = _platform_support_tags(fopt),
-            # linkstatic = True,
-            # alwayslink = True,
+            linkstatic = True,
+            alwayslink = True,
         )
 
         native.cc_binary(
