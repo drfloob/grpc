@@ -466,10 +466,10 @@ def grpc_end2end_tests():
         )
 
         native.cc_binary(
-            name="%s_test" % f,
+            name = "%s_test" % f,
             srcs = [],
             testonly = True,
-            deps=["%s_test_lib" % f],
+            deps = ["%s_test_lib" % f],
             tags = _platform_support_tags(fopt),
         )
 
