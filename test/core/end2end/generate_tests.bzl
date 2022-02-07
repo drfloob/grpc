@@ -463,8 +463,8 @@ def grpc_end2end_tests():
                 "//test/core/compression:args_utils",
             ],
             tags = _platform_support_tags(fopt),
-            linkstatic = True,
-            alwayslink = True,
+            # linkstatic = True,
+            # alwayslink = True,
         )
 
         native.cc_binary(
