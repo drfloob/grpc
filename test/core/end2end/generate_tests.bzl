@@ -445,7 +445,7 @@ def grpc_end2end_tests():
     )
 
     for f, fopt in END2END_FIXTURES.items():
-        grpc_cc_library(
+        native.cc_library(
             name = "%s_test_lib" % f,
             srcs = ["fixtures/%s.cc" % f],
             language = "C++",
