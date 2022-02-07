@@ -449,6 +449,7 @@ def grpc_end2end_tests():
             name = "%s_test_lib" % f,
             srcs = ["fixtures/%s.cc" % f],
             language = "C++",
+            testonly = True,
             data = [
                 "//src/core/tsi/test_creds:ca.pem",
                 "//src/core/tsi/test_creds:server1.key",
@@ -466,6 +467,7 @@ def grpc_end2end_tests():
 
         grpc_cc_binary(
             name="%s_test" % f,
+            testonly = True,
             deps=["%s_test_lib" % f],
             data=["%s_test_lib" % f],
             tags = _platform_support_tags(fopt),
