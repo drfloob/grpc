@@ -463,12 +463,11 @@ def grpc_end2end_tests():
                 "//test/core/compression:args_utils",
             ],
             tags = _platform_support_tags(fopt),
-            linkstatic = True,
-            alwayslink = True,
         )
 
         native.cc_binary(
             name="%s_test" % f,
+            srcs = [],
             testonly = True,
             deps=["%s_test_lib" % f],
             data=["%s_test_lib" % f],
