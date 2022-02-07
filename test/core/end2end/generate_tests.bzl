@@ -445,11 +445,11 @@ def grpc_end2end_tests():
     )
 
     for f, fopt in END2END_FIXTURES.items():
-        grpc_cc_binary(
-            name = "%s_test" % f,
+        grpc_cc_library(
+            name = "%s_test_lib" % f,
             srcs = ["fixtures/%s.cc" % f],
             language = "C++",
-            testonly = 1,
+            testonly = True,
             data = [
                 "//src/core/tsi/test_creds:ca.pem",
                 "//src/core/tsi/test_creds:server1.key",
@@ -462,6 +462,14 @@ def grpc_end2end_tests():
                 "//:gpr",
                 "//test/core/compression:args_utils",
             ],
+            tags = _platform_support_tags(fopt),
+        )
+
+        grpc_cc_binary(
+            name="%s_test" % f,
+            testonly = True,
+            deps=["%s_test_lib" % f],
+            data=["%s_test_lib" % f],
             tags = _platform_support_tags(fopt),
         )
 
