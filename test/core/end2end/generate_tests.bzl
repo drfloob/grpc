@@ -443,6 +443,7 @@ def grpc_end2end_tests():
             "//test/core/compression:args_utils",
         ],
         alwayslink = True,
+        linkstatic = True,
     )
 
     for f, fopt in END2END_FIXTURES.items():

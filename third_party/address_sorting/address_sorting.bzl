@@ -35,6 +35,4 @@ def address_sorting_cc_library(name, srcs, hdrs, copts, includes):
         hdrs = hdrs,
         copts = copts,
         includes = includes,
-        alwayslink = True,
-        linkstatic = True,
     )
