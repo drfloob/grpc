@@ -470,7 +470,6 @@ def grpc_end2end_tests():
             srcs = [],
             testonly = True,
             deps=["%s_test_lib" % f],
-            data=["%s_test_lib" % f],
             tags = _platform_support_tags(fopt),
         )
 
