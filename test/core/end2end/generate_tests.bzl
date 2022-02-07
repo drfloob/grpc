@@ -445,8 +445,9 @@ def grpc_end2end_tests():
     )
 
     for f, fopt in END2END_FIXTURES.items():
+        lib_name = "%s_test_lib" % f
         grpc_cc_library(
-            name = "%s_test_lib" % f,
+            name = lib_name,
             srcs = ["fixtures/%s.cc" % f],
             language = "C++",
             testonly = True,
@@ -470,7 +471,7 @@ def grpc_end2end_tests():
         native.cc_binary(
             name="%s_test" % f,
             testonly = True,
-            deps=["%s_test_lib" % f],
+            deps=[lib_name],
             data=["%s_test_lib" % f],
             tags = _platform_support_tags(fopt),
         )
