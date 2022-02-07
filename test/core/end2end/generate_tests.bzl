@@ -466,6 +466,7 @@ def grpc_end2end_tests():
             ],
             tags = _platform_support_tags(fopt),
             alwayslink = True,
+            linkstatic = True,
         )
 
         native.cc_binary(
@@ -475,6 +476,7 @@ def grpc_end2end_tests():
             deps=["%s_test_lib" % f],
             data=["%s_test_lib" % f],
             tags = _platform_support_tags(fopt),
+            linkstatic = True,
         )
 
         for t, topt in END2END_TESTS.items():
