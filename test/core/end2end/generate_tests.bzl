@@ -442,6 +442,7 @@ def grpc_end2end_tests():
             "//:grpc_authorization_provider",
             "//test/core/compression:args_utils",
         ],
+        alwayslink = True,
     )
 
     for f, fopt in END2END_FIXTURES.items():
@@ -463,6 +464,7 @@ def grpc_end2end_tests():
                 "//test/core/compression:args_utils",
             ],
             tags = _platform_support_tags(fopt),
+            alwayslink = True,
         )
 
         native.cc_binary(
