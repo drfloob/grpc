@@ -467,7 +467,7 @@ def grpc_end2end_tests():
             alwayslink = True,
         )
 
-        grpc_cc_binary(
+        native.cc_binary(
             name="%s_test" % f,
             testonly = True,
             deps=["%s_test_lib" % f],
