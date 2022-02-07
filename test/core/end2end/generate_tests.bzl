@@ -464,7 +464,7 @@ def grpc_end2end_tests():
             ],
             tags = _platform_support_tags(fopt),
             linkstatic = True,
-            linkshared = False,
+            alwayslink = True,
         )
 
         grpc_cc_binary(
