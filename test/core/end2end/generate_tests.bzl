@@ -448,7 +448,6 @@ def grpc_end2end_tests():
         native.cc_library(
             name = "%s_test_lib" % f,
             srcs = ["fixtures/%s.cc" % f],
-            language = "C++",
             testonly = True,
             data = [
                 "//src/core/tsi/test_creds:ca.pem",
