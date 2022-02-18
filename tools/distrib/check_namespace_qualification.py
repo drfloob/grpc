@@ -40,6 +40,7 @@ class QualificationValidator(object):
         self.fully_qualified_re = re.compile(r'([ (])::(grpc[A-Za-z_:])')
         self.using_re = re.compile(
             r'(using +|using +[A-Za-z_]+ *= *|namespace [A-Za-z_]+ *= *)::')
+        self.define_re = re.compile(r'^#define')
 
     def check(self, fpath, fix):
         fcontents = load(fpath)
@@ -49,6 +50,9 @@ class QualificationValidator(object):
                 continue
             # skip `using` statements
             if self.using_re.search(line):
+                continue
+            # skip `#define` statements
+            if self.define_re.search(line):
                 continue
             # fully-qualified namespace found, which may be unnecessary
             if fix:
@@ -69,6 +73,9 @@ IGNORED_FILES = [
     # symbols. It may be worth trying to land this change at some point, as
     # users would be better off using unique namespaces.
     "src/compiler/cpp_generator.cc",
+    # multi-line #define statements are not handled
+    "src/core/lib/gprpp/global_config_env.h",
+    "src/core/lib/profiling/timers.h",
 ]
 
 # find our home
