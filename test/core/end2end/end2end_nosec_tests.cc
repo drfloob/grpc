@@ -19,13 +19,12 @@
 
 /* This file is auto-generated */
 
-#include "test/core/end2end/end2end_tests.h"
-
 #include <stdbool.h>
 #include <string.h>
 
 #include <grpc/support/log.h>
 
+#include "test/core/end2end/end2end_tests.h"
 
 static bool g_pre_init_called = false;
 
@@ -127,7 +126,8 @@ extern void retry(grpc_end2end_test_config config);
 extern void retry_pre_init(void);
 extern void retry_cancel_during_delay(grpc_end2end_test_config config);
 extern void retry_cancel_during_delay_pre_init(void);
-extern void retry_cancel_with_multiple_send_batches(grpc_end2end_test_config config);
+extern void retry_cancel_with_multiple_send_batches(
+    grpc_end2end_test_config config);
 extern void retry_cancel_with_multiple_send_batches_pre_init(void);
 extern void retry_cancellation(grpc_end2end_test_config config);
 extern void retry_cancellation_pre_init(void);
@@ -135,9 +135,11 @@ extern void retry_disabled(grpc_end2end_test_config config);
 extern void retry_disabled_pre_init(void);
 extern void retry_exceeds_buffer_size_in_delay(grpc_end2end_test_config config);
 extern void retry_exceeds_buffer_size_in_delay_pre_init(void);
-extern void retry_exceeds_buffer_size_in_initial_batch(grpc_end2end_test_config config);
+extern void retry_exceeds_buffer_size_in_initial_batch(
+    grpc_end2end_test_config config);
 extern void retry_exceeds_buffer_size_in_initial_batch_pre_init(void);
-extern void retry_exceeds_buffer_size_in_subsequent_batch(grpc_end2end_test_config config);
+extern void retry_exceeds_buffer_size_in_subsequent_batch(
+    grpc_end2end_test_config config);
 extern void retry_exceeds_buffer_size_in_subsequent_batch_pre_init(void);
 extern void retry_lb_drop(grpc_end2end_test_config config);
 extern void retry_lb_drop_pre_init(void);
@@ -145,11 +147,14 @@ extern void retry_lb_fail(grpc_end2end_test_config config);
 extern void retry_lb_fail_pre_init(void);
 extern void retry_non_retriable_status(grpc_end2end_test_config config);
 extern void retry_non_retriable_status_pre_init(void);
-extern void retry_non_retriable_status_before_recv_trailing_metadata_started(grpc_end2end_test_config config);
-extern void retry_non_retriable_status_before_recv_trailing_metadata_started_pre_init(void);
+extern void retry_non_retriable_status_before_recv_trailing_metadata_started(
+    grpc_end2end_test_config config);
+extern void
+retry_non_retriable_status_before_recv_trailing_metadata_started_pre_init(void);
 extern void retry_per_attempt_recv_timeout(grpc_end2end_test_config config);
 extern void retry_per_attempt_recv_timeout_pre_init(void);
-extern void retry_per_attempt_recv_timeout_on_last_attempt(grpc_end2end_test_config config);
+extern void retry_per_attempt_recv_timeout_on_last_attempt(
+    grpc_end2end_test_config config);
 extern void retry_per_attempt_recv_timeout_on_last_attempt_pre_init(void);
 extern void retry_recv_initial_metadata(grpc_end2end_test_config config);
 extern void retry_recv_initial_metadata_pre_init(void);
@@ -171,7 +176,8 @@ extern void retry_streaming(grpc_end2end_test_config config);
 extern void retry_streaming_pre_init(void);
 extern void retry_streaming_after_commit(grpc_end2end_test_config config);
 extern void retry_streaming_after_commit_pre_init(void);
-extern void retry_streaming_succeeds_before_replay_finished(grpc_end2end_test_config config);
+extern void retry_streaming_succeeds_before_replay_finished(
+    grpc_end2end_test_config config);
 extern void retry_streaming_succeeds_before_replay_finished_pre_init(void);
 extern void retry_throttled(grpc_end2end_test_config config);
 extern void retry_throttled_pre_init(void);
@@ -300,7 +306,7 @@ void grpc_end2end_tests_pre_init(void) {
 }
 
 // NOLINTNEXTLINE(readability-function-size)
-void grpc_end2end_tests(int argc, char **argv,
+void grpc_end2end_tests(int argc, char** argv,
                         grpc_end2end_test_config config) {
   int i;
 
@@ -631,7 +637,10 @@ void grpc_end2end_tests(int argc, char **argv,
       retry_non_retriable_status(config);
       continue;
     }
-    if (0 == strcmp("retry_non_retriable_status_before_recv_trailing_metadata_started", argv[i])) {
+    if (0 ==
+        strcmp(
+            "retry_non_retriable_status_before_recv_trailing_metadata_started",
+            argv[i])) {
       retry_non_retriable_status_before_recv_trailing_metadata_started(config);
       continue;
     }
@@ -639,7 +648,8 @@ void grpc_end2end_tests(int argc, char **argv,
       retry_per_attempt_recv_timeout(config);
       continue;
     }
-    if (0 == strcmp("retry_per_attempt_recv_timeout_on_last_attempt", argv[i])) {
+    if (0 ==
+        strcmp("retry_per_attempt_recv_timeout_on_last_attempt", argv[i])) {
       retry_per_attempt_recv_timeout_on_last_attempt(config);
       continue;
     }
@@ -683,7 +693,8 @@ void grpc_end2end_tests(int argc, char **argv,
       retry_streaming_after_commit(config);
       continue;
     }
-    if (0 == strcmp("retry_streaming_succeeds_before_replay_finished", argv[i])) {
+    if (0 ==
+        strcmp("retry_streaming_succeeds_before_replay_finished", argv[i])) {
       retry_streaming_succeeds_before_replay_finished(config);
       continue;
     }
