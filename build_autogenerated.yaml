@@ -6639,7 +6639,7 @@ targets:
   deps:
   - grpc++
   - grpc_test_util
-- name: libuv_event_engine
+- name: libuv_event_engine_test
   gtest: true
   build: test
   language: c++

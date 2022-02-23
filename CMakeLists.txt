@@ -917,7 +917,7 @@ if(gRPC_BUILD_TESTS)
   add_dependencies(buildtests_cxx latch_test)
   add_dependencies(buildtests_cxx lb_get_cpu_stats_test)
   add_dependencies(buildtests_cxx lb_load_data_store_test)
-  add_dependencies(buildtests_cxx libuv_event_engine)
+  add_dependencies(buildtests_cxx libuv_event_engine_test)
   add_dependencies(buildtests_cxx linux_system_roots_test)
   add_dependencies(buildtests_cxx log_test)
   add_dependencies(buildtests_cxx loop_test)
@@ -12928,7 +12928,7 @@ target_link_libraries(lb_load_data_store_test
 endif()
 if(gRPC_BUILD_TESTS)
 
-add_executable(libuv_event_engine
+add_executable(libuv_event_engine_test
   test/core/event_engine/test_suite/event_engine_test.cc
   test/core/event_engine/test_suite/libuv_event_engine_test.cc
   test/core/event_engine/test_suite/timer_test.cc
@@ -12936,7 +12936,7 @@ add_executable(libuv_event_engine
   third_party/googletest/googlemock/src/gmock-all.cc
 )
 
-target_include_directories(libuv_event_engine
+target_include_directories(libuv_event_engine_test
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -12956,7 +12956,7 @@ target_include_directories(libuv_event_engine
     ${_gRPC_PROTO_GENS_DIR}
 )
 
-target_link_libraries(libuv_event_engine
+target_link_libraries(libuv_event_engine_test
   ${_gRPC_PROTOBUF_LIBRARIES}
   ${_gRPC_LIBUV_LIBRARIES}
   ${_gRPC_ALLTARGETS_LIBRARIES}
