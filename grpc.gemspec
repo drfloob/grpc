@@ -1495,7 +1495,6 @@ Gem::Specification.new do |s|
   s.files += %w( src/core/tsi/transport_security_grpc.h )
   s.files += %w( src/core/tsi/transport_security_interface.h )
   s.files += %w( src/libuv/include/uv-wrapper.h )
-  s.files += %w( src/libuv/include/uv/android-ifaddrs-wrapper.h )
   s.files += %w( src/libuv/include/uv/bsd-wrapper.h )
   s.files += %w( src/libuv/include/uv/darwin-wrapper.h )
   s.files += %w( src/libuv/include/uv/errno-wrapper.h )
