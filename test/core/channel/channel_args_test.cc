@@ -161,13 +161,14 @@ static bool channel_has_client_idle_filter(grpc_channel* c) {
 //   // creates channels
 //   grpc_channel_args client_args = {GPR_ARRAY_SIZE(client_a), client_a};
 //   grpc_channel_credentials* creds = grpc_insecure_credentials_create();
-//   grpc_channel* c = grpc_channel_create("no_op_mutator", creds, &client_args);
-//   grpc_channel_credentials_release(creds);
+//   grpc_channel* c = grpc_channel_create("no_op_mutator", creds,
+//   &client_args); grpc_channel_credentials_release(creds);
 //   GPR_ASSERT(channel_has_client_idle_filter(c));
 //   grpc_channel_destroy(c);
 
-//   grpc_channel_credentials* another_creds = grpc_insecure_credentials_create();
-//   c = grpc_channel_create("minimal_stack_mutator", another_creds, &client_args);
+//   grpc_channel_credentials* another_creds =
+//   grpc_insecure_credentials_create(); c =
+//   grpc_channel_create("minimal_stack_mutator", another_creds, &client_args);
 //   grpc_channel_credentials_release(another_creds);
 //   GPR_ASSERT(channel_has_client_idle_filter(c) == false);
 //   grpc_channel_destroy(c);
