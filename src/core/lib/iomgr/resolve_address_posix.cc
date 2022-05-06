@@ -61,7 +61,7 @@ class NativeDNSRequest : public DNSResolver::Request {
     Executor::Run(&request_closure_, GRPC_ERROR_NONE, ExecutorType::RESOLVER);
   }
 
-  ~NativeDNSRequest() { resolver_->UnregisterHandle(task_handle()); }
+  ~NativeDNSRequest() override { resolver_->UnregisterHandle(task_handle()); }
 
   bool Cancel() override {
     {
