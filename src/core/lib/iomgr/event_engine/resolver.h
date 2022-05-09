@@ -19,7 +19,7 @@
 
 #include <grpc/support/port_platform.h>
 
-#ifdef GRPC_USE_EVENT_ENGINE
+#ifdef GRPC_CORE_LIB_IOMGR_EVENT_ENGINE_RESOLVER_H
 
 #include <string.h>
 #include <sys/types.h>
@@ -55,5 +55,5 @@ class EventEngineDNSResolver : public DNSResolver {
 }  // namespace experimental
 }  // namespace grpc_core
 
-#endif  // GRPC_USE_EVENT_ENGINE
+#endif  // GRPC_CORE_LIB_IOMGR_EVENT_ENGINE_RESOLVER_H
 #endif  // GRPC_CORE_LIB_IOMGR_EVENT_ENGINE_RESOLVER_H
