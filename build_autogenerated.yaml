@@ -7879,6 +7879,16 @@ targets:
   deps:
   - grpc_test_util
   uses_polling: false
+- name: timer_stress_test
+  gtest: true
+  build: test
+  language: c++
+  headers: []
+  src:
+  - test/core/iomgr/timer_stress_test.cc
+  deps:
+  - grpc_test_util
+  uses_polling: false
 - name: timer_test
   gtest: true
   build: test

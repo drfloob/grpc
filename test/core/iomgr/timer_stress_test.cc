@@ -20,8 +20,8 @@
 #include "absl/functional/bind_front.h"
 #include "absl/time/time.h"
 
-#include <grpc/grpc.h>
 #include <grpc/event_engine/event_engine.h>
+#include <grpc/grpc.h>
 #include <grpc/support/log.h>
 
 #include "src/core/lib/gprpp/sync.h"
