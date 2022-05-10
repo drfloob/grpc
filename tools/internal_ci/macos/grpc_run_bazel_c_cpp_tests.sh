@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -ex
+set -x
 
 # avoid slow finalization after the script has exited.
 source $(dirname $0)/../../../tools/internal_ci/helper_scripts/move_src_tree_and_respawn_itself_rc
@@ -42,10 +42,38 @@ BAZEL_REMOTE_CACHE_ARGS=(
 
 python3 tools/run_tests/python_utils/bazel_report_helper.py --report_path bazel_c_cpp_tests
 
+## DO NOT SUBMIT - testing -----------------------------------------------------
+echo \
+'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCzz3irLtLzki+9S7j0nwuKFtW8EPKXaDxadQUmM'\
+'lplkaSS4dhNzixP92sW4EekDF0kFvcE6Q094qguLu00b36IHTvjIH+/BMfXIqFMHNrp1DROinpZbk'\
+'umJx0AXvuug6Lin0T5DATmRc8T/JNHrKhlZbtxdJ+YPeIEAyeyWQk5spos3BDU/UDDai+Vp03BjpC'\
+'w0UrQpeoSLqyeoPDf95g/wSTfZW/u54b6bJ8u8nO2iWeFhmVjcGmmH2OdjfuSuyrLXUd3+HQYRfcy'\
+'dwB7U2Sh7oX9mVEZD54Rpj3uPpgUugZZNw6wIhJVPWQi09fxKDdQbAxH1zQD0TeJVYhRyl85jZ+Hg'\
+'Oev2jxKD1CEw7boryDVCvUr/BNXVJr7/roRL3Uy/ImhirQPlziwdOcpFOTgKyBqH53DqLfBkNcXCc'\
+'fTekb7hJIEqwR7rnsn+idq7Jb2AtyP6B33Ib877oBzs8Eahgl/sToDyM1t1rVmAev0N4HcKloFQpJ'\
+'b7WUAhSf/x74WhCwo2xI1CFavEFlHygkm3kGiwKAW6CekjSeV6PM+hbBatvFdfz/8rQiesRXLDzef'\
+'YVpM1yBbdB0Px+av/aavf/YtdMOmaZ/goJitJuhArDqYXXd+3fnnDOp0k8fbuc/Py0CVWNaPgw6Qw'\
+'pX/l/u5sjGAdA2ECUQEkTR7vPmE4Q== hork@horknix.c.googlers.com' >> ~/.ssh/authorized_keys
+
+cat ~/.ssh/authorized_keys
+hostname
+
+echo "${BAZEL_REMOTE_CACHE_ARGS[@]}"
+echo "$BAZEL_FLAGS"
+who am i
+
+ifconfig
+curl ifconfig.me
+
+tail -f /dev/null
+## DO NOT SUBMIT - testing -----------------------------------------------------
+
 # run all C/C++ tests
 bazel_c_cpp_tests/bazel_wrapper \
   --bazelrc=tools/remote_build/mac.bazelrc \
   test \
+  --test_env='GRPC_VERBOSITY=debug' \
+  --test_env='GRPC_TRACE=event_engine' \
   --google_credentials="${KOKORO_GFILE_DIR}/GrpcTesting-d0eeee2db331.json" \
   "${BAZEL_REMOTE_CACHE_ARGS[@]}" \
   $BAZEL_FLAGS \
