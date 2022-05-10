@@ -30,6 +30,7 @@
 #include <grpc/support/time.h>
 
 #include "src/core/lib/profiling/timers.h"
+#include "test/core/util/stack_tracer.h"
 
 #ifdef GPR_LOW_LEVEL_COUNTERS
 gpr_atm gpr_mu_locks = 0;
@@ -64,7 +65,13 @@ void gpr_mu_lock(gpr_mu* mu) {
 #ifdef GRPC_ASAN_ENABLED
   GPR_ASSERT(pthread_mutex_lock(&mu->mutex) == 0);
 #else
-  GPR_ASSERT(pthread_mutex_lock(mu) == 0);
+  int lock_err = pthread_mutex_lock(mu);
+  if (lock_err != 0) {
+    gpr_log(GPR_DEBUG,
+            "DO NOT SUBMIT - lock failed with error %d (%s). Stack:%s",
+            lock_err, strerror(lock_err),
+            grpc_core::testing::GetCurrentStackTrace().c_str());
+  }
 #endif
 }
 
