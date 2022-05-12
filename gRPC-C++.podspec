@@ -200,6 +200,8 @@ Pod::Spec.new do |s|
     ss.dependency 'abseil/container/flat_hash_map', abseil_version
     ss.dependency 'abseil/container/flat_hash_set', abseil_version
     ss.dependency 'abseil/container/inlined_vector', abseil_version
+    ss.dependency 'abseil/debugging/stacktrace', abseil_version
+    ss.dependency 'abseil/debugging/symbolize', abseil_version
     ss.dependency 'abseil/functional/bind_front', abseil_version
     ss.dependency 'abseil/hash/hash', abseil_version
     ss.dependency 'abseil/memory/memory', abseil_version
@@ -1004,6 +1006,7 @@ Pod::Spec.new do |s|
                       'src/cpp/util/status.cc',
                       'src/cpp/util/string_ref.cc',
                       'src/cpp/util/time_cc.cc',
+                      'test/core/util/stack_tracer.h',
                       'third_party/re2/re2/bitmap256.h',
                       'third_party/re2/re2/filtered_re2.h',
                       'third_party/re2/re2/pod_array.h',
@@ -1770,6 +1773,7 @@ Pod::Spec.new do |s|
                               'src/cpp/server/secure_server_credentials.h',
                               'src/cpp/server/thread_pool_interface.h',
                               'src/cpp/thread_manager/thread_manager.h',
+                              'test/core/util/stack_tracer.h',
                               'third_party/re2/re2/bitmap256.h',
                               'third_party/re2/re2/filtered_re2.h',
                               'third_party/re2/re2/pod_array.h',

@@ -2287,6 +2287,8 @@ src/core/tsi/transport_security.h \
 src/core/tsi/transport_security_grpc.cc \
 src/core/tsi/transport_security_grpc.h \
 src/core/tsi/transport_security_interface.h \
+test/core/util/stack_tracer.cc \
+test/core/util/stack_tracer.h \
 third_party/xxhash/xxhash.h
 
 # This tag can be used to specify the character encoding of the source files

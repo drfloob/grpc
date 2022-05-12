@@ -228,6 +228,7 @@ libs:
   - src/core/lib/gprpp/thd.h
   - src/core/lib/gprpp/time_util.h
   - src/core/lib/profiling/timers.h
+  - test/core/util/stack_tracer.h
   src:
   - src/core/ext/upb-generated/google/protobuf/any.upb.c
   - src/core/ext/upb-generated/google/rpc/status.upb.c
@@ -275,9 +276,12 @@ libs:
   - src/core/lib/gprpp/time_util.cc
   - src/core/lib/profiling/basic_timers.cc
   - src/core/lib/profiling/stap_timers.cc
+  - test/core/util/stack_tracer.cc
   deps:
   - absl/base:base
   - absl/base:core_headers
+  - absl/debugging:stacktrace
+  - absl/debugging:symbolize
   - absl/memory:memory
   - absl/random:random
   - absl/status:status
@@ -1679,7 +1683,6 @@ libs:
   - test/core/util/reconnect_server.h
   - test/core/util/resolve_localhost_ip46.h
   - test/core/util/slice_splitter.h
-  - test/core/util/stack_tracer.h
   - test/core/util/subprocess.h
   - test/core/util/test_config.h
   - test/core/util/test_tcp_server.h
@@ -1701,7 +1704,6 @@ libs:
   - test/core/util/reconnect_server.cc
   - test/core/util/resolve_localhost_ip46.cc
   - test/core/util/slice_splitter.cc
-  - test/core/util/stack_tracer.cc
   - test/core/util/subprocess_posix.cc
   - test/core/util/subprocess_windows.cc
   - test/core/util/test_config.cc
@@ -1710,8 +1712,6 @@ libs:
   - test/core/util/tracer_util.cc
   deps:
   - absl/debugging:failure_signal_handler
-  - absl/debugging:stacktrace
-  - absl/debugging:symbolize
   - grpc
 - name: grpc_test_util_unsecure
   build: private
@@ -1734,7 +1734,6 @@ libs:
   - test/core/util/reconnect_server.h
   - test/core/util/resolve_localhost_ip46.h
   - test/core/util/slice_splitter.h
-  - test/core/util/stack_tracer.h
   - test/core/util/subprocess.h
   - test/core/util/test_config.h
   - test/core/util/test_tcp_server.h
@@ -1755,7 +1754,6 @@ libs:
   - test/core/util/reconnect_server.cc
   - test/core/util/resolve_localhost_ip46.cc
   - test/core/util/slice_splitter.cc
-  - test/core/util/stack_tracer.cc
   - test/core/util/subprocess_posix.cc
   - test/core/util/subprocess_windows.cc
   - test/core/util/test_config.cc
@@ -1763,8 +1761,6 @@ libs:
   - test/core/util/tracer_util.cc
   deps:
   - absl/debugging:failure_signal_handler
-  - absl/debugging:stacktrace
-  - absl/debugging:symbolize
   - grpc_unsecure
 - name: grpc_unsecure
   build: all
@@ -7495,6 +7491,7 @@ targets:
   - src/core/lib/gprpp/thd.h
   - src/core/lib/gprpp/time_util.h
   - src/core/lib/profiling/timers.h
+  - test/core/util/stack_tracer.h
   src:
   - src/core/ext/upb-generated/google/protobuf/any.upb.c
   - src/core/ext/upb-generated/google/rpc/status.upb.c
@@ -7543,9 +7540,12 @@ targets:
   - src/core/lib/profiling/basic_timers.cc
   - src/core/lib/profiling/stap_timers.cc
   - test/core/gprpp/single_set_ptr_test.cc
+  - test/core/util/stack_tracer.cc
   deps:
   - absl/base:base
   - absl/base:core_headers
+  - absl/debugging:stacktrace
+  - absl/debugging:symbolize
   - absl/memory:memory
   - absl/random:random
   - absl/status:status
@@ -8355,7 +8355,6 @@ targets:
   - test/core/util/reconnect_server.h
   - test/core/util/resolve_localhost_ip46.h
   - test/core/util/slice_splitter.h
-  - test/core/util/stack_tracer.h
   - test/core/util/subprocess.h
   - test/core/util/test_config.h
   - test/core/util/test_tcp_server.h
@@ -8380,7 +8379,6 @@ targets:
   - test/core/util/reconnect_server.cc
   - test/core/util/resolve_localhost_ip46.cc
   - test/core/util/slice_splitter.cc
-  - test/core/util/stack_tracer.cc
   - test/core/util/subprocess_posix.cc
   - test/core/util/subprocess_windows.cc
   - test/core/util/test_config.cc
@@ -8389,8 +8387,6 @@ targets:
   - test/cpp/performance/writes_per_rpc_test.cc
   deps:
   - absl/debugging:failure_signal_handler
-  - absl/debugging:stacktrace
-  - absl/debugging:symbolize
   - grpc++
   platforms:
   - linux

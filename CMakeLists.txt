@@ -1485,6 +1485,7 @@ add_library(gpr
   src/core/lib/gprpp/time_util.cc
   src/core/lib/profiling/basic_timers.cc
   src/core/lib/profiling/stap_timers.cc
+  test/core/util/stack_tracer.cc
 )
 
 set_target_properties(gpr PROPERTIES
@@ -1520,6 +1521,8 @@ target_link_libraries(gpr
   ${_gRPC_ALLTARGETS_LIBRARIES}
   absl::base
   absl::core_headers
+  absl::stacktrace
+  absl::symbolize
   absl::memory
   absl::random_random
   absl::status
@@ -2380,7 +2383,6 @@ add_library(grpc_test_util
   test/core/util/reconnect_server.cc
   test/core/util/resolve_localhost_ip46.cc
   test/core/util/slice_splitter.cc
-  test/core/util/stack_tracer.cc
   test/core/util/subprocess_posix.cc
   test/core/util/subprocess_windows.cc
   test/core/util/test_config.cc
@@ -2421,8 +2423,6 @@ target_include_directories(grpc_test_util
 target_link_libraries(grpc_test_util
   ${_gRPC_ALLTARGETS_LIBRARIES}
   absl::failure_signal_handler
-  absl::stacktrace
-  absl::symbolize
   grpc
 )
 if(_gRPC_PLATFORM_IOS OR _gRPC_PLATFORM_MAC)
@@ -2449,7 +2449,6 @@ add_library(grpc_test_util_unsecure
   test/core/util/reconnect_server.cc
   test/core/util/resolve_localhost_ip46.cc
   test/core/util/slice_splitter.cc
-  test/core/util/stack_tracer.cc
   test/core/util/subprocess_posix.cc
   test/core/util/subprocess_windows.cc
   test/core/util/test_config.cc
@@ -2489,8 +2488,6 @@ target_include_directories(grpc_test_util_unsecure
 target_link_libraries(grpc_test_util_unsecure
   ${_gRPC_ALLTARGETS_LIBRARIES}
   absl::failure_signal_handler
-  absl::stacktrace
-  absl::symbolize
   grpc_unsecure
 )
 if(_gRPC_PLATFORM_IOS OR _gRPC_PLATFORM_MAC)
@@ -15302,6 +15299,7 @@ add_executable(single_set_ptr_test
   src/core/lib/profiling/basic_timers.cc
   src/core/lib/profiling/stap_timers.cc
   test/core/gprpp/single_set_ptr_test.cc
+  test/core/util/stack_tracer.cc
   third_party/googletest/googletest/src/gtest-all.cc
   third_party/googletest/googlemock/src/gmock-all.cc
 )
@@ -15330,6 +15328,8 @@ target_link_libraries(single_set_ptr_test
   ${_gRPC_ALLTARGETS_LIBRARIES}
   absl::base
   absl::core_headers
+  absl::stacktrace
+  absl::symbolize
   absl::memory
   absl::random_random
   absl::status
@@ -17149,7 +17149,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
     test/core/util/reconnect_server.cc
     test/core/util/resolve_localhost_ip46.cc
     test/core/util/slice_splitter.cc
-    test/core/util/stack_tracer.cc
     test/core/util/subprocess_posix.cc
     test/core/util/subprocess_windows.cc
     test/core/util/test_config.cc
@@ -17183,8 +17182,6 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
     ${_gRPC_PROTOBUF_LIBRARIES}
     ${_gRPC_ALLTARGETS_LIBRARIES}
     absl::failure_signal_handler
-    absl::stacktrace
-    absl::symbolize
     grpc++
   )
 
@@ -19139,7 +19136,7 @@ generate_pkgconfig(
   "gpr"
   "gRPC platform support library"
   "${gRPC_CORE_VERSION}"
-  "absl_base absl_cord absl_core_headers absl_memory absl_optional absl_random_random absl_status absl_str_format absl_strings absl_synchronization absl_time"
+  "absl_base absl_cord absl_core_headers absl_memory absl_optional absl_random_random absl_stacktrace absl_status absl_str_format absl_strings absl_symbolize absl_synchronization absl_time"
   "-lgpr"
   ""
   "gpr.pc")
@@ -19149,7 +19146,7 @@ generate_pkgconfig(
   "gRPC"
   "high performance general RPC framework"
   "${gRPC_CORE_VERSION}"
-  "gpr openssl absl_base absl_bind_front absl_cord absl_core_headers absl_flat_hash_map absl_flat_hash_set absl_hash absl_inlined_vector absl_memory absl_optional absl_random_random absl_span absl_status absl_statusor absl_str_format absl_strings absl_synchronization absl_time absl_type_traits absl_utility absl_variant"
+  "gpr openssl absl_base absl_bind_front absl_cord absl_core_headers absl_flat_hash_map absl_flat_hash_set absl_hash absl_inlined_vector absl_memory absl_optional absl_random_random absl_span absl_stacktrace absl_status absl_statusor absl_str_format absl_strings absl_symbolize absl_synchronization absl_time absl_type_traits absl_utility absl_variant"
   "-lgrpc -laddress_sorting -lre2 -lupb -lcares -lz"
   ""
   "grpc.pc")
@@ -19159,7 +19156,7 @@ generate_pkgconfig(
   "gRPC unsecure"
   "high performance general RPC framework without SSL"
   "${gRPC_CORE_VERSION}"
-  "gpr absl_base absl_bind_front absl_cord absl_core_headers absl_flat_hash_map absl_flat_hash_set absl_hash absl_inlined_vector absl_memory absl_optional absl_random_random absl_span absl_status absl_statusor absl_str_format absl_strings absl_synchronization absl_time absl_type_traits absl_utility absl_variant"
+  "gpr absl_base absl_bind_front absl_cord absl_core_headers absl_flat_hash_map absl_flat_hash_set absl_hash absl_inlined_vector absl_memory absl_optional absl_random_random absl_span absl_stacktrace absl_status absl_statusor absl_str_format absl_strings absl_symbolize absl_synchronization absl_time absl_type_traits absl_utility absl_variant"
   "-lgrpc_unsecure"
   ""
   "grpc_unsecure.pc")
@@ -19169,7 +19166,7 @@ generate_pkgconfig(
   "gRPC++"
   "C++ wrapper for gRPC"
   "${gRPC_CPP_VERSION}"
-  "grpc absl_base absl_bind_front absl_cord absl_core_headers absl_flat_hash_map absl_flat_hash_set absl_hash absl_inlined_vector absl_memory absl_optional absl_random_random absl_span absl_status absl_statusor absl_str_format absl_strings absl_synchronization absl_time absl_type_traits absl_utility absl_variant"
+  "grpc absl_base absl_bind_front absl_cord absl_core_headers absl_flat_hash_map absl_flat_hash_set absl_hash absl_inlined_vector absl_memory absl_optional absl_random_random absl_span absl_stacktrace absl_status absl_statusor absl_str_format absl_strings absl_symbolize absl_synchronization absl_time absl_type_traits absl_utility absl_variant"
   "-lgrpc++"
   ""
   "grpc++.pc")
@@ -19179,7 +19176,7 @@ generate_pkgconfig(
   "gRPC++ unsecure"
   "C++ wrapper for gRPC without SSL"
   "${gRPC_CPP_VERSION}"
-  "grpc_unsecure absl_base absl_bind_front absl_cord absl_core_headers absl_flat_hash_map absl_flat_hash_set absl_hash absl_inlined_vector absl_memory absl_optional absl_random_random absl_span absl_status absl_statusor absl_str_format absl_strings absl_synchronization absl_time absl_type_traits absl_utility absl_variant"
+  "grpc_unsecure absl_base absl_bind_front absl_cord absl_core_headers absl_flat_hash_map absl_flat_hash_set absl_hash absl_inlined_vector absl_memory absl_optional absl_random_random absl_span absl_stacktrace absl_status absl_statusor absl_str_format absl_strings absl_symbolize absl_synchronization absl_time absl_type_traits absl_utility absl_variant"
   "-lgrpc++_unsecure"
   ""
   "grpc++_unsecure.pc")

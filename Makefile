@@ -934,6 +934,7 @@ LIBGPR_SRC = \
     src/core/lib/gprpp/time_util.cc \
     src/core/lib/profiling/basic_timers.cc \
     src/core/lib/profiling/stap_timers.cc \
+    test/core/util/stack_tracer.cc \
 
 PUBLIC_HEADERS_C += \
     include/grpc/impl/codegen/atm.h \
