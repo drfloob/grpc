@@ -296,6 +296,8 @@
       'dependencies': [
         'absl/base:base',
         'absl/base:core_headers',
+        'absl/debugging:stacktrace',
+        'absl/debugging:symbolize',
         'absl/memory:memory',
         'absl/random:random',
         'absl/status:status',
@@ -354,6 +356,7 @@
         'src/core/lib/gprpp/time_util.cc',
         'src/core/lib/profiling/basic_timers.cc',
         'src/core/lib/profiling/stap_timers.cc',
+        'test/core/util/stack_tracer.cc',
       ],
     },
     {
@@ -1047,8 +1050,6 @@
       'type': 'static_library',
       'dependencies': [
         'absl/debugging:failure_signal_handler',
-        'absl/debugging:stacktrace',
-        'absl/debugging:symbolize',
         'grpc',
       ],
       'sources': [
@@ -1067,7 +1068,6 @@
         'test/core/util/reconnect_server.cc',
         'test/core/util/resolve_localhost_ip46.cc',
         'test/core/util/slice_splitter.cc',
-        'test/core/util/stack_tracer.cc',
         'test/core/util/subprocess_posix.cc',
         'test/core/util/subprocess_windows.cc',
         'test/core/util/test_config.cc',
@@ -1081,8 +1081,6 @@
       'type': 'static_library',
       'dependencies': [
         'absl/debugging:failure_signal_handler',
-        'absl/debugging:stacktrace',
-        'absl/debugging:symbolize',
         'grpc_unsecure',
       ],
       'sources': [
@@ -1101,7 +1099,6 @@
         'test/core/util/reconnect_server.cc',
         'test/core/util/resolve_localhost_ip46.cc',
         'test/core/util/slice_splitter.cc',
-        'test/core/util/stack_tracer.cc',
         'test/core/util/subprocess_posix.cc',
         'test/core/util/subprocess_windows.cc',
         'test/core/util/test_config.cc',

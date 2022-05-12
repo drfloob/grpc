@@ -725,6 +725,7 @@ CORE_SOURCE_FILES = [
     'src/core/tsi/ssl_transport_security.cc',
     'src/core/tsi/transport_security.cc',
     'src/core/tsi/transport_security_grpc.cc',
+    'test/core/util/stack_tracer.cc',
     'third_party/abseil-cpp/absl/base/internal/cycleclock.cc',
     'third_party/abseil-cpp/absl/base/internal/low_level_alloc.cc',
     'third_party/abseil-cpp/absl/base/internal/raw_logging.cc',

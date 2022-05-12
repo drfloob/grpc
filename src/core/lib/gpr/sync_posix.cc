@@ -79,7 +79,7 @@ void gpr_mu_unlock(gpr_mu* mu) {
 #ifdef GRPC_ASAN_ENABLED
   GPR_ASSERT(pthread_mutex_unlock(&mu->mutex) == 0);
 #else
-  GPR_ASSERT(pthread_mutex_unlock(mu) == 0);
+    GPR_ASSERT(pthread_mutex_unlock(mu) == 0);
 #endif
 }
 
@@ -89,7 +89,7 @@ int gpr_mu_trylock(gpr_mu* mu) {
 #ifdef GRPC_ASAN_ENABLED
   err = pthread_mutex_trylock(&mu->mutex);
 #else
-  err = pthread_mutex_trylock(mu);
+    err = pthread_mutex_trylock(mu);
 #endif
   GPR_ASSERT(err == 0 || err == EBUSY);
   return err == 0;
@@ -109,7 +109,7 @@ void gpr_cv_init(gpr_cv* cv) {
   cv->leak_checker = static_cast<int*>(malloc(sizeof(*cv->leak_checker)));
   GPR_ASSERT(cv->leak_checker != nullptr);
 #else
-  GPR_ASSERT(pthread_cond_init(cv, &attr) == 0);
+    GPR_ASSERT(pthread_cond_init(cv, &attr) == 0);
 #endif
 }
 
@@ -118,7 +118,7 @@ void gpr_cv_destroy(gpr_cv* cv) {
   GPR_ASSERT(pthread_cond_destroy(&cv->cond_var) == 0);
   free(cv->leak_checker);
 #else
-  GPR_ASSERT(pthread_cond_destroy(cv) == 0);
+    GPR_ASSERT(pthread_cond_destroy(cv) == 0);
 #endif
 }
 
@@ -129,22 +129,23 @@ int gpr_cv_wait(gpr_cv* cv, gpr_mu* mu, gpr_timespec abs_deadline) {
 #ifdef GRPC_ASAN_ENABLED
     err = pthread_cond_wait(&cv->cond_var, &mu->mutex);
 #else
-    err = pthread_cond_wait(cv, mu);
+      err = pthread_cond_wait(cv, mu);
 #endif
   } else {
     struct timespec abs_deadline_ts;
 #if GPR_LINUX
     abs_deadline = gpr_convert_clock_type(abs_deadline, GPR_CLOCK_MONOTONIC);
 #else
-    abs_deadline = gpr_convert_clock_type(abs_deadline, GPR_CLOCK_REALTIME);
-    abs_deadline = gpr_time_max(abs_deadline, gpr_now(abs_deadline.clock_type));
+      abs_deadline = gpr_convert_clock_type(abs_deadline, GPR_CLOCK_REALTIME);
+      abs_deadline =
+          gpr_time_max(abs_deadline, gpr_now(abs_deadline.clock_type));
 #endif  // GPR_LINUX
     abs_deadline_ts.tv_sec = static_cast<time_t>(abs_deadline.tv_sec);
     abs_deadline_ts.tv_nsec = abs_deadline.tv_nsec;
 #ifdef GRPC_ASAN_ENABLED
     err = pthread_cond_timedwait(&cv->cond_var, &mu->mutex, &abs_deadline_ts);
 #else
-    err = pthread_cond_timedwait(cv, mu, &abs_deadline_ts);
+      err = pthread_cond_timedwait(cv, mu, &abs_deadline_ts);
 #endif
   }
   GPR_ASSERT(err == 0 || err == ETIMEDOUT || err == EAGAIN);
@@ -155,7 +156,7 @@ void gpr_cv_signal(gpr_cv* cv) {
 #ifdef GRPC_ASAN_ENABLED
   GPR_ASSERT(pthread_cond_signal(&cv->cond_var) == 0);
 #else
-  GPR_ASSERT(pthread_cond_signal(cv) == 0);
+    GPR_ASSERT(pthread_cond_signal(cv) == 0);
 #endif
 }
 
@@ -163,7 +164,7 @@ void gpr_cv_broadcast(gpr_cv* cv) {
 #ifdef GRPC_ASAN_ENABLED
   GPR_ASSERT(pthread_cond_broadcast(&cv->cond_var) == 0);
 #else
-  GPR_ASSERT(pthread_cond_broadcast(cv) == 0);
+    GPR_ASSERT(pthread_cond_broadcast(cv) == 0);
 #endif
 }
 

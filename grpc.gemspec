@@ -1507,6 +1507,8 @@ Gem::Specification.new do |s|
   s.files += %w( src/core/tsi/transport_security_grpc.cc )
   s.files += %w( src/core/tsi/transport_security_grpc.h )
   s.files += %w( src/core/tsi/transport_security_interface.h )
+  s.files += %w( test/core/util/stack_tracer.cc )
+  s.files += %w( test/core/util/stack_tracer.h )
   s.files += %w( third_party/abseil-cpp/absl/algorithm/algorithm.h )
   s.files += %w( third_party/abseil-cpp/absl/algorithm/container.h )
   s.files += %w( third_party/abseil-cpp/absl/base/attributes.h )
