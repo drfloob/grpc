@@ -16,6 +16,11 @@
 
 #include <grpc/support/port_platform.h>
 
+#include <stddef.h>
+
+#include <cstdint>
+#include <utility>
+
 #include "absl/container/flat_hash_set.h"
 #include "absl/hash/hash.h"
 
