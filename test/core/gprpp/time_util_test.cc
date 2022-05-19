@@ -131,13 +131,13 @@ TEST(TimeUtilTest, CoreDurationToAbslDurationWithRegularValues) {
   std::vector<int> times = {-10, -1, 0, 1, 10};
   for (int t : times) {
     EXPECT_EQ(absl::Milliseconds(t),
-              grpc_core::ToAbslDuration(grpc_core::Duration::Milliseconds(t)));
+              grpc_core::ToAbslDuration(absl::Duration::Milliseconds(t)));
     EXPECT_EQ(absl::Seconds(t),
-              grpc_core::ToAbslDuration(grpc_core::Duration::Seconds(t)));
+              grpc_core::ToAbslDuration(absl::Duration::Seconds(t)));
     EXPECT_EQ(absl::Minutes(t),
-              grpc_core::ToAbslDuration(grpc_core::Duration::Minutes(t)));
+              grpc_core::ToAbslDuration(absl::Duration::Minutes(t)));
     EXPECT_EQ(absl::Hours(t),
-              grpc_core::ToAbslDuration(grpc_core::Duration::Hours(t)));
+              grpc_core::ToAbslDuration(absl::Duration::Hours(t)));
   }
 }
 
@@ -145,23 +145,22 @@ TEST(TimeUtilTest, CoreDurationToAbslDurationSubMillisecond) {
   // Only millisecond granularity is supported by grpc_core::Duration
   EXPECT_EQ(
       absl::Milliseconds(0),
-      grpc_core::ToAbslDuration(grpc_core::Duration::NanosecondsRoundDown(10)));
+      grpc_core::ToAbslDuration(absl::Duration::NanosecondsRoundDown(10)));
+  EXPECT_EQ(absl::Milliseconds(1),
+            grpc_core::ToAbslDuration(absl::Duration::NanosecondsRoundUp(10)));
   EXPECT_EQ(
-      absl::Milliseconds(1),
-      grpc_core::ToAbslDuration(grpc_core::Duration::NanosecondsRoundUp(10)));
-  EXPECT_EQ(absl::Milliseconds(2),
-            grpc_core::ToAbslDuration(
-                grpc_core::Duration::NanosecondsRoundUp(1000001)));
-  EXPECT_EQ(absl::Milliseconds(2),
-            grpc_core::ToAbslDuration(
-                grpc_core::Duration::MicrosecondsRoundUp(1001)));
+      absl::Milliseconds(2),
+      grpc_core::ToAbslDuration(absl::Duration::NanosecondsRoundUp(1000001)));
+  EXPECT_EQ(
+      absl::Milliseconds(2),
+      grpc_core::ToAbslDuration(absl::Duration::MicrosecondsRoundUp(1001)));
 }
 
 TEST(TimeUtilTest, CoreDurationToAbslDurationWithInfinites) {
   EXPECT_EQ(absl::InfiniteDuration(),
-            grpc_core::ToAbslDuration(grpc_core::Duration::Infinity()));
+            grpc_core::ToAbslDuration(absl::Duration::Infinity()));
   EXPECT_EQ(-absl::InfiniteDuration(),
-            grpc_core::ToAbslDuration(grpc_core::Duration::NegativeInfinity()));
+            grpc_core::ToAbslDuration(absl::Duration::NegativeInfinity()));
 }
 
 TEST(TimeUtilTest, CoreTimestampToAbslTimeWithRegularValues) {
