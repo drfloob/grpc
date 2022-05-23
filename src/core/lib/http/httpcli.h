@@ -23,8 +23,11 @@
 
 #include <stddef.h>
 
+#include <grpc/event_engine/event_engine.h>
 #include <grpc/support/time.h>
 
+#include "src/core/lib/event_engine/closure_util.h"
+#include "src/core/lib/event_engine/event_engine_factory.h"
 #include "src/core/lib/gprpp/orphanable.h"
 #include "src/core/lib/http/parser.h"
 #include "src/core/lib/iomgr/endpoint.h"
@@ -165,7 +168,9 @@ class HttpRequest : public InternallyRefCounted<HttpRequest> {
  private:
   void Finish(grpc_error_handle error) ABSL_EXCLUSIVE_LOCKS_REQUIRED(mu_) {
     grpc_polling_entity_del_from_pollset_set(pollent_, pollset_set_);
-    ExecCtx::Run(DEBUG_LOCATION, on_done_, error);
+    grpc_event_engine::experimental::GetDefaultEventEngine()->Run(
+        grpc_event_engine::experimental::WrappedGrpcClosureFunction(on_done_,
+                                                                    error));
   }
 
   void AppendError(grpc_error_handle error) ABSL_EXCLUSIVE_LOCKS_REQUIRED(mu_);

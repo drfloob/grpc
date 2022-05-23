@@ -2181,6 +2181,25 @@ grpc_cc_library(
 )
 
 grpc_cc_library(
+    name = "closure_util",
+    srcs = [
+        "src/core/lib/event_engine/closure_util.cc",
+    ],
+    hdrs = [
+        "src/core/lib/event_engine/closure_util.h",
+    ],
+    external_deps = [
+    ],
+    deps = [
+        "closure",
+        "error",
+        "event_engine_base_hdrs",
+        "event_engine_trace",
+        "gpr_platform",
+    ],
+)
+
+grpc_cc_library(
     name = "event_engine_trace",
     srcs = [
         "src/core/lib/event_engine/trace.cc",
@@ -4402,6 +4421,7 @@ grpc_cc_library(
     language = "c++",
     visibility = ["@grpc:httpcli"],
     deps = [
+        "closure_util",
         "config",
         "gpr_base",
         "grpc_base",

@@ -459,8 +459,11 @@ TEST_F(HttpRequestTest, CallerPollentsAreNotReferencedAfterCallbackIsRan) {
               grpc_insecure_credentials_create()));
   // Start the HTTP request. We'll start the TCP connect attempt right away.
   http_request->Start();
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT - flushing");
   exec_ctx.Flush();
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT - flushed");
   http_request.reset();  // cancel the request
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT - request deleted");
   // Since the request was cancelled, the on_done callback should be flushed
   // out on the ExecCtx flush below. When the on_done callback is ran, it will
   // eagerly destroy 'request_state.pollset_set_to_destroy_eagerly'. Thus, we
