@@ -666,9 +666,7 @@ class AresDNSResolver : public DNSResolver {
       GRPC_CARES_TRACE_LOG("AresTXTRequest:%p ctor", this);
     }
 
-    ~AresTXTRequest() override {
-      gpr_free(service_config_json_);
-    }
+    ~AresTXTRequest() override { gpr_free(service_config_json_); }
 
     std::unique_ptr<grpc_ares_request> MakeRequestLocked() override {
       auto ares_request =
