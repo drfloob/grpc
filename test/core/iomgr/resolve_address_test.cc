@@ -461,6 +461,8 @@ class PollsetSetWrapper {
 TEST_F(ResolveAddressTest, DeleteInterestedPartiesAfterCancellation) {
   // Regression test for race around interested_party deletion after
   // cancellation.
+  // LEAK! DO NOT SUBMIT
+  int* x = new int(42);
   if (absl::string_view(g_resolver_type) != "ares") {
     GTEST_SKIP() << "the native resolver doesn't support cancellation, so we "
                     "can only test this with c-ares";
