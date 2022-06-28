@@ -33,6 +33,7 @@
 #include "absl/types/optional.h"
 #include "absl/types/variant.h"
 
+#include <grpc/event_engine/event_engine.h>
 #include <grpc/impl/codegen/grpc_types.h>
 
 #include "src/core/lib/avl/avl.h"
