@@ -28,12 +28,12 @@
 #include <grpc/support/log.h>
 
 #include "src/core/lib/channel/channel_stack.h"
+#include "src/core/lib/event_engine/event_engine_factory.h"
 #include "src/core/lib/gpr/useful.h"
 #include "src/core/lib/gprpp/ref_counted.h"
 #include "src/core/lib/gprpp/ref_counted_ptr.h"
 #include "src/core/lib/iomgr/exec_ctx.h"
 #include "src/core/lib/surface/channel.h"
-#include "src/core/lib/event_engine/event_engine_factory.h"
 #include "test/core/util/test_config.h"
 
 namespace grpc_core {
@@ -118,7 +118,7 @@ TEST(ChannelArgsTest, StoreSharedPtrEventEngine) {
       grpc_event_engine::experimental::GetDefaultEventEngine());
 
   ChannelArgs a;
-   a = a.SetObject(p);
+  a = a.SetObject(p);
 
   Mutex mu;
   CondVar cv;
