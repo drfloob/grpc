@@ -33,4 +33,4 @@ bazel_rbe/bazel_wrapper \
   test \
   $BAZEL_FLAGS \
   "$@" \
-  -- //test/cpp/naming:cancel_ares_query_test@poller=epoll1
+  -- //test/cpp/naming:cancel_ares_query_test@poller=poll
