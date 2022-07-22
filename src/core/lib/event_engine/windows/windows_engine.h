@@ -15,7 +15,7 @@
 #define GRPC_CORE_LIB_EVENT_ENGINE_WINDOWS_WINDOWS_ENGINE_H
 #include <grpc/support/port_platform.h>
 
-#ifdef GPR_WINDOWS
+#ifdef GRPC_CORE_LIB_EVENT_ENGINE_WINDOWS_WINDOWS_ENGINE_H
 
 #include <memory>
 
@@ -31,9 +31,9 @@
 #include "src/core/lib/event_engine/handle_containers.h"
 #include "src/core/lib/event_engine/iomgr_engine/thread_pool.h"
 #include "src/core/lib/event_engine/iomgr_engine/timer_manager.h"
+#include "src/core/lib/event_engine/windows/iocp.h"
 #include "src/core/lib/gprpp/sync.h"
 #include "src/core/lib/gprpp/time.h"
-#include "src/core/lib/event_engine/windows/iocp.h"
 
 namespace grpc_event_engine {
 namespace experimental {
@@ -115,6 +115,6 @@ class WindowsEventEngine : public EventEngine {
 
 }  // namespace experimental
 }  // namespace grpc_event_engine
-#endif  // GPR_WINDOWS
+#endif  // GRPC_CORE_LIB_EVENT_ENGINE_WINDOWS_WINDOWS_ENGINE_H
 
 #endif  // GRPC_CORE_LIB_EVENT_ENGINE_WINDOWS_WINDOWS_ENGINE_H

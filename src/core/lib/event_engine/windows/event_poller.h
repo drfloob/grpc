@@ -11,10 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef GRPC_SRC_CORE_LIB_EVENT_ENGINE_WINDOWS_EVENT_POLLER_H
-#define GRPC_SRC_CORE_LIB_EVENT_ENGINE_WINDOWS_EVENT_POLLER_H
+#ifndef GRPC_CORE_LIB_EVENT_ENGINE_WINDOWS_EVENT_POLLER_H
+#define GRPC_CORE_LIB_EVENT_ENGINE_WINDOWS_EVENT_POLLER_H
 
-#ifdef GPR_WINDOWS
+#ifdef GRPC_CORE_LIB_EVENT_ENGINE_WINDOWS_EVENT_POLLER_H
 // ---------------------------------------------------------------------------
 // TODO(hork): I forked this from the iomgr_engine due to some slight
 // differences in types. Both are being actively worked on, so the idea is to
@@ -90,5 +90,5 @@ class EventPoller {
 }  // namespace experimental
 }  // namespace grpc_event_engine
 
-#endif  // GPR_WINDOWS
-#endif  // GRPC_SRC_CORE_LIB_EVENT_ENGINE_WINDOWS_EVENT_POLLER_H
+#endif  // GRPC_CORE_LIB_EVENT_ENGINE_WINDOWS_EVENT_POLLER_H
+#endif  // GRPC_CORE_LIB_EVENT_ENGINE_WINDOWS_EVENT_POLLER_H

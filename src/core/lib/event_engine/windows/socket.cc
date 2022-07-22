@@ -14,12 +14,11 @@
 #include <grpc/support/port_platform.h>
 
 #ifdef GPR_WINDOWS
-#include "src/core/lib/event_engine/windows/socket.h"
-
 #include <grpc/support/alloc.h>
 #include <grpc/support/log_windows.h>
 
 #include "src/core/lib/event_engine/trace.h"
+#include "src/core/lib/event_engine/windows/socket.h"
 #include "src/core/lib/gprpp/sync.h"
 
 namespace grpc_event_engine {
