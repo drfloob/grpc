@@ -62,5 +62,4 @@ class IOCP final : public EventPoller {
 
 #endif  // GPR_WINDOWS
 
-
 #endif  // GRPC_CORE_LIB_EVENT_ENGINE_WINDOWS_IOCP_H

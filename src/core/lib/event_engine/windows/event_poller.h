@@ -28,7 +28,6 @@
 // valuable.
 // ---------------------------------------------------------------------------
 
-
 #include <vector>
 
 #include "absl/status/status.h"
@@ -95,6 +94,5 @@ class EventPoller {
 }  // namespace grpc_event_engine
 
 #endif  // GPR_WINDOWS
-
 
 #endif  // GRPC_CORE_LIB_EVENT_ENGINE_WINDOWS_EVENT_POLLER_H
