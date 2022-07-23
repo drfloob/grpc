@@ -19,6 +19,11 @@
 
 #include <grpc/support/port_platform.h>
 
+#include <stdint.h>
+
+#include <chrono>
+#include <ratio>
+
 #include "absl/time/time.h"
 
 #include <grpc/impl/codegen/gpr_types.h>

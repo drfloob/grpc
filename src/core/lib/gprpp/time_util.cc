@@ -18,10 +18,11 @@
 
 #include "src/core/lib/gprpp/time_util.h"
 
-#include <stdint.h>
 #include <time.h>
 
 #include <chrono>
+#include <cstdint>
+#include <type_traits>
 
 #include <grpc/support/log.h>
 #include <grpc/support/time.h>

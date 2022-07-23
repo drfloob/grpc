@@ -22,8 +22,10 @@
 #include <limits.h>
 
 #include <algorithm>
+#include <cstdint>
 #include <functional>
 #include <new>
+#include <ratio>
 #include <set>
 #include <vector>
 

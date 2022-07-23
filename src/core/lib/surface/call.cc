@@ -25,7 +25,10 @@
 
 #include <algorithm>
 #include <atomic>
+#include <chrono>
+#include <cstdint>
 #include <new>
+#include <ratio>
 #include <string>
 #include <utility>
 
