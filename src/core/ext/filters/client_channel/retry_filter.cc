@@ -22,6 +22,7 @@
 #include <limits.h>
 #include <stddef.h>
 
+#include <chrono>
 #include <memory>
 #include <new>
 #include <string>

@@ -18,10 +18,8 @@
 
 #include <atomic>
 #include <chrono>
-#include <cstdint>
 #include <limits>
 #include <string>
-#include <utility>
 
 #include "absl/strings/str_format.h"
 
