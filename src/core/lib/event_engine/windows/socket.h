@@ -16,7 +16,7 @@
 
 #include <grpc/support/port_platform.h>
 
-#ifdef GPR_WINDOWS
+#ifdef GRPC_CORE_LIB_EVENT_ENGINE_WINDOWS_SOCKET_H
 
 #include "absl/base/thread_annotations.h"
 #include "absl/functional/any_invocable.h"
@@ -106,6 +106,6 @@ absl::Status PrepareSocket(SOCKET sock);
 }  // namespace experimental
 }  // namespace grpc_event_engine
 
-#endif  // GPR_WINDOWS
+#endif  // GRPC_CORE_LIB_EVENT_ENGINE_WINDOWS_SOCKET_H
 
 #endif  // GRPC_CORE_LIB_EVENT_ENGINE_WINDOWS_SOCKET_H

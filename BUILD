@@ -2502,6 +2502,7 @@ grpc_cc_library(
 grpc_cc_library(
     name = "event_engine_poller",
     hdrs = ["src/core/lib/event_engine/poller.h"],
+    external_deps = ["absl/status"],
     deps = [
         "gpr_public_hdrs",
         "time",
