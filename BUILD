@@ -2240,10 +2240,11 @@ grpc_cc_library(
     hdrs = [
         "src/core/lib/event_engine/poller.h",
     ],
-    external_deps = [
-        "absl/container:inlined_vector",
+    external_deps = ["absl/container:inlined_vector"],
+    deps = [
+        "event_engine_base_hdrs",
+        "gpr_base",
     ],
-    deps = [],
 )
 
 grpc_cc_library(

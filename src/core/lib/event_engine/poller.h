@@ -16,9 +16,9 @@
 
 #include <grpc/support/port_platform.h>
 
-#include <grpc/event_engine/event_engine.h>
-
 #include "absl/container/inlined_vector.h"
+
+#include <grpc/event_engine/event_engine.h>
 
 namespace grpc_event_engine {
 namespace experimental {
