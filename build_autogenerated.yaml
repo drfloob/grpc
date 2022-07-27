@@ -7330,7 +7330,9 @@ targets:
   build: test
   language: c++
   headers:
+  - test/core/event_engine/windows/basic_closure.h
   - test/core/event_engine/windows/create_sockpair.h
+  - test/core/event_engine/windows/self_deleting_closure.h
   src:
   - test/core/event_engine/windows/create_sockpair.cc
   - test/core/event_engine/windows/iocp_test.cc
@@ -9688,6 +9690,7 @@ targets:
   build: test
   language: c++
   headers:
+  - test/core/event_engine/windows/basic_closure.h
   - test/core/event_engine/windows/create_sockpair.h
   src:
   - test/core/event_engine/windows/create_sockpair.cc
