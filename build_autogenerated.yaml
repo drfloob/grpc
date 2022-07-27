@@ -7330,6 +7330,7 @@ targets:
   build: test
   language: c++
   headers:
+  - test/core/event_engine/windows/basic_closure.h
   - test/core/event_engine/windows/create_sockpair.h
   src:
   - test/core/event_engine/windows/create_sockpair.cc
@@ -9688,6 +9689,7 @@ targets:
   build: test
   language: c++
   headers:
+  - test/core/event_engine/windows/basic_closure.h
   - test/core/event_engine/windows/create_sockpair.h
   src:
   - test/core/event_engine/windows/create_sockpair.cc

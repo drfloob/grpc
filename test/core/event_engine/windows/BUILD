@@ -42,9 +42,9 @@ grpc_cc_test(
     deps = [
         "basic_closure",
         "create_sockpair",
+        "//:event_engine_utils",
         "//:gpr_platform",
         "//:windows_iocp",
-        "//:event_engine_utils",
         "//test/core/util:grpc_test_util",
     ],
 )
