@@ -1260,7 +1260,7 @@ grpc_cc_library(
     ],
     deps = [
         "activity",
-        "event_engine_base",
+        "context",
         "event_engine_base_hdrs",
         "exec_ctx",
         "gpr_base",
