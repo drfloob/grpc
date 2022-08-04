@@ -324,6 +324,21 @@ grpc_cc_test(
 )
 
 grpc_cc_test(
+    name = "fork_test",
+    srcs = ["fork_test.cc"],
+    external_deps = ["gtest"],
+    language = "C++",
+    uses_event_engine = False,
+    uses_polling = False,
+    deps = [
+        "//:gpr",
+        "//:grpc",
+        "//test/core/util:grpc_test_util",
+        "//test/core/util:grpc_test_util_base",
+    ],
+)
+
+grpc_cc_test(
     name = "timer_list_test",
     srcs = ["timer_list_test.cc"],
     language = "C++",
