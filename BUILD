@@ -1268,7 +1268,6 @@ grpc_cc_library(
     deps = [
         "activity",
         "context",
-        "default_event_engine_factory_hdrs",
         "event_engine_base_hdrs",
         "exec_ctx",
         "gpr_base",
@@ -2735,6 +2734,7 @@ grpc_cc_library(
         "event_engine_base_hdrs",
         "event_engine_trace",
         "gpr_base",
+        "grpc_trace",
     ],
 )
 
