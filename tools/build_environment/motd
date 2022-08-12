@@ -1,0 +1,21 @@
+                  ____  ____   ____ 
+             __ _|  _ \|  _ \ / ___|
+            / _` | |_) | |_) | |    
+           | (_| |  _ <|  __/| |___ 
+            \__, |_| \_\_|    \____|
+            |___/                   
+
+Welcome to the gRPC dockerized build environment!
+
+This environment uses your docker host's local gRPC folder, so any changes you
+make to the gRPC code inside this container will be saved.
+
+See BUILDING.md for details about how to build gRPC with bazel.
+
+To clean and sanitize your code for a pull request, run:
+
+    CLANG_TIDY_SKIP_DOCKER=true tools/distrib/clang_tidy_code.sh --fix --only-changed
+    CLANG_FORMAT_SKIP_DOCKER=true ./tools/distrib/sanitize.sh
+
+To see this message again: cat /etc/motd
+
