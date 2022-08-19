@@ -179,7 +179,7 @@ absl::Status StatusCreate(absl::StatusCode code, absl::string_view msg,
   if (location.line() != -1) {
     StatusSetInt(&s, StatusIntProperty::kFileLine, location.line());
   }
-  StatusSetTime(&s, StatusTimeProperty::kCreated, grpc_core::Timestamp::Now());
+  StatusSetTime(&s, StatusTimeProperty::kCreated, Timestamp::Now());
   for (const absl::Status& child : children) {
     if (!child.ok()) {
       StatusAddChild(&s, child);
@@ -229,7 +229,7 @@ absl::optional<std::string> StatusGetStr(const absl::Status& status,
 }
 
 void StatusSetTime(absl::Status* status, StatusTimeProperty key,
-                   grpc_core::Timestamp time) {
+                   Timestamp time) {
   std::string time_str = absl::FormatTime(
       absl::RFC3339_full, ToAbslTime(time.as_timespec(GPR_CLOCK_MONOTONIC)),
       absl::UTCTimeZone());
@@ -237,8 +237,8 @@ void StatusSetTime(absl::Status* status, StatusTimeProperty key,
                      absl::Cord(std::move(time_str)));
 }
 
-absl::optional<grpc_core::Timestamp> StatusGetTime(const absl::Status& status,
-                                                   StatusTimeProperty key) {
+absl::optional<Timestamp> StatusGetTime(const absl::Status& status,
+                                        StatusTimeProperty key) {
   absl::optional<absl::Cord> p =
       status.GetPayload(GetStatusTimePropertyUrl(key));
   if (p.has_value()) {
@@ -246,13 +246,13 @@ absl::optional<grpc_core::Timestamp> StatusGetTime(const absl::Status& status,
     absl::Time time;
     if (sv.has_value()) {
       if (absl::ParseTime(absl::RFC3339_full, sv.value(), &time, nullptr)) {
-        return grpc_core::Timestamp::FromTimespecRoundDown(
+        return Timestamp::FromTimespecRoundDown(
             ToGprTimeSpec(time, GPR_CLOCK_MONOTONIC));
       }
     } else {
       std::string s = std::string(*p);
       if (absl::ParseTime(absl::RFC3339_full, s, &time, nullptr)) {
-        return grpc_core::Timestamp::FromTimespecRoundDown(
+        return Timestamp::FromTimespecRoundDown(
             ToGprTimeSpec(time, GPR_CLOCK_MONOTONIC));
       }
     }

@@ -133,10 +133,10 @@ absl::optional<std::string> StatusGetStr(
 
 /// Sets the time property to the status
 void StatusSetTime(absl::Status* status, StatusTimeProperty key,
-                   grpc_core::Timestamp time);
+                   Timestamp time);
 
 /// Gets the time property from the status
-absl::optional<grpc_core::Timestamp> StatusGetTime(
+absl::optional<Timestamp> StatusGetTime(
     const absl::Status& status, StatusTimeProperty key) GRPC_MUST_USE_RESULT;
 
 /// Adds a child status to status
