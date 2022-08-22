@@ -112,6 +112,7 @@ grpc_cc_test(
     language = "C++",
     deps = [
         "cq_verifier",
+        "//:debug_location",
         "//:gpr",
         "//:grpc",
         "//:grpc_codegen",
@@ -126,6 +127,7 @@ grpc_cc_test(
     language = "C++",
     deps = [
         "cq_verifier",
+        "//:debug_location",
         "//:gpr",
         "//:grpc",
         "//:grpc_codegen",
@@ -146,6 +148,7 @@ grpc_cc_test(
     tags = ["no_windows"],
     deps = [
         "cq_verifier",
+        "//:debug_location",
         "//:gpr",
         "//:grpc",
         "//:grpc_codegen",
@@ -209,6 +212,7 @@ grpc_cc_test(
     language = "C++",
     deps = [
         "cq_verifier",
+        "//:debug_location",
         "//:gpr",
         "//:gpr_platform",
         "//:grpc",
@@ -235,6 +239,7 @@ grpc_cc_test(
     language = "C++",
     deps = [
         "cq_verifier",
+        "//:debug_location",
         "//:exec_ctx",
         "//:gpr",
         "//:grpc",
@@ -262,6 +267,7 @@ grpc_cc_test(
     language = "C++",
     deps = [
         "cq_verifier",
+        "//:debug_location",
         "//:gpr",
         "//:grpc",
         "//:grpc_codegen",

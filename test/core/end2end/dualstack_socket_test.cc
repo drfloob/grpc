@@ -27,6 +27,7 @@
 #include <grpc/slice.h>
 #include <grpc/status.h>
 
+#include "src/core/lib/gprpp/debug_location.h"
 #include "src/core/lib/iomgr/port.h"
 #include "src/core/lib/iomgr/resolved_address.h"
 

@@ -37,6 +37,7 @@
 #include <grpc/support/log.h>
 #include <grpc/support/time.h>
 
+#include "src/core/lib/gprpp/debug_location.h"
 #include "src/core/lib/gprpp/host_port.h"
 #include "test/core/end2end/cq_verifier.h"
 #include "test/core/util/port.h"
