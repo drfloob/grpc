@@ -18,7 +18,6 @@
 #include <benchmark/benchmark.h>
 
 #include <grpcpp/impl/grpc_library.h>
-#include <grpcpp/support/byte_buffer.h>
 
 #include "src/core/lib/event_engine/promise.h"
 #include "test/core/util/test_config.h"
