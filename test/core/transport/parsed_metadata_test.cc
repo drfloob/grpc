@@ -16,15 +16,10 @@
 
 #include "src/core/lib/transport/parsed_metadata.h"
 
-#include <memory>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
-#include "absl/memory/memory.h"
-#include "absl/strings/numbers.h"
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
-
-#include <grpc/support/log.h>
-
+#include "src/core/lib/slice/slice_internal.h"
 #include "src/core/lib/transport/metadata_batch.h"
 #include "test/core/util/test_config.h"
 
