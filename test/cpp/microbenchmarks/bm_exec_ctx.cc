@@ -25,7 +25,7 @@
 #include "test/cpp/util/test_config.h"
 
 namespace {
-void NoOpCb(void* arg, grpc_error_handle /* error */) {}
+void NoOpCb(void* /* arg */, grpc_error_handle /* error */) {}
 
 void BM_ExecCtx_Run(benchmark::State& state) {
   int cb_count = state.range(0);
@@ -39,11 +39,11 @@ void BM_ExecCtx_Run(benchmark::State& state) {
     }
   }
   state.SetItemsProcessed(cb_count * state.iterations());
-  //   state.counters["TimePerExecution"] = benchmark::Counter(
-  //       cb_count * state.iterations(),
-  //       benchmark::Counter::kIsRate | benchmark::Counter::kInvert);
 }
-BENCHMARK(BM_ExecCtx_Run)->Range(100, 10 * 1000);
+BENCHMARK(BM_ExecCtx_Run)
+    ->Range(100, 10000)
+    ->MeasureProcessCPUTime()
+    ->UseRealTime();
 
 struct CountingCbData {
   std::atomic_int cnt{0};
@@ -78,7 +78,10 @@ void BM_ExecCtx_RunCounted(benchmark::State& state) {
   }
   state.SetItemsProcessed(cb_count * state.iterations());
 }
-BENCHMARK(BM_ExecCtx_RunCounted)->Range(100, 10 * 1000);
+BENCHMARK(BM_ExecCtx_RunCounted)
+    ->Range(100, 10000)
+    ->MeasureProcessCPUTime()
+    ->UseRealTime();
 }  // namespace
 
 // Some distros have RunSpecifiedBenchmarks under the benchmark namespace,
