@@ -10271,6 +10271,7 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_POSIX)
     test/core/event_engine/fuzzing_event_engine/fuzzing_event_engine.cc
     test/core/event_engine/test_suite/event_engine_test.cc
     test/core/event_engine/test_suite/event_engine_test_utils.cc
+    test/core/event_engine/test_suite/executor_test.cc
     test/core/event_engine/test_suite/fuzzing_event_engine_test.cc
     test/core/event_engine/test_suite/timer_test.cc
     third_party/googletest/googletest/src/gtest-all.cc
@@ -14467,6 +14468,7 @@ if(gRPC_BUILD_TESTS)
 add_executable(posix_event_engine_test
   test/core/event_engine/test_suite/event_engine_test.cc
   test/core/event_engine/test_suite/event_engine_test_utils.cc
+  test/core/event_engine/test_suite/executor_test.cc
   test/core/event_engine/test_suite/posix_event_engine_test.cc
   test/core/event_engine/test_suite/timer_test.cc
   third_party/googletest/googletest/src/gtest-all.cc
