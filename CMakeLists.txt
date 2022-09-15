@@ -14467,6 +14467,7 @@ if(gRPC_BUILD_TESTS)
 add_executable(posix_event_engine_test
   test/core/event_engine/test_suite/event_engine_test.cc
   test/core/event_engine/test_suite/event_engine_test_utils.cc
+  test/core/event_engine/test_suite/executor_test.cc
   test/core/event_engine/test_suite/posix_event_engine_test.cc
   test/core/event_engine/test_suite/timer_test.cc
   third_party/googletest/googletest/src/gtest-all.cc

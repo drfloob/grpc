@@ -8252,11 +8252,13 @@ targets:
   build: test
   language: c++
   headers:
+  - src/core/lib/event_engine/common_closures.h
   - test/core/event_engine/test_suite/event_engine_test.h
   - test/core/event_engine/test_suite/event_engine_test_utils.h
   src:
   - test/core/event_engine/test_suite/event_engine_test.cc
   - test/core/event_engine/test_suite/event_engine_test_utils.cc
+  - test/core/event_engine/test_suite/executor_test.cc
   - test/core/event_engine/test_suite/posix_event_engine_test.cc
   - test/core/event_engine/test_suite/timer_test.cc
   deps:
