@@ -173,9 +173,7 @@ void FuzzingEventEngine::Run(absl::AnyInvocable<void()> closure) {
   RunAfter(Duration::zero(), std::move(closure));
 }
 
-void FuzzingEventEngine::WaitForPendingTasksOrDie(Duration timeout) {
-  abort();
-}
+void FuzzingEventEngine::WaitForPendingTasksOrDie(Duration timeout) { abort(); }
 
 EventEngine::TaskHandle FuzzingEventEngine::RunAfter(Duration when,
                                                      Closure* closure) {
