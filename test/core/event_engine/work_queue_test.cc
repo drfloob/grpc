@@ -13,12 +13,13 @@
 // limitations under the License.
 #include <grpc/support/port_platform.h>
 
+#include "src/core/lib/event_engine/work_queue.h"
+
 #include <thread>
 
 #include <gtest/gtest.h>
 
 #include "src/core/lib/event_engine/common_closures.h"
-#include "src/core/lib/event_engine/work_queue.h"
 #include "src/core/lib/iomgr/exec_ctx.h"
 #include "test/core/util/test_config.h"
 
