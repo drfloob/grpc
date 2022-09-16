@@ -33,6 +33,19 @@ grpc_core::NoDestruct<grpc_core::Mutex> g_mu;
 bool g_registered ABSL_GUARDED_BY(g_mu){false};
 grpc_core::NoDestruct<absl::flat_hash_set<Forkable*>> g_forkables
     ABSL_GUARDED_BY(g_mu);
+
+// DO NOT SUBMIT
+void PrintThreadCount() {
+  char command[50];
+  int thread_count;
+  int proc_id = getpid();
+  sprintf(command, "ps H --no-headers %d | wc -l", proc_id);
+  FILE* thread_counter = popen(command, "r");
+  fscanf(thread_counter, "%d", &thread_count);
+  pclose(thread_counter);
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: proc_id=%d, thread_count=%d", proc_id,
+          thread_count);
+}
 }  // namespace
 
 Forkable::Forkable() { ManageForkable(this); }
@@ -47,12 +60,21 @@ void RegisterForkHandlers() {
 };
 
 void PrepareFork() {
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: Forkable::PrepareFork");
+  PrintThreadCount();
   grpc_core::MutexLock lock(g_mu.get());
   for (auto* forkable : *g_forkables) {
+    gpr_log(GPR_DEBUG, "DO NOT SUBMIT: PrepareForking forkable::%p", forkable);
     forkable->PrepareFork();
+    gpr_log(GPR_DEBUG, "DO NOT SUBMIT: Done PrepareForking forkable::%p", forkable);
   }
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: Forkable::PrepareFork complete");
+  PrintThreadCount();
 }
+
 void PostforkParent() {
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: Forkable::PostforkParent. pid=%d",
+          static_cast<int>(getpid()));
   grpc_core::MutexLock lock(g_mu.get());
   for (auto* forkable : *g_forkables) {
     forkable->PostforkParent();
@@ -60,6 +82,8 @@ void PostforkParent() {
 }
 
 void PostforkChild() {
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: Forkable::PostforkChild. pid=%d",
+          static_cast<int>(getpid()));
   grpc_core::MutexLock lock(g_mu.get());
   for (auto* forkable : *g_forkables) {
     forkable->PostforkChild();

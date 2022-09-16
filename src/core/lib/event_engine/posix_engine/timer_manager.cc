@@ -278,6 +278,7 @@ void TimerManager::Kick() {
 }
 
 void TimerManager::PrepareFork() {
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: TimerManager::PrepareFork(%p)", this);
   ThreadCollector collector;
   grpc_core::MutexLock lock(&mu_);
   forking_ = true;
@@ -287,6 +288,7 @@ void TimerManager::PrepareFork() {
     cv_threadcount_.Wait(&mu_);
   }
   collector.Collect(std::move(completed_threads_));
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: DONE TimerManager::PrepareFork(%p)", this);
 }
 
 void TimerManager::PostforkParent() {

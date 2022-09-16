@@ -133,6 +133,7 @@ void ThreadPool::Add(absl::AnyInvocable<void()> callback) {
 }
 
 void ThreadPool::PrepareFork() {
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: ThreadPool::PrepareFork(%p)", this);
   grpc_core::MutexLock lock(&mu_);
   forking_ = true;
   cv_.SignalAll();
@@ -140,6 +141,7 @@ void ThreadPool::PrepareFork() {
     fork_cv_.Wait(&mu_);
   }
   ReapThreads(&dead_threads_);
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: DONE ThreadPool::PrepareFork(%p)", this);
 }
 
 void ThreadPool::PostforkParent() {
