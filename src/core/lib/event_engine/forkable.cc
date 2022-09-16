@@ -36,12 +36,16 @@ grpc_core::NoDestruct<absl::flat_hash_set<Forkable*>> g_forkables
 
 // DO NOT SUBMIT
 void PrintThreadCount() {
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: printing thread count 1");
   char command[50];
   int thread_count;
   int proc_id = getpid();
   sprintf(command, "ps H --no-headers %d | wc -l", proc_id);
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: printing thread count 2");
   FILE* thread_counter = popen(command, "r");
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: printing thread count 3");
   fscanf(thread_counter, "%d", &thread_count);
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: printing thread count 4");
   pclose(thread_counter);
   gpr_log(GPR_DEBUG, "DO NOT SUBMIT: proc_id=%d, thread_count=%d", proc_id,
           thread_count);
@@ -60,7 +64,7 @@ void RegisterForkHandlers() {
 };
 
 void PrepareFork() {
-  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: Forkable::PrepareFork");
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: Forkable::PrepareFork (check1)");
   PrintThreadCount();
   grpc_core::MutexLock lock(g_mu.get());
   for (auto* forkable : *g_forkables) {
