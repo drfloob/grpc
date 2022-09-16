@@ -47,12 +47,14 @@ void RegisterForkHandlers() {
 };
 
 void PrepareFork() {
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: Forkable::PrepareFork");
   grpc_core::MutexLock lock(g_mu.get());
   for (auto* forkable : *g_forkables) {
     forkable->PrepareFork();
   }
 }
 void PostforkParent() {
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: Forkable::PostforkParent");
   grpc_core::MutexLock lock(g_mu.get());
   for (auto* forkable : *g_forkables) {
     forkable->PostforkParent();
@@ -60,6 +62,7 @@ void PostforkParent() {
 }
 
 void PostforkChild() {
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: Forkable::PostforkChild");
   grpc_core::MutexLock lock(g_mu.get());
   for (auto* forkable : *g_forkables) {
     forkable->PostforkChild();
