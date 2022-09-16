@@ -191,7 +191,7 @@ grpc_cc_binary(
     ],
 )
 
-# TODO(hork): filter out known-failing combinations including epoll1, or 
+# TODO(hork): filter out known-failing combinations including epoll1, or
 # otherwise assert failure of those tests so that this test fails when they
 # begin to work.
 grpc_cc_test(
