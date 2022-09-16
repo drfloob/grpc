@@ -70,7 +70,8 @@ void PrepareFork() {
   for (auto* forkable : *g_forkables) {
     gpr_log(GPR_DEBUG, "DO NOT SUBMIT: PrepareForking forkable::%p", forkable);
     forkable->PrepareFork();
-    gpr_log(GPR_DEBUG, "DO NOT SUBMIT: Done PrepareForking forkable::%p", forkable);
+    gpr_log(GPR_DEBUG, "DO NOT SUBMIT: Done PrepareForking forkable::%p",
+            forkable);
   }
   gpr_log(GPR_DEBUG, "DO NOT SUBMIT: Forkable::PrepareFork complete");
   PrintThreadCount();
