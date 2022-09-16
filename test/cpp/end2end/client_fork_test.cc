@@ -100,13 +100,9 @@ TEST(ClientForkTest, ClientCallsBeforeAndAfterForkSucceed) {
       break;
   }
 
-  // Equivalent to grpc_fork_handlers_auto_register, without the need for
-  // GRPC_POSIX_FORK_ALLOW_PTHREAD_ATFORK.
-  // pthread_atfork(grpc_prefork, grpc_postfork_parent, grpc_postfork_child);
-
   // Register another atfork handler so that clients are reset in post-fork
   // parent and child.
-  pthread_atfork(nullptr, ResetStub, ResetStub);
+  // pthread_atfork(nullptr, ResetStub, ResetStub);
 
   stub = MakeStub();
 

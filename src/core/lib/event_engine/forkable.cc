@@ -60,7 +60,7 @@ void RegisterForkHandlers() {
 };
 
 void PrepareFork() {
-  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: Forkable::PrepareFork");
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: Forkable::PrepareFork (check1)");
   PrintThreadCount();
   grpc_core::MutexLock lock(g_mu.get());
   for (auto* forkable : *g_forkables) {
