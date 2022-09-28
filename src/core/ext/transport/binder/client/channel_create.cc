@@ -68,8 +68,7 @@ namespace experimental {
 std::shared_ptr<Channel> CreateBinderChannel(
     void* jni_env_void, jobject application, absl::string_view package_name,
     absl::string_view class_name,
-    std::shared_ptr<experimental::binder::SecurityPolicy>
-        security_policy) {
+    std::shared_ptr<experimental::binder::SecurityPolicy> security_policy) {
   return CreateCustomBinderChannel(jni_env_void, application, package_name,
                                    class_name, security_policy,
                                    ChannelArguments());
@@ -89,8 +88,7 @@ std::shared_ptr<Channel> CreateCustomBinderChannel(
 
 std::shared_ptr<Channel> CreateBinderChannel(
     void* jni_env_void, jobject application, absl::string_view uri,
-    std::shared_ptr<experimental::binder::SecurityPolicy>
-        security_policy) {
+    std::shared_ptr<experimental::binder::SecurityPolicy> security_policy) {
   return CreateCustomBinderChannel(jni_env_void, application, uri,
                                    security_policy, ChannelArguments());
 }
