@@ -97,7 +97,7 @@ std::shared_ptr<Channel> CreateCustomBinderChannel(
     void* jni_env_void, jobject application, absl::string_view uri,
     std::shared_ptr<binder::SecurityPolicy> security_policy,
     const ChannelArguments& args) {
-  ::grpc::internal::GrpcLibrary init_lib;
+  internal::GrpcLibrary init_lib;
   init_lib.init();
 
   GPR_ASSERT(jni_env_void != nullptr);
@@ -138,7 +138,7 @@ std::shared_ptr<Channel> CreateCustomBinderChannel(
   grpc_binder::GetSecurityPolicySetting()->Set(connection_id, security_policy);
 
   auto channel = CreateChannelInternal(
-      "", ::grpc::internal::CreateClientBinderChannelImpl(new_args),
+      "", internal::CreateClientBinderChannelImpl(new_args),
       std::vector<std::unique_ptr<ClientInterceptorFactoryInterface>>());
 
   grpc_channel_args_destroy(new_args);
