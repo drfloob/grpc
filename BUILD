@@ -2930,6 +2930,7 @@ grpc_cc_library(
     ],
     external_deps = [
         "absl/functional:any_invocable",
+        "absl/status",
         "absl/strings",
     ],
     deps = [
@@ -2937,6 +2938,7 @@ grpc_cc_library(
         "gpr",
         "gpr_platform",
         "grpc_base",
+        "sockaddr_utils",
     ],
 )
 
