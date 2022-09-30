@@ -25,10 +25,10 @@
 #include "absl/strings/str_cat.h"
 #include "absl/strings/string_view.h"
 #include "absl/types/optional.h"
-#include "tcp_socket_utils.h"
 
 #include <grpc/event_engine/event_engine.h>
 
+#include "src/core/lib/event_engine/posix_engine/tcp_socket_utils.h"
 #include "src/core/lib/gpr/useful.h"
 #include "src/core/lib/iomgr/port.h"
 
