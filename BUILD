@@ -2975,7 +2975,6 @@ grpc_cc_library(
         "absl/container:flat_hash_set",
         "absl/hash",
         "absl/strings",
-        "absl/utility",
     ],
     deps = [
         "event_engine_base_hdrs",
@@ -3437,7 +3436,6 @@ grpc_cc_library(
         "absl/time",
         "absl/types:optional",
         "absl/types:variant",
-        "absl/utility",
         "madler_zlib",
     ],
     language = "c++",

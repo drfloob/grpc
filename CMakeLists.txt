@@ -2120,10 +2120,21 @@ add_library(grpc
   src/core/lib/event_engine/executor/threaded_executor.cc
   src/core/lib/event_engine/forkable.cc
   src/core/lib/event_engine/memory_allocator.cc
+  src/core/lib/event_engine/posix_engine/ev_epoll1_linux.cc
+  src/core/lib/event_engine/posix_engine/ev_poll_posix.cc
+  src/core/lib/event_engine/posix_engine/event_poller_posix_default.cc
+  src/core/lib/event_engine/posix_engine/internal_errqueue.cc
+  src/core/lib/event_engine/posix_engine/lockfree_event.cc
+  src/core/lib/event_engine/posix_engine/posix_endpoint.cc
   src/core/lib/event_engine/posix_engine/posix_engine.cc
+  src/core/lib/event_engine/posix_engine/tcp_socket_utils.cc
   src/core/lib/event_engine/posix_engine/timer.cc
   src/core/lib/event_engine/posix_engine/timer_heap.cc
   src/core/lib/event_engine/posix_engine/timer_manager.cc
+  src/core/lib/event_engine/posix_engine/traced_buffer_list.cc
+  src/core/lib/event_engine/posix_engine/wakeup_fd_eventfd.cc
+  src/core/lib/event_engine/posix_engine/wakeup_fd_pipe.cc
+  src/core/lib/event_engine/posix_engine/wakeup_fd_posix_default.cc
   src/core/lib/event_engine/resolved_address.cc
   src/core/lib/event_engine/slice.cc
   src/core/lib/event_engine/slice_buffer.cc
@@ -2137,6 +2148,7 @@ add_library(grpc
   src/core/lib/experiments/config.cc
   src/core/lib/experiments/experiments.cc
   src/core/lib/gpr/murmur_hash.cc
+  src/core/lib/gprpp/load_file.cc
   src/core/lib/gprpp/status_helper.cc
   src/core/lib/gprpp/time.cc
   src/core/lib/gprpp/time_averaged_stats.cc
@@ -2163,6 +2175,8 @@ add_library(grpc
   src/core/lib/iomgr/ev_poll_posix.cc
   src/core/lib/iomgr/ev_posix.cc
   src/core/lib/iomgr/ev_windows.cc
+  src/core/lib/iomgr/event_engine_shims/closure.cc
+  src/core/lib/iomgr/event_engine_shims/endpoint.cc
   src/core/lib/iomgr/exec_ctx.cc
   src/core/lib/iomgr/executor.cc
   src/core/lib/iomgr/fork_posix.cc
@@ -2731,10 +2745,21 @@ add_library(grpc_unsecure
   src/core/lib/event_engine/executor/threaded_executor.cc
   src/core/lib/event_engine/forkable.cc
   src/core/lib/event_engine/memory_allocator.cc
+  src/core/lib/event_engine/posix_engine/ev_epoll1_linux.cc
+  src/core/lib/event_engine/posix_engine/ev_poll_posix.cc
+  src/core/lib/event_engine/posix_engine/event_poller_posix_default.cc
+  src/core/lib/event_engine/posix_engine/internal_errqueue.cc
+  src/core/lib/event_engine/posix_engine/lockfree_event.cc
+  src/core/lib/event_engine/posix_engine/posix_endpoint.cc
   src/core/lib/event_engine/posix_engine/posix_engine.cc
+  src/core/lib/event_engine/posix_engine/tcp_socket_utils.cc
   src/core/lib/event_engine/posix_engine/timer.cc
   src/core/lib/event_engine/posix_engine/timer_heap.cc
   src/core/lib/event_engine/posix_engine/timer_manager.cc
+  src/core/lib/event_engine/posix_engine/traced_buffer_list.cc
+  src/core/lib/event_engine/posix_engine/wakeup_fd_eventfd.cc
+  src/core/lib/event_engine/posix_engine/wakeup_fd_pipe.cc
+  src/core/lib/event_engine/posix_engine/wakeup_fd_posix_default.cc
   src/core/lib/event_engine/resolved_address.cc
   src/core/lib/event_engine/slice.cc
   src/core/lib/event_engine/slice_buffer.cc
@@ -2748,6 +2773,7 @@ add_library(grpc_unsecure
   src/core/lib/experiments/config.cc
   src/core/lib/experiments/experiments.cc
   src/core/lib/gpr/murmur_hash.cc
+  src/core/lib/gprpp/load_file.cc
   src/core/lib/gprpp/status_helper.cc
   src/core/lib/gprpp/time.cc
   src/core/lib/gprpp/time_averaged_stats.cc
@@ -2773,6 +2799,8 @@ add_library(grpc_unsecure
   src/core/lib/iomgr/ev_poll_posix.cc
   src/core/lib/iomgr/ev_posix.cc
   src/core/lib/iomgr/ev_windows.cc
+  src/core/lib/iomgr/event_engine_shims/closure.cc
+  src/core/lib/iomgr/event_engine_shims/endpoint.cc
   src/core/lib/iomgr/exec_ctx.cc
   src/core/lib/iomgr/executor.cc
   src/core/lib/iomgr/fork_posix.cc
@@ -9500,13 +9528,6 @@ if(gRPC_BUILD_TESTS)
 if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
   add_executable(event_poller_posix_test
-    src/core/lib/event_engine/posix_engine/ev_epoll1_linux.cc
-    src/core/lib/event_engine/posix_engine/ev_poll_posix.cc
-    src/core/lib/event_engine/posix_engine/event_poller_posix_default.cc
-    src/core/lib/event_engine/posix_engine/lockfree_event.cc
-    src/core/lib/event_engine/posix_engine/wakeup_fd_eventfd.cc
-    src/core/lib/event_engine/posix_engine/wakeup_fd_pipe.cc
-    src/core/lib/event_engine/posix_engine/wakeup_fd_posix_default.cc
     test/core/event_engine/posix/event_poller_posix_test.cc
     test/core/event_engine/posix/posix_engine_test_utils.cc
     third_party/googletest/googletest/src/gtest-all.cc
@@ -13115,7 +13136,6 @@ endif()
 if(gRPC_BUILD_TESTS)
 
 add_executable(lock_free_event_test
-  src/core/lib/event_engine/posix_engine/lockfree_event.cc
   test/core/event_engine/posix/lock_free_event_test.cc
   third_party/googletest/googletest/src/gtest-all.cc
   third_party/googletest/googlemock/src/gmock-all.cc
@@ -14575,19 +14595,6 @@ if(gRPC_BUILD_TESTS)
 if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
   add_executable(posix_endpoint_test
-    src/core/lib/event_engine/posix_engine/ev_epoll1_linux.cc
-    src/core/lib/event_engine/posix_engine/ev_poll_posix.cc
-    src/core/lib/event_engine/posix_engine/event_poller_posix_default.cc
-    src/core/lib/event_engine/posix_engine/internal_errqueue.cc
-    src/core/lib/event_engine/posix_engine/lockfree_event.cc
-    src/core/lib/event_engine/posix_engine/posix_endpoint.cc
-    src/core/lib/event_engine/posix_engine/tcp_socket_utils.cc
-    src/core/lib/event_engine/posix_engine/traced_buffer_list.cc
-    src/core/lib/event_engine/posix_engine/wakeup_fd_eventfd.cc
-    src/core/lib/event_engine/posix_engine/wakeup_fd_pipe.cc
-    src/core/lib/event_engine/posix_engine/wakeup_fd_posix_default.cc
-    src/core/lib/gprpp/load_file.cc
-    src/core/lib/iomgr/socket_mutator.cc
     test/core/event_engine/posix/posix_endpoint_test.cc
     test/core/event_engine/posix/posix_engine_test_utils.cc
     test/core/event_engine/test_suite/event_engine_test.cc
@@ -17843,8 +17850,6 @@ if(gRPC_BUILD_TESTS)
 if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
   add_executable(tcp_posix_socket_utils_test
-    src/core/lib/event_engine/posix_engine/tcp_socket_utils.cc
-    src/core/lib/iomgr/socket_mutator.cc
     test/core/event_engine/posix/tcp_posix_socket_utils_test.cc
     third_party/googletest/googletest/src/gtest-all.cc
     third_party/googletest/googlemock/src/gmock-all.cc
@@ -18051,7 +18056,6 @@ target_link_libraries(test_core_event_engine_slice_buffer_test
   absl::any_invocable
   absl::hash
   absl::statusor
-  absl::utility
   gpr
 )
 
@@ -18095,7 +18099,6 @@ endif()
 if(gRPC_BUILD_TESTS)
 
 add_executable(test_core_gprpp_load_file_test
-  src/core/lib/gprpp/load_file.cc
   test/core/gprpp/load_file_test.cc
   third_party/googletest/googletest/src/gtest-all.cc
   third_party/googletest/googlemock/src/gmock-all.cc
@@ -19092,8 +19095,6 @@ if(gRPC_BUILD_TESTS)
 if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
   add_executable(traced_buffer_list_test
-    src/core/lib/event_engine/posix_engine/internal_errqueue.cc
-    src/core/lib/event_engine/posix_engine/traced_buffer_list.cc
     test/core/event_engine/posix/traced_buffer_list_test.cc
     third_party/googletest/googletest/src/gtest-all.cc
     third_party/googletest/googlemock/src/gmock-all.cc
@@ -19632,8 +19633,6 @@ if(gRPC_BUILD_TESTS)
 if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
 
   add_executable(wakeup_fd_posix_test
-    src/core/lib/event_engine/posix_engine/wakeup_fd_eventfd.cc
-    src/core/lib/event_engine/posix_engine/wakeup_fd_pipe.cc
     test/core/event_engine/posix/wakeup_fd_posix_test.cc
     third_party/googletest/googletest/src/gtest-all.cc
     third_party/googletest/googlemock/src/gmock-all.cc
