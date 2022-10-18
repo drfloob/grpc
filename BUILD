@@ -2516,7 +2516,6 @@ grpc_cc_library(
     deps = [
         "event_engine_base_hdrs",
         "event_engine_thread_pool",
-        "forkable",
         "gpr",
         "grpc_trace",
         "notification",
