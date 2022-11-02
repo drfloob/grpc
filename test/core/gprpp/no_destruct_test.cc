@@ -18,7 +18,7 @@
 
 #include <memory>
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 
 namespace grpc_core {
 namespace testing {
@@ -39,6 +39,29 @@ TEST(NoDestruct, Works) { EXPECT_EQ(42, **g_test_int); }
 
 TEST(NoDestruct, CrashOnDestructionIsAccessible) {
   g_test_crash_on_destruction->Exists();
+}
+
+bool g_thing_constructed = false;
+
+class Thing {
+ public:
+  Thing() {
+    EXPECT_FALSE(g_thing_constructed);
+    g_thing_constructed = true;
+  }
+
+  int Add(int i, int j) { return i + j; }
+
+ private:
+  ~Thing() = delete;
+};
+
+TEST(GlobalSingleton, Works) {
+  // Thing should be eagerly constructed, so we should not observe it being not
+  // constructed.
+  EXPECT_TRUE(g_thing_constructed);
+  // We should be able to fetch the global Thing and use it.
+  EXPECT_EQ(NoDestructSingleton<Thing>::Get()->Add(1, 2), 3);
 }
 
 }  // namespace
