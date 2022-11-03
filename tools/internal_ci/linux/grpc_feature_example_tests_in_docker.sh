@@ -15,6 +15,6 @@
 
 set -ex
 
-apt-get install -y lsof
+apt-get install -y lsof jq curl
 
 ./examples/cpp/features/run_tests.sh
