@@ -47,21 +47,22 @@ struct FanoutParameters {
 void BM_EventEngine_RunSmallLambda(benchmark::State& state) {
   auto engine = GetDefaultEventEngine();
   const int cb_count = state.range(0);
-  std::atomic_int count{0};
   for (auto _ : state) {
     state.PauseTiming();
+    std::atomic_int count{0};
     grpc_core::Notification signal;
     auto cb = [&signal, &count, cb_count]() {
       if (++count == cb_count) signal.Notify();
+      if (count > cb_count) abort();
     };
     state.ResumeTiming();
     for (int i = 0; i < cb_count; i++) {
       engine->Run(cb);
     }
     signal.WaitForNotification();
-    count.store(0);
   }
   state.SetItemsProcessed(cb_count * state.iterations());
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: done");
 }
 BENCHMARK(BM_EventEngine_RunSmallLambda)
     ->Range(100, 4096)
@@ -91,43 +92,96 @@ void BM_EventEngine_RunLargeLambda(benchmark::State& state) {
   state.SetItemsProcessed(cb_count * state.iterations());
 }
 BENCHMARK(BM_EventEngine_RunLargeLambda)
+    ->Threads(1)
     ->Range(100, 4096)
     ->MeasureProcessCPUTime()
     ->UseRealTime();
 
-void BM_EventEngine_RunClosure(benchmark::State& state) {
-  int cb_count = state.range(0);
-  grpc_core::Notification* signal = new grpc_core::Notification();
-  std::atomic_int count{0};
-  // Ignore leaks from this closure. For simplicty, this closure is not deleted
-  // because the closure may still be executing after the event engine is
-  // destroyed. This is because the default posix event engine's thread pool may
-  // get destroyed separately from the event engine.
-  AnyInvocableClosure* closure = absl::IgnoreLeak(
-      new AnyInvocableClosure([signal_holder = &signal, cb_count, &count]() {
-        if (++count == cb_count) {
-          (*signal_holder)->Notify();
-        }
-      }));
-  auto engine = GetDefaultEventEngine();
+class ClosureFixture : public benchmark::Fixture {
+ public:
+  void SetUp(const ::benchmark::State& state) {
+    gpr_log(GPR_DEBUG, "DO NOT SUBMIT: setting up");
+    engine_ = grpc_event_engine::experimental::CreateEventEngine();
+    cb_count_ = state.range(0);
+    benchmark::DoNotOptimize(
+        closure_ = new AnyInvocableClosure([signal_holder = &signal_,
+                                            cb_count = cb_count_,
+                                            count = &count_]() mutable {
+          if (++(*count) == cb_count) {
+            (*signal_holder)->Notify();
+          }
+        }));
+    gpr_log(GPR_DEBUG, "DO NOT SUBMIT: created closure::%p", closure_);
+    signal_ = new grpc_core::Notification();
+  }
+  void TearDown(const ::benchmark::State& state) {
+    gpr_log(GPR_DEBUG, "DO NOT SUBMIT: tearing down");
+    engine_.reset();
+    delete closure_;
+  }
+
+ protected:
+  grpc_core::Notification* signal_;
+  int cb_count_;
+  std::atomic<int> count_{0};
+  AnyInvocableClosure* closure_;
+  std::unique_ptr<EventEngine> engine_;
+};
+
+BENCHMARK_DEFINE_F(ClosureFixture, RunClosure)(benchmark::State& state) {
   for (auto _ : state) {
-    for (int i = 0; i < cb_count; i++) {
-      engine->Run(closure);
+    for (int i = 0; i < cb_count_; i++) {
+      engine_->Run(closure_);
     }
-    signal->WaitForNotification();
+    signal_->WaitForNotification();
     state.PauseTiming();
-    delete signal;
-    signal = new grpc_core::Notification();
-    count.store(0);
+    delete signal_;
+    signal_ = new grpc_core::Notification();
+    count_.store(0);
+    benchmark::ClobberMemory();
     state.ResumeTiming();
   }
-  delete signal;
-  state.SetItemsProcessed(cb_count * state.iterations());
+  delete signal_;
+  state.SetItemsProcessed(cb_count_ * state.iterations());
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: exiting RunClosure");
 }
-BENCHMARK(BM_EventEngine_RunClosure)
+BENCHMARK_REGISTER_F(ClosureFixture, RunClosure)
     ->Range(100, 4096)
     ->MeasureProcessCPUTime()
     ->UseRealTime();
+
+// void BM_EventEngine_RunClosure(benchmark::State& state) {
+//   int cb_count = state.range(0);
+//   grpc_core::Notification* signal = new grpc_core::Notification();
+//   std::atomic_int count{0};
+//   AnyInvocableClosure* closure =
+//       new AnyInvocableClosure([signal_holder = &signal, cb_count, &count]() {
+//         if (++count == cb_count) {
+//           (*signal_holder)->Notify();
+//         }
+//       });
+//   auto engine = GetDefaultEventEngine();
+//   for (auto _ : state) {
+//     for (int i = 0; i < cb_count; i++) {
+//       engine->Run(closure);
+//     }
+//     signal->WaitForNotification();
+//     state.PauseTiming();
+//     delete signal;
+//     signal = new grpc_core::Notification();
+//     count.store(0);
+//     state.ResumeTiming();
+//   }
+//   delete signal;
+//   delete closure;
+//   state.SetItemsProcessed(cb_count * state.iterations());
+//   gpr_log(GPR_DEBUG, "DO NOT SUBMIT: done");
+// }
+// BENCHMARK(BM_EventEngine_RunClosure)
+//     ->Setup(BM_EventEngine_RunClosure_Setup)
+//     ->Range(100, 4096)
+//     ->MeasureProcessCPUTime()
+//     ->UseRealTime();
 
 void FanoutTestArguments(benchmark::internal::Benchmark* b) {
   // TODO(hork): enable when the engines are fast enough to run these:

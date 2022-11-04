@@ -64,14 +64,23 @@ std::unique_ptr<EventEngine> CreateEventEngine() {
   return DefaultEventEngineFactory();
 }
 
-std::shared_ptr<EventEngine> GetDefaultEventEngine() {
+std::shared_ptr<EventEngine> GetDefaultEventEngine(
+    grpc_core::SourceLocation location) {
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: called from %s:%d", location.file(),
+          location.line());
   grpc_core::MutexLock lock(&*g_mu);
   if (std::shared_ptr<EventEngine> engine = g_event_engine->lock()) {
     GRPC_EVENT_ENGINE_TRACE("DefaultEventEngine::%p use_count:%ld",
                             engine.get(), engine.use_count());
     return engine;
   }
-  std::shared_ptr<EventEngine> engine{CreateEventEngine()};
+  GRPC_EVENT_ENGINE_TRACE("%s", "Creating DefaultEventEngine");
+  std::shared_ptr<EventEngine> engine{
+      CreateEventEngine().release(), [](void* p) {
+        gpr_log(GPR_DEBUG, "DO NOT SUBMIT: deleting EventEngine::%p", p);
+        auto engine = static_cast<EventEngine*>(p);
+        delete engine;
+      }};
   GRPC_EVENT_ENGINE_TRACE("Created DefaultEventEngine::%p", engine.get());
   *g_event_engine = engine;
   return engine;

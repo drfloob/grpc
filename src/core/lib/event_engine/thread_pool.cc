@@ -89,12 +89,13 @@ class ThreadPoolImpl : public Forkable,
     void Add();
     void Remove();
     void BlockUntilThreadCount(int threads, const char* why,
-                               grpc_core::CondVar& waiting_cv);
+                               grpc_core::CondVar& wait_cv,
+                               grpc_core::Mutex& wait_mu);
 
    private:
-    grpc_core::Mutex mu_;
-    grpc_core::CondVar cv_;
-    int threads_ ABSL_GUARDED_BY(mu_) = 0;
+    grpc_core::Mutex thread_count_mu_;
+    grpc_core::CondVar thread_count_cv_;
+    int threads_ ABSL_GUARDED_BY(thread_count_mu_) = 0;
   };
 
   enum class StartThreadReason {
@@ -113,8 +114,6 @@ class ThreadPoolImpl : public Forkable,
   void StartThreadIfBacklogged();
   void Postfork();
 
-  WorkQueue global_queue_;
-  ThreadCount thread_count_;
   // After pool creation we use this to rate limit creation of threads to one
   // at a time.
   std::atomic<bool> currently_starting_one_thread_;
@@ -126,6 +125,8 @@ class ThreadPoolImpl : public Forkable,
   std::atomic<uint32_t> threads_waiting_;
   grpc_core::Mutex wait_mu_;
   grpc_core::CondVar wait_cv_;
+  WorkQueue global_queue_;
+  ThreadCount thread_count_;
 };
 
 // ---- ThreadPool ----
@@ -161,8 +162,7 @@ void ThreadPoolImpl::Start() {
 void ThreadPoolImpl::StartThread(bool initial) {
   thread_count_.Add();
   last_started_thread_.store(
-      grpc_core::Timestamp::Now().milliseconds_after_process_epoch(),
-      std::memory_order_relaxed);
+      grpc_core::Timestamp::Now().milliseconds_after_process_epoch());
   // Initial pool creation can proceed immediately
   grpc_core::Thread(
       "event_engine_thread_pool",
@@ -171,11 +171,12 @@ void ThreadPoolImpl::StartThread(bool initial) {
         g_threadpool_thread = true;
         if (!thread_arg->initial) {
           thread_arg->pool->SleepIfRunning();
-          GPR_ASSERT(thread_arg->pool->currently_starting_one_thread_.exchange(
-              false, std::memory_order_relaxed));
+          GPR_ASSERT(
+              thread_arg->pool->currently_starting_one_thread_.exchange(false));
           thread_arg->pool->StartThreadIfBacklogged();
         }
         WorkerThreadMain(std::move(thread_arg->pool));
+        thread_arg->pool.reset();
         delete thread_arg;
       },
       new ThreadArg{initial, shared_from_this()}, nullptr,
@@ -189,13 +190,12 @@ void ThreadPoolImpl::StartThreadIfBacklogged() {
   // Rate limit thread creation
   auto time_since_last_start =
       now - grpc_core::Timestamp::FromMillisecondsAfterProcessEpoch(
-                last_started_thread_.load(std::memory_order_relaxed));
+                last_started_thread_.load());
   if (time_since_last_start < kMaximumThreadStartFrequency) {
     return;
   }
   // Ensure only one thread is being created at a time
-  if (currently_starting_one_thread_.exchange(true,
-                                              std::memory_order_relaxed)) {
+  if (currently_starting_one_thread_.exchange(true)) {
     return;
   }
   StartThread(/*initial=*/false);
@@ -238,36 +238,45 @@ bool ThreadPoolImpl::Step() {
   if (callback != nullptr) {
     callback->Run();
   }
-  return true;
+  return !quiesced_.load();
 }
 
 void ThreadPoolImpl::Quiesce() {
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: Quiescing");
   SetRunState(RunState::kShutdown);
   // Wait until all threads are exited.
   // Note that if this is a threadpool thread then we won't exit this thread
   // until the callstack unwinds a little, so we need to wait for just one
   // thread running instead of zero.
   thread_count_.BlockUntilThreadCount(g_threadpool_thread ? 1 : 0,
-                                      "shutting down", wait_cv_);
-  quiesced_.store(true, std::memory_order_relaxed);
+                                      "shutting down", wait_cv_, wait_mu_);
+  quiesced_.store(true);
+  gpr_log(GPR_DEBUG,
+          "DO NOT SUBMIT: finished blocking until thread count is %d",
+          g_threadpool_thread ? 1 : 0);
 }
 
 ThreadPoolImpl::~ThreadPoolImpl() {
-  GPR_ASSERT(quiesced_.load(std::memory_order_relaxed));
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: ~ThreadPoolImpl");
+  GPR_ASSERT(quiesced_.load());
 }
 
 void ThreadPoolImpl::Run(absl::AnyInvocable<void()> callback) {
-  GPR_DEBUG_ASSERT(quiesced_.load(std::memory_order_relaxed) == false);
+  GPR_DEBUG_ASSERT(quiesced_.load() == false);
   global_queue_.Add(std::move(callback));
+  wait_mu_.Lock();
   wait_cv_.Signal();
+  wait_mu_.Unlock();
   if (run_state_ == RunState::kForking) return;
   StartThreadIfBacklogged();
 }
 
 void ThreadPoolImpl::Run(EventEngine::Closure* closure) {
-  GPR_DEBUG_ASSERT(quiesced_.load(std::memory_order_relaxed) == false);
+  GPR_DEBUG_ASSERT(quiesced_.load() == false);
   global_queue_.Add(closure);
+  wait_mu_.Lock();
   wait_cv_.Signal();
+  wait_mu_.Unlock();
   if (run_state_ == RunState::kForking) return;
   StartThreadIfBacklogged();
 }
@@ -283,7 +292,7 @@ bool ThreadPoolImpl::IsBacklogged() {
 
 void ThreadPoolImpl::SleepIfRunning() {
   auto end = grpc_core::Timestamp::FromMillisecondsAfterProcessEpoch(
-                 last_started_thread_.load(std::memory_order_relaxed)) +
+                 last_started_thread_.load()) +
              kMaximumThreadStartFrequency;
   while (true) {
     if (run_state_ == RunState::kForking) return;
@@ -303,31 +312,35 @@ void ThreadPoolImpl::SetRunState(RunState state) {
   } else {
     GPR_ASSERT(old_state == RunState::kRunning);
   }
+  grpc_core::MutexLock lock(&wait_mu_);
   wait_cv_.SignalAll();
 }
 
 void ThreadPoolImpl::ThreadCount::Add() {
-  grpc_core::MutexLock lock(&mu_);
+  grpc_core::MutexLock lock(&thread_count_mu_);
   ++threads_;
 }
 
 void ThreadPoolImpl::ThreadCount::Remove() {
-  grpc_core::MutexLock lock(&mu_);
+  grpc_core::MutexLock lock(&thread_count_mu_);
   --threads_;
-  cv_.Signal();
+  thread_count_cv_.Signal();
 }
 
 void ThreadPoolImpl::ThreadCount::BlockUntilThreadCount(
-    int threads, const char* why, grpc_core::CondVar& waiting_cv) {
-  grpc_core::MutexLock lock(&mu_);
+    int threads, const char* why, grpc_core::CondVar& wait_cv,
+    grpc_core::Mutex& wait_mu) {
+  grpc_core::MutexLock lock(&thread_count_mu_);
   auto last_log = absl::Now();
   while (threads_ > threads) {
-    waiting_cv.SignalAll();
+    wait_mu.Lock();
+    wait_cv.SignalAll();
+    wait_mu.Unlock();
     // Wait for all threads to exit.
     // At least once every three seconds (but no faster than once per second
     // in the event of spurious wakeups) log a message indicating we're
     // waiting to fork.
-    cv_.WaitWithTimeout(&mu_, absl::Seconds(3));
+    thread_count_cv_.WaitWithTimeout(&thread_count_mu_, absl::Seconds(3));
     if (threads_ > threads && absl::Now() - last_log > absl::Seconds(1)) {
       gpr_log(
           GPR_ERROR,
@@ -340,7 +353,7 @@ void ThreadPoolImpl::ThreadCount::BlockUntilThreadCount(
 
 void ThreadPoolImpl::PrepareFork() {
   SetRunState(RunState::kForking);
-  thread_count_.BlockUntilThreadCount(0, "forking", wait_cv_);
+  thread_count_.BlockUntilThreadCount(0, "forking", wait_cv_, wait_mu_);
 }
 void ThreadPoolImpl::PostforkParent() { Postfork(); }
 void ThreadPoolImpl::PostforkChild() { Postfork(); }

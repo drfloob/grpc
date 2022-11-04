@@ -44,6 +44,9 @@ class WorkQueue {
   static const int64_t kInvalidTimestamp = -1;
 
   WorkQueue() = default;
+  ~WorkQueue() {
+    gpr_log(GPR_DEBUG, "DO NOT SUBMIT: destroying WorkQueue::%p", this);
+  }
   // Returns whether the queue is empty
   bool Empty() const;
   // Returns the Timestamp of when the most recently-added element was

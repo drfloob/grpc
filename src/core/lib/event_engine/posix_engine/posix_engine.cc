@@ -182,6 +182,7 @@ PosixEventEngine::~PosixEventEngine() {
   }
 #endif  // GRPC_POSIX_SOCKET_TCP
   executor_->Quiesce();
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: pool quiesced");
 }
 
 bool PosixEventEngine::Cancel(EventEngine::TaskHandle handle) {

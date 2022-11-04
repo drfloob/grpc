@@ -50,6 +50,7 @@ class SelfDeletingClosure : public EventEngine::Closure {
   }
   ~SelfDeletingClosure() override {
     if (dest_cb_) dest_cb_();
+    gpr_log(GPR_DEBUG, "DO NOT SUBMIT: ~SelfDeletingClosure::%p", this);
   };
 
   void Run() override {
