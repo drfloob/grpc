@@ -164,10 +164,13 @@ TestEnvironment::~TestEnvironment() {
   //   gpr_log(GPR_ERROR, "Timeout in waiting for gRPC shutdown");
   // }
   // if (BuiltUnderMsan()) {
-  //   // This is a workaround for MSAN. MSAN doesn't like having shutdown thread
+  //   // This is a workaround for MSAN. MSAN doesn't like having shutdown
+  //   thread
   //   // running. Although the code above waits until shutdown is done, chances
-  //   // are that thread itself is still alive. To workaround this problem, this
-  //   // is going to wait for 0.5 sec to give a chance to the shutdown thread to
+  //   // are that thread itself is still alive. To workaround this problem,
+  //   this
+  //   // is going to wait for 0.5 sec to give a chance to the shutdown thread
+  //   to
   //   // exit. https://github.com/grpc/grpc/issues/23695
   //   gpr_sleep_until(gpr_time_add(gpr_now(GPR_CLOCK_REALTIME),
   //                                gpr_time_from_millis(500, GPR_TIMESPAN)));
