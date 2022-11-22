@@ -15,8 +15,6 @@
 
 #ifdef GPR_WINDOWS
 
-#include "src/core/lib/event_engine/windows/windows_endpoint.h"
-
 #include "absl/cleanup/cleanup.h"
 #include "absl/functional/any_invocable.h"
 #include "absl/status/status.h"
@@ -26,6 +24,7 @@
 
 #include "src/core/lib/event_engine/trace.h"
 #include "src/core/lib/event_engine/windows/resolved_address.h"
+#include "src/core/lib/event_engine/windows/windows_endpoint.h"
 #include "src/core/lib/gprpp/debug_location.h"
 #include "src/core/lib/gprpp/status_helper.h"
 
