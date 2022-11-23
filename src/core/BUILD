@@ -1728,6 +1728,7 @@ grpc_cc_library(
         "absl/strings",
     ],
     deps = [
+        "event_engine_tcp_socket_utils",
         "iomgr_port",
         "posix_event_engine_tcp_socket_utils",
         "socket_mutator",
@@ -1755,6 +1756,7 @@ grpc_cc_library(
         "absl/types:optional",
     ],
     deps = [
+        "event_engine_tcp_socket_utils",
         "iomgr_port",
         "posix_event_engine_closure",
         "posix_event_engine_endpoint",
@@ -1894,6 +1896,8 @@ grpc_cc_library(
         "lib/event_engine/tcp_socket_utils.h",
     ],
     external_deps = [
+        "absl/status",
+        "absl/status:statusor",
         "absl/strings:str_format",
         "absl/types:optional",
     ],

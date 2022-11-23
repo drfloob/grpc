@@ -177,9 +177,8 @@ grpc_cc_test(
     uses_event_engine = False,
     uses_polling = False,
     deps = [
-        "//src/core:event_engine_common",
+        "//:gpr_platform",
+        "//:grpc_unsecure",
         "//src/core:event_engine_tcp_socket_utils",
-        "//src/core:socket_mutator",
-        "//test/core/util:grpc_test_util",
     ],
 )
