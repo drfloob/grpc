@@ -884,6 +884,7 @@ grpc_cc_library(
     ],
     deps = [
         "channel_args",
+        "channel_args_endpoint_config",
         "closure",
         "error",
         "handshaker_factory",
@@ -1820,7 +1821,9 @@ grpc_cc_library(
     deps = [
         "channel_args_endpoint_config",
         "common_event_engine_closures",
+        "error",
         "event_engine_common",
+        "event_engine_tcp_socket_utils",
         "event_engine_thread_pool",
         "event_engine_trace",
         "event_engine_utils",
@@ -1959,8 +1962,13 @@ grpc_cc_library(
     hdrs = [
         "//src/core:lib/event_engine/channel_args_endpoint_config.h",
     ],
+    external_deps = [
+        "absl/strings",
+        "absl/types:optional",
+    ],
     deps = [
         "channel_args",
+        "//:event_engine_base_hdrs",
         "//:gpr_platform",
     ],
 )
@@ -4726,6 +4734,7 @@ grpc_cc_library(
     language = "c++",
     deps = [
         "channel_args",
+        "channel_args_endpoint_config",
         "channel_args_preconditioning",
         "channel_stack_type",
         "closure",
@@ -4775,6 +4784,7 @@ grpc_cc_library(
     language = "c++",
     deps = [
         "channel_args",
+        "channel_args_endpoint_config",
         "closure",
         "error",
         "grpc_insecure_credentials",
