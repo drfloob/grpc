@@ -29,10 +29,10 @@ void RegisterAppropriateDnsResolver(CoreConfiguration::Builder* builder) {
     RegisterAresDnsResolver(builder);
     return;
   }
-  
+
   // ---- EventEngine resolver ----
   // TODO(hork): change this logic when an EE resolver is available.
-  
+
   // ---- Native resolver ----
   static const char* const resolver =
       GPR_GLOBAL_CONFIG_GET(grpc_dns_resolver).release();

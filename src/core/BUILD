@@ -4414,6 +4414,7 @@ grpc_cc_library(
     deps = [
         "grpc_resolver_dns_native",
         "grpc_resolver_dns_selection",
+        "//:config",
         "//:gpr",
         "//:grpc_resolver_dns_ares",
     ],
