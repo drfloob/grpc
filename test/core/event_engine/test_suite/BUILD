@@ -116,9 +116,9 @@ grpc_cc_test(
         "client",
         "oracle_event_engine_posix",
         "server",
+        "timer",
         "//src/core:posix_event_engine",
         "//test/core/event_engine:test_utils",
-        "timer",
     ],
 )
 
@@ -132,10 +132,10 @@ grpc_cc_test(
     ],
     uses_polling = False,
     deps = [
+        "client",
+        "timer",
         "//src/core:windows_event_engine",
         "//test/core/event_engine:test_utils",
-        "timer",
-        "client",
     ],
 )
 
@@ -148,8 +148,8 @@ grpc_cc_test(
     ],
     uses_polling = False,
     deps = [
-        "//test/core/event_engine/fuzzing_event_engine",
         "timer",
+        "//test/core/event_engine/fuzzing_event_engine",
     ],
 )
 

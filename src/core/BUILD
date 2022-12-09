@@ -1823,6 +1823,7 @@ grpc_cc_library(
         "common_event_engine_closures",
         "error",
         "event_engine_common",
+        "event_engine_executor",
         "event_engine_tcp_socket_utils",
         "event_engine_thread_pool",
         "event_engine_trace",

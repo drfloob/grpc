@@ -104,8 +104,8 @@ grpc_cc_test(
         "//:gpr_platform",
         "//src/core:common_event_engine_closures",
         "//src/core:windows_event_engine",
-        "//test/core/util:grpc_test_util",
         "//test/core/event_engine:test_utils",
+        "//test/core/util:grpc_test_util",
     ],
 )
 
