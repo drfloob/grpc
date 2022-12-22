@@ -1375,6 +1375,7 @@ grpc_cc_library(
         "absl/base:core_headers",
         "absl/functional:any_invocable",
         "absl/time",
+        "absl/types:optional",
     ],
     deps = [
         "event_engine_executor",
@@ -1383,6 +1384,7 @@ grpc_cc_library(
         "useful",
         "//:event_engine_base_hdrs",
         "//:gpr",
+        "//:grpc_trace",
         "//test/core/util:stack_tracer",
     ],
 )
@@ -1843,6 +1845,7 @@ grpc_cc_library(
         "event_engine_trace",
         "event_engine_utils",
         "experiments",
+        "forkable",
         "init_internally",
         "iomgr_port",
         "posix_event_engine_closure",
