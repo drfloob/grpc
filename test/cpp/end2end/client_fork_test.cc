@@ -69,7 +69,8 @@ class ServiceImpl final : public EchoTestService::Service {
 std::unique_ptr<EchoTestService::Stub> MakeStub(const std::string& addr) {
   gpr_log(GPR_DEBUG, "DO NOT SUBMIT: creating channel");
   auto channel = grpc::CreateChannel(addr, InsecureChannelCredentials());
-  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: DONE creating channel, returning a new stub");
+  gpr_log(GPR_DEBUG,
+          "DO NOT SUBMIT: DONE creating channel, returning a new stub");
   return EchoTestService::NewStub(channel);
 }
 

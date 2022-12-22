@@ -20,16 +20,21 @@
 
 #include "src/core/lib/event_engine/thread_pool.h"
 
+#include <stdlib.h>
+
 #include <atomic>
 #include <memory>
+#include <string>
 #include <utility>
 
 #include "absl/base/attributes.h"
 #include "absl/time/clock.h"
 #include "absl/time/time.h"
+#include "absl/types/optional.h"
 
 #include <grpc/support/log.h>
 
+#include "src/core/lib/debug/trace.h"
 #include "src/core/lib/gprpp/thd.h"
 #include "src/core/lib/gprpp/time.h"
 #include "test/core/util/stack_tracer.h"

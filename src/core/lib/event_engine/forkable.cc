@@ -16,8 +16,6 @@
 
 #include "src/core/lib/event_engine/forkable.h"
 
-#include <unistd.h>
-
 grpc_core::TraceFlag grpc_trace_fork(false, "fork");
 
 #ifdef GRPC_POSIX_FORK_ALLOW_PTHREAD_ATFORK

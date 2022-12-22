@@ -884,6 +884,9 @@ if(gRPC_BUILD_TESTS)
   endif()
   add_dependencies(buildtests_cxx client_channel_test)
   add_dependencies(buildtests_cxx client_context_test_peer_test)
+  if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
+    add_dependencies(buildtests_cxx client_fork_test)
+  endif()
   add_dependencies(buildtests_cxx client_interceptors_end2end_test)
   if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
     add_dependencies(buildtests_cxx client_lb_end2end_test)
@@ -2396,6 +2399,7 @@ add_library(grpc
   src/core/tsi/ssl_transport_security_utils.cc
   src/core/tsi/transport_security.cc
   src/core/tsi/transport_security_grpc.cc
+  test/core/util/stack_tracer.cc
 )
 
 set_target_properties(grpc PROPERTIES
@@ -2439,6 +2443,8 @@ target_link_libraries(grpc
   absl::flat_hash_map
   absl::flat_hash_set
   absl::inlined_vector
+  absl::stacktrace
+  absl::symbolize
   absl::any_invocable
   absl::bind_front
   absl::function_ref
@@ -2551,7 +2557,6 @@ add_library(grpc_test_util
   test/core/util/port_isolated_runtime_environment.cc
   test/core/util/port_server_client.cc
   test/core/util/reconnect_server.cc
-  test/core/util/stack_tracer.cc
   test/core/util/test_config.cc
   test/core/util/test_tcp_server.cc
   test/core/util/tls_utils.cc
@@ -2591,8 +2596,6 @@ target_link_libraries(grpc_test_util
   ${_gRPC_ZLIB_LIBRARIES}
   ${_gRPC_ALLTARGETS_LIBRARIES}
   absl::failure_signal_handler
-  absl::stacktrace
-  absl::symbolize
   grpc
 )
 if(_gRPC_PLATFORM_IOS OR _gRPC_PLATFORM_MAC)
@@ -2610,7 +2613,6 @@ add_library(grpc_test_util_unsecure
   test/core/util/port_isolated_runtime_environment.cc
   test/core/util/port_server_client.cc
   test/core/util/reconnect_server.cc
-  test/core/util/stack_tracer.cc
   test/core/util/test_config.cc
   test/core/util/test_tcp_server.cc
 )
@@ -2649,8 +2651,6 @@ target_link_libraries(grpc_test_util_unsecure
   ${_gRPC_ZLIB_LIBRARIES}
   ${_gRPC_ALLTARGETS_LIBRARIES}
   absl::failure_signal_handler
-  absl::stacktrace
-  absl::symbolize
   grpc_unsecure
 )
 if(_gRPC_PLATFORM_IOS OR _gRPC_PLATFORM_MAC)
@@ -3008,6 +3008,7 @@ add_library(grpc_unsecure
   src/core/tsi/local_transport_security.cc
   src/core/tsi/transport_security.cc
   src/core/tsi/transport_security_grpc.cc
+  test/core/util/stack_tracer.cc
 )
 
 set_target_properties(grpc_unsecure PROPERTIES
@@ -3051,6 +3052,8 @@ target_link_libraries(grpc_unsecure
   absl::flat_hash_map
   absl::flat_hash_set
   absl::inlined_vector
+  absl::stacktrace
+  absl::symbolize
   absl::any_invocable
   absl::bind_front
   absl::function_ref
@@ -4482,6 +4485,7 @@ add_library(grpc_authorization_provider
   src/core/tsi/alts/handshaker/transport_security_common_api.cc
   src/core/tsi/transport_security.cc
   src/core/tsi/transport_security_grpc.cc
+  test/core/util/stack_tracer.cc
 )
 
 set_target_properties(grpc_authorization_provider PROPERTIES
@@ -4524,6 +4528,8 @@ target_link_libraries(grpc_authorization_provider
   absl::flat_hash_map
   absl::flat_hash_set
   absl::inlined_vector
+  absl::stacktrace
+  absl::symbolize
   absl::any_invocable
   absl::function_ref
   absl::hash
@@ -8569,6 +8575,65 @@ target_link_libraries(client_context_test_peer_test
 
 endif()
 if(gRPC_BUILD_TESTS)
+if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
+
+  add_executable(client_fork_test
+    ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/duplicate/echo_duplicate.pb.cc
+    ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/duplicate/echo_duplicate.grpc.pb.cc
+    ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/duplicate/echo_duplicate.pb.h
+    ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/duplicate/echo_duplicate.grpc.pb.h
+    ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/echo.pb.cc
+    ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/echo.grpc.pb.cc
+    ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/echo.pb.h
+    ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/echo.grpc.pb.h
+    ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/echo_messages.pb.cc
+    ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/echo_messages.grpc.pb.cc
+    ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/echo_messages.pb.h
+    ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/echo_messages.grpc.pb.h
+    ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/simple_messages.pb.cc
+    ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/simple_messages.grpc.pb.cc
+    ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/simple_messages.pb.h
+    ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/simple_messages.grpc.pb.h
+    ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/xds/v3/orca_load_report.pb.cc
+    ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/xds/v3/orca_load_report.grpc.pb.cc
+    ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/xds/v3/orca_load_report.pb.h
+    ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/xds/v3/orca_load_report.grpc.pb.h
+    test/cpp/end2end/client_fork_test.cc
+    third_party/googletest/googletest/src/gtest-all.cc
+    third_party/googletest/googlemock/src/gmock-all.cc
+  )
+
+  target_include_directories(client_fork_test
+    PRIVATE
+      ${CMAKE_CURRENT_SOURCE_DIR}
+      ${CMAKE_CURRENT_SOURCE_DIR}/include
+      ${_gRPC_ADDRESS_SORTING_INCLUDE_DIR}
+      ${_gRPC_RE2_INCLUDE_DIR}
+      ${_gRPC_SSL_INCLUDE_DIR}
+      ${_gRPC_UPB_GENERATED_DIR}
+      ${_gRPC_UPB_GRPC_GENERATED_DIR}
+      ${_gRPC_UPB_INCLUDE_DIR}
+      ${_gRPC_XXHASH_INCLUDE_DIR}
+      ${_gRPC_ZLIB_INCLUDE_DIR}
+      third_party/googletest/googletest/include
+      third_party/googletest/googletest
+      third_party/googletest/googlemock/include
+      third_party/googletest/googlemock
+      ${_gRPC_PROTO_GENS_DIR}
+  )
+
+  target_link_libraries(client_fork_test
+    ${_gRPC_BASELIB_LIBRARIES}
+    ${_gRPC_PROTOBUF_LIBRARIES}
+    ${_gRPC_ZLIB_LIBRARIES}
+    ${_gRPC_ALLTARGETS_LIBRARIES}
+    grpc++_test_util
+  )
+
+
+endif()
+endif()
+if(gRPC_BUILD_TESTS)
 
 add_executable(client_interceptors_end2end_test
   ${_gRPC_PROTO_GENS_DIR}/src/proto/grpc/testing/echo.pb.cc
@@ -11037,7 +11102,9 @@ endif()
 if(gRPC_BUILD_TESTS)
 
 add_executable(forkable_test
+  src/core/lib/debug/trace.cc
   src/core/lib/event_engine/forkable.cc
+  src/core/lib/gprpp/time.cc
   test/core/event_engine/forkable_test.cc
   third_party/googletest/googletest/src/gtest-all.cc
   third_party/googletest/googlemock/src/gmock-all.cc
@@ -11426,6 +11493,7 @@ add_executable(frame_test
   src/core/lib/uri/uri_parser.cc
   src/core/tsi/alts/handshaker/transport_security_common_api.cc
   test/core/transport/chaotic_good/frame_test.cc
+  test/core/util/stack_tracer.cc
   third_party/googletest/googletest/src/gtest-all.cc
   third_party/googletest/googlemock/src/gmock-all.cc
 )
@@ -11458,6 +11526,8 @@ target_link_libraries(frame_test
   absl::flat_hash_map
   absl::flat_hash_set
   absl::inlined_vector
+  absl::stacktrace
+  absl::symbolize
   absl::any_invocable
   absl::function_ref
   absl::hash
@@ -20536,10 +20606,12 @@ endif()
 if(gRPC_BUILD_TESTS)
 
 add_executable(thread_pool_test
+  src/core/lib/debug/trace.cc
   src/core/lib/event_engine/forkable.cc
   src/core/lib/event_engine/thread_pool.cc
   src/core/lib/gprpp/time.cc
   test/core/event_engine/thread_pool_test.cc
+  test/core/util/stack_tracer.cc
   third_party/googletest/googletest/src/gtest-all.cc
   third_party/googletest/googlemock/src/gmock-all.cc
 )
@@ -20569,6 +20641,8 @@ target_link_libraries(thread_pool_test
   ${_gRPC_ZLIB_LIBRARIES}
   ${_gRPC_ALLTARGETS_LIBRARIES}
   absl::flat_hash_set
+  absl::stacktrace
+  absl::symbolize
   absl::any_invocable
   absl::statusor
   gpr
@@ -25170,7 +25244,7 @@ generate_pkgconfig(
   "gRPC"
   "high performance general RPC framework"
   "${gRPC_CORE_VERSION}"
-  "gpr absl_any_invocable absl_base absl_bind_front absl_cleanup absl_cord absl_core_headers absl_flat_hash_map absl_flat_hash_set absl_function_ref absl_hash absl_inlined_vector absl_memory absl_optional absl_random_random absl_span absl_status absl_statusor absl_str_format absl_strings absl_synchronization absl_time absl_type_traits absl_utility absl_variant"
+  "gpr absl_any_invocable absl_base absl_bind_front absl_cleanup absl_cord absl_core_headers absl_flat_hash_map absl_flat_hash_set absl_function_ref absl_hash absl_inlined_vector absl_memory absl_optional absl_random_random absl_span absl_stacktrace absl_status absl_statusor absl_str_format absl_strings absl_symbolize absl_synchronization absl_time absl_type_traits absl_utility absl_variant"
   "openssl re2 libcares zlib"
   "-lgrpc"
   "-laddress_sorting -lupb"
@@ -25181,7 +25255,7 @@ generate_pkgconfig(
   "gRPC unsecure"
   "high performance general RPC framework without SSL"
   "${gRPC_CORE_VERSION}"
-  "gpr absl_any_invocable absl_base absl_bind_front absl_cleanup absl_cord absl_core_headers absl_flat_hash_map absl_flat_hash_set absl_function_ref absl_hash absl_inlined_vector absl_memory absl_optional absl_random_random absl_span absl_status absl_statusor absl_str_format absl_strings absl_synchronization absl_time absl_type_traits absl_utility absl_variant"
+  "gpr absl_any_invocable absl_base absl_bind_front absl_cleanup absl_cord absl_core_headers absl_flat_hash_map absl_flat_hash_set absl_function_ref absl_hash absl_inlined_vector absl_memory absl_optional absl_random_random absl_span absl_stacktrace absl_status absl_statusor absl_str_format absl_strings absl_symbolize absl_synchronization absl_time absl_type_traits absl_utility absl_variant"
   "re2 libcares zlib"
   "-lgrpc_unsecure"
   "-laddress_sorting -lupb"
@@ -25192,7 +25266,7 @@ generate_pkgconfig(
   "gRPC++"
   "C++ wrapper for gRPC"
   "${gRPC_CPP_VERSION}"
-  "grpc absl_any_invocable absl_base absl_bind_front absl_cleanup absl_cord absl_core_headers absl_flat_hash_map absl_flat_hash_set absl_function_ref absl_hash absl_inlined_vector absl_memory absl_optional absl_random_random absl_span absl_status absl_statusor absl_str_format absl_strings absl_synchronization absl_time absl_type_traits absl_utility absl_variant"
+  "grpc absl_any_invocable absl_base absl_bind_front absl_cleanup absl_cord absl_core_headers absl_flat_hash_map absl_flat_hash_set absl_function_ref absl_hash absl_inlined_vector absl_memory absl_optional absl_random_random absl_span absl_stacktrace absl_status absl_statusor absl_str_format absl_strings absl_symbolize absl_synchronization absl_time absl_type_traits absl_utility absl_variant"
   ""
   "-lgrpc++"
   ""
@@ -25203,7 +25277,7 @@ generate_pkgconfig(
   "gRPC++ unsecure"
   "C++ wrapper for gRPC without SSL"
   "${gRPC_CPP_VERSION}"
-  "grpc_unsecure absl_any_invocable absl_base absl_bind_front absl_cleanup absl_cord absl_core_headers absl_flat_hash_map absl_flat_hash_set absl_function_ref absl_hash absl_inlined_vector absl_memory absl_optional absl_random_random absl_span absl_status absl_statusor absl_str_format absl_strings absl_synchronization absl_time absl_type_traits absl_utility absl_variant"
+  "grpc_unsecure absl_any_invocable absl_base absl_bind_front absl_cleanup absl_cord absl_core_headers absl_flat_hash_map absl_flat_hash_set absl_function_ref absl_hash absl_inlined_vector absl_memory absl_optional absl_random_random absl_span absl_stacktrace absl_status absl_statusor absl_str_format absl_strings absl_symbolize absl_synchronization absl_time absl_type_traits absl_utility absl_variant"
   ""
   "-lgrpc++_unsecure"
   ""

@@ -21,6 +21,7 @@
 #include "src/core/lib/event_engine/posix_engine/timer_manager.h"
 
 #include <memory>
+#include <string>
 #include <utility>
 
 #include "absl/time/time.h"

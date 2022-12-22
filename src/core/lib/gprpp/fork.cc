@@ -21,9 +21,9 @@
 #include "src/core/lib/gprpp/fork.h"
 
 #include <grpc/support/atm.h>
+#include <grpc/support/log.h>
 #include <grpc/support/sync.h>
 #include <grpc/support/time.h>
-#include <grpc/support/log.h>
 
 #include "src/core/lib/gprpp/global_config_env.h"
 #include "src/core/lib/gprpp/no_destruct.h"

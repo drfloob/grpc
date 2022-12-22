@@ -357,6 +357,8 @@
         'absl/container:flat_hash_map',
         'absl/container:flat_hash_set',
         'absl/container:inlined_vector',
+        'absl/debugging:stacktrace',
+        'absl/debugging:symbolize',
         'absl/functional:any_invocable',
         'absl/functional:bind_front',
         'absl/functional:function_ref',
@@ -1084,6 +1086,7 @@
         'src/core/tsi/ssl_transport_security_utils.cc',
         'src/core/tsi/transport_security.cc',
         'src/core/tsi/transport_security_grpc.cc',
+        'test/core/util/stack_tracer.cc',
       ],
     },
     {
@@ -1091,8 +1094,6 @@
       'type': 'static_library',
       'dependencies': [
         'absl/debugging:failure_signal_handler',
-        'absl/debugging:stacktrace',
-        'absl/debugging:symbolize',
         'grpc',
       ],
       'sources': [
@@ -1102,7 +1103,6 @@
         'test/core/util/port_isolated_runtime_environment.cc',
         'test/core/util/port_server_client.cc',
         'test/core/util/reconnect_server.cc',
-        'test/core/util/stack_tracer.cc',
         'test/core/util/test_config.cc',
         'test/core/util/test_tcp_server.cc',
         'test/core/util/tls_utils.cc',
@@ -1113,8 +1113,6 @@
       'type': 'static_library',
       'dependencies': [
         'absl/debugging:failure_signal_handler',
-        'absl/debugging:stacktrace',
-        'absl/debugging:symbolize',
         'grpc_unsecure',
       ],
       'sources': [
@@ -1124,7 +1122,6 @@
         'test/core/util/port_isolated_runtime_environment.cc',
         'test/core/util/port_server_client.cc',
         'test/core/util/reconnect_server.cc',
-        'test/core/util/stack_tracer.cc',
         'test/core/util/test_config.cc',
         'test/core/util/test_tcp_server.cc',
       ],
@@ -1137,6 +1134,8 @@
         'absl/container:flat_hash_map',
         'absl/container:flat_hash_set',
         'absl/container:inlined_vector',
+        'absl/debugging:stacktrace',
+        'absl/debugging:symbolize',
         'absl/functional:any_invocable',
         'absl/functional:bind_front',
         'absl/functional:function_ref',
@@ -1497,6 +1496,7 @@
         'src/core/tsi/local_transport_security.cc',
         'src/core/tsi/transport_security.cc',
         'src/core/tsi/transport_security_grpc.cc',
+        'test/core/util/stack_tracer.cc',
       ],
     },
     {
@@ -1740,6 +1740,8 @@
         'absl/container:flat_hash_map',
         'absl/container:flat_hash_set',
         'absl/container:inlined_vector',
+        'absl/debugging:stacktrace',
+        'absl/debugging:symbolize',
         'absl/functional:any_invocable',
         'absl/functional:function_ref',
         'absl/hash:hash',
@@ -1982,6 +1984,7 @@
         'src/core/tsi/alts/handshaker/transport_security_common_api.cc',
         'src/core/tsi/transport_security.cc',
         'src/core/tsi/transport_security_grpc.cc',
+        'test/core/util/stack_tracer.cc',
       ],
     },
     {
