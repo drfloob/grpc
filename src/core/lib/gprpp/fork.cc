@@ -23,6 +23,7 @@
 #include <grpc/support/atm.h>
 #include <grpc/support/sync.h>
 #include <grpc/support/time.h>
+#include <grpc/support/log.h>
 
 #include "src/core/lib/gprpp/global_config_env.h"
 #include "src/core/lib/gprpp/no_destruct.h"
@@ -66,6 +67,7 @@ class ExecCtxState {
     gpr_atm count = gpr_atm_no_barrier_load(&count_);
     while (true) {
       if (count <= BLOCKED(1)) {
+        gpr_log(GPR_DEBUG, "DO NOT SUBMIT: waiting for a fork");
         // This only occurs if we are trying to fork.  Wait until the fork()
         // operation completes before allowing new ExecCtxs.
         gpr_mu_lock(&mu_);

@@ -67,8 +67,10 @@ class ServiceImpl final : public EchoTestService::Service {
 };
 
 std::unique_ptr<EchoTestService::Stub> MakeStub(const std::string& addr) {
-  return EchoTestService::NewStub(
-      grpc::CreateChannel(addr, InsecureChannelCredentials()));
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: creating channel");
+  auto channel = grpc::CreateChannel(addr, InsecureChannelCredentials());
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: DONE creating channel, returning a new stub");
+  return EchoTestService::NewStub(channel);
 }
 
 TEST(ClientForkTest, ClientCallsBeforeAndAfterForkSucceed) {
@@ -89,6 +91,7 @@ TEST(ClientForkTest, ClientCallsBeforeAndAfterForkSucceed) {
       builder.RegisterService(&impl);
       std::unique_ptr<Server> server(builder.BuildAndStart());
       server->Wait();
+      gpr_log(GPR_DEBUG, "DO NOT SUBMIT: server shutting down");
       return;
     }
     default:  // post-fork parent
@@ -121,11 +124,19 @@ TEST(ClientForkTest, ClientCallsBeforeAndAfterForkSucceed) {
       EchoRequest request;
       EchoResponse response;
       ClientContext context;
+      gpr_log(GPR_DEBUG, "DO NOT SUBMIT: child waiting for context ready");
       context.set_wait_for_ready(true);
+      gpr_log(GPR_DEBUG, "DO NOT SUBMIT: DONE child waiting for context ready");
 
+      gpr_log(GPR_DEBUG, "DO NOT SUBMIT: child making stub");
       std::unique_ptr<EchoTestService::Stub> stub = MakeStub(addr);
+      gpr_log(GPR_DEBUG, "DO NOT SUBMIT: DONE child making stub");
+      gpr_log(GPR_DEBUG, "DO NOT SUBMIT: child stub->BidiStream(&context)");
       auto stream = stub->BidiStream(&context);
+      gpr_log(GPR_DEBUG,
+              "DO NOT SUBMIT: DONE child stub->BidiStream(&context)");
 
+      gpr_log(GPR_DEBUG, "DO NOT SUBMIT: child setting message");
       request.set_message("Hello again from child");
       gpr_log(GPR_DEBUG, "DO NOT SUBMIT: doing write from child");
       ASSERT_TRUE(stream->Write(request));
@@ -161,6 +172,8 @@ TEST(ClientForkTest, ClientCallsBeforeAndAfterForkSucceed) {
       ASSERT_EQ(waitpid(child_client_pid, &child_status, 0), child_client_pid)
           << "failed to get status of child client";
       ASSERT_EQ(WEXITSTATUS(child_status), 0) << "child did not exit cleanly";
+      gpr_log(GPR_DEBUG,
+              "DO NOT SUBMIT: AAAAAAAAA child finished, parent client exiting");
     }
   }
 

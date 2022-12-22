@@ -100,7 +100,7 @@ void grpc_postfork_parent() {
     grpc_core::ExecCtx exec_ctx;
     grpc_timer_manager_set_threading(true);
     grpc_core::Executor::SetThreadingAll(true);
-    GRPC_FORK_TRACE_LOG_STRING("grpc_postfork_parent");
+    GRPC_FORK_TRACE_LOG_STRING("grpc_postfork_parent finished");
   } else {
     GRPC_FORK_TRACE_LOG_STRING("grpc_postfork_parent has been skipped");
   }
