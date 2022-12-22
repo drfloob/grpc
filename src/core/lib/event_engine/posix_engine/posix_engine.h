@@ -96,8 +96,7 @@ class AsyncConnect {
 
 // A helper class to manager lifetime of the poller associated with the
 // posix event engine.
-class PosixEnginePollerManager
-    : public grpc_event_engine::experimental::Scheduler {
+class PosixEnginePollerManager : public Scheduler, public Forkable {
  public:
   explicit PosixEnginePollerManager(std::shared_ptr<ThreadPool> executor);
   explicit PosixEnginePollerManager(
@@ -111,11 +110,19 @@ class PosixEnginePollerManager
   void Run(experimental::EventEngine::Closure* closure) override;
   void Run(absl::AnyInvocable<void()>) override;
 
+  void WorkerMain();
+
   bool IsShuttingDown() {
     return poller_state_.load(std::memory_order_acquire) ==
            PollerState::kShuttingDown;
   }
   void TriggerShutdown();
+
+  // Forkable
+  // Shuts down the poller and kicks any active worker
+  void PrepareFork() override;
+  void PostforkParent() override;
+  void PostforkChild() override;
 
   ~PosixEnginePollerManager() override;
 
@@ -124,6 +131,10 @@ class PosixEnginePollerManager
   grpc_event_engine::experimental::PosixEventPoller* poller_ = nullptr;
   std::atomic<PollerState> poller_state_{PollerState::kOk};
   std::shared_ptr<ThreadPool> executor_;
+  // Fork saved state
+  grpc_event_engine::experimental::PosixEventPoller* saved_poller_on_fork_ =
+      nullptr;
+  PollerState saved_poller_state_on_fork_;
 };
 #endif  // GRPC_POSIX_SOCKET_TCP
 
@@ -211,9 +222,6 @@ class PosixEventEngine final : public EventEngine,
     absl::flat_hash_map<int64_t, AsyncConnect*> pending_connections
         ABSL_GUARDED_BY(&mu);
   };
-
-  static void PollerWorkInternal(
-      std::shared_ptr<PosixEnginePollerManager> poller_manager);
 
   ConnectionHandle ConnectInternal(
       grpc_event_engine::experimental::PosixSocketWrapper sock,

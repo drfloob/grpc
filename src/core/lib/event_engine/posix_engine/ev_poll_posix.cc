@@ -647,6 +647,7 @@ Poller::WorkResult PollPoller::Work(
   int timeout_ms =
       static_cast<int>(grpc_event_engine::experimental::Milliseconds(timeout));
   mu_.Lock();
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: Poll poller about to poll");
   // Start polling, and keep doing so while we're being asked to
   // re-evaluate our pollers (this allows poll() based pollers to
   // ensure they don't miss wakeups).
@@ -811,6 +812,8 @@ Poller::WorkResult PollPoller::Work(
     }
   }
   mu_.Unlock();
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: Poll polling complete. Got %zu events",
+          pending_events.size());
   if (pending_events.empty()) {
     if (was_kicked_ext) {
       return Poller::WorkResult::kKicked;

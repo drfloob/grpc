@@ -127,9 +127,13 @@ TEST(ClientForkTest, ClientCallsBeforeAndAfterForkSucceed) {
       auto stream = stub->BidiStream(&context);
 
       request.set_message("Hello again from child");
+      gpr_log(GPR_DEBUG, "DO NOT SUBMIT: doing write from child");
       ASSERT_TRUE(stream->Write(request));
+      gpr_log(GPR_DEBUG, "DO NOT SUBMIT: doing read from child");
       ASSERT_TRUE(stream->Read(&response));
+      gpr_log(GPR_DEBUG, "DO NOT SUBMIT: comparing messages from child");
       ASSERT_EQ(response.message(), request.message());
+      gpr_log(GPR_DEBUG, "DO NOT SUBMIT: child exiting");
       exit(0);
     }
     default:  // post-fork parent
@@ -144,10 +148,14 @@ TEST(ClientForkTest, ClientCallsBeforeAndAfterForkSucceed) {
       auto stream = stub->BidiStream(&context);
 
       request.set_message("Hello again from parent");
+      gpr_log(GPR_DEBUG, "DO NOT SUBMIT: doing write from parent");
       EXPECT_TRUE(stream->Write(request));
+      gpr_log(GPR_DEBUG, "DO NOT SUBMIT: doing read from parent");
       EXPECT_TRUE(stream->Read(&response));
+      gpr_log(GPR_DEBUG, "DO NOT SUBMIT: comparing messages from parent");
       EXPECT_EQ(response.message(), request.message());
 
+      gpr_log(GPR_DEBUG, "DO NOT SUBMIT: waiting on child to shut down");
       // Wait for the post-fork child to exit; ensure it exited cleanly.
       int child_status;
       ASSERT_EQ(waitpid(child_client_pid, &child_status, 0), child_client_pid)

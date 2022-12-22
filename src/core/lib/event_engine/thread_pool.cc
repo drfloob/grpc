@@ -32,6 +32,7 @@
 
 #include "src/core/lib/gprpp/thd.h"
 #include "src/core/lib/gprpp/time.h"
+#include "test/core/util/stack_tracer.h"
 
 namespace grpc_event_engine {
 namespace experimental {
@@ -134,10 +135,13 @@ bool ThreadPool::Queue::Step() {
       return false;
   }
   GPR_ASSERT(!callbacks_.empty());
+  auto* cb_name = &callbacks_.front();
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: running callback %p", cb_name);
   auto callback = std::move(callbacks_.front());
   callbacks_.pop();
   lock.Release();
   callback();
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: DONE running callback %p", cb_name);
   return true;
 }
 
@@ -177,6 +181,9 @@ bool ThreadPool::Queue::Add(absl::AnyInvocable<void()> callback) {
   grpc_core::MutexLock lock(&mu_);
   // Add works to the callbacks list
   callbacks_.push(std::move(callback));
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: added callback %p, trace: %s",
+          &callbacks_.back(),
+          grpc_core::testing::GetCurrentStackTrace().c_str());
   cv_.Signal();
   switch (state_) {
     case State::kRunning:
@@ -252,6 +259,19 @@ void ThreadPool::ThreadCount::BlockUntilThreadCount(int threads,
     if (threads_ > threads && absl::Now() - last_log > absl::Seconds(1)) {
       gpr_log(GPR_ERROR, "Waiting for thread pool to idle before %s", why);
       last_log = absl::Now();
+      auto forking = ForkStartTimeIfForking();
+      if (forking.has_value()) {
+        gpr_log(GPR_DEBUG, "DO NOT SUBMIT: ThreadPool: forking since %s",
+                forking->ToString().c_str());
+        if (*forking + grpc_core::Duration::Seconds(7) <
+            grpc_core::Timestamp::Now()) {
+          gpr_log(GPR_DEBUG,
+                  "DO NOT SUBMIT: waited too long, aborting. threads_ = %d, "
+                  "waiting for %d",
+                  threads_, threads);
+          abort();
+        }
+      }
     }
   }
 }

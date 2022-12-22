@@ -16,7 +16,10 @@
 
 #include <grpc/support/port_platform.h>
 
+#include "absl/types/optional.h"
+
 #include "src/core/lib/debug/trace.h"
+#include "src/core/lib/gprpp/time.h"
 
 extern grpc_core::TraceFlag grpc_trace_fork;
 
@@ -47,6 +50,8 @@ void PrepareFork();
 void PostforkParent();
 // Global callback for pthread_atfork's *child argument
 void PostforkChild();
+// Are we forking? If so, return the timestamp
+absl::optional<grpc_core::Timestamp> ForkStartTimeIfForking();
 
 // An interface to be implemented by EventEngines that wish to have managed fork
 // support.

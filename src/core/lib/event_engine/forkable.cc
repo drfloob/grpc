@@ -16,6 +16,8 @@
 
 #include "src/core/lib/event_engine/forkable.h"
 
+#include <unistd.h>
+
 grpc_core::TraceFlag grpc_trace_fork(false, "fork");
 
 #ifdef GRPC_POSIX_FORK_ALLOW_PTHREAD_ATFORK
@@ -23,11 +25,13 @@ grpc_core::TraceFlag grpc_trace_fork(false, "fork");
 #include <pthread.h>
 
 #include "absl/container/flat_hash_set.h"
+#include "absl/types/optional.h"
 
 #include "src/core/lib/debug/trace.h"
 #include "src/core/lib/gprpp/fork.h"
 #include "src/core/lib/gprpp/no_destruct.h"
 #include "src/core/lib/gprpp/sync.h"
+#include "src/core/lib/gprpp/time.h"
 
 namespace grpc_event_engine {
 namespace experimental {
@@ -37,6 +41,9 @@ grpc_core::NoDestruct<grpc_core::Mutex> g_mu;
 bool g_registered ABSL_GUARDED_BY(g_mu){false};
 grpc_core::NoDestruct<absl::flat_hash_set<Forkable*>> g_forkables
     ABSL_GUARDED_BY(g_mu);
+// DO NOT SUBMIT - testing. Ignoring a race here for now
+absl::optional<grpc_core::Timestamp> gTestOnlyForkIsHappening;
+
 }  // namespace
 
 Forkable::Forkable() { ManageForkable(this); }
@@ -45,20 +52,27 @@ Forkable::~Forkable() { StopManagingForkable(this); }
 
 void RegisterForkHandlers() {
   grpc_core::MutexLock lock(g_mu.get());
-  if (grpc_core::Fork::Enabled()) {
+  if (!grpc_core::Fork::Enabled()) {
     GRPC_FORK_TRACE_LOG_STRING(
         "Forking is disabled, no fork handlers will be registered");
     return;
   }
   if (!std::exchange(g_registered, true)) {
-  GRPC_FORK_TRACE_LOG_STRING("RegisterForkHandlers");
-  pthread_atfork(PrepareFork, PostforkParent, PostforkChild);
-}
+    GRPC_FORK_TRACE_LOG_STRING("RegisterForkHandlers");
+    pthread_atfork(PrepareFork, PostforkParent, PostforkChild);
+  }
 };
 
 void PrepareFork() {
+  gpr_log(GPR_DEBUG,
+          "DO NOT SUBMIT: pid %d PrepareFork setting timestamp to %s on %p",
+          getpid(), grpc_core::Timestamp::Now().ToString().c_str(),
+          &gTestOnlyForkIsHappening);
   GRPC_FORK_TRACE_LOG_STRING("PrepareFork");
   grpc_core::MutexLock lock(g_mu.get());
+  gTestOnlyForkIsHappening = grpc_core::Timestamp::Now();
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: gTestOnlyForkIsHappening.has_value() = %d",
+          gTestOnlyForkIsHappening.has_value());
   for (auto* forkable : *g_forkables) {
     GRPC_FORK_TRACE_LOG("Calling PrepareFork for forkable::%p", forkable);
     forkable->PrepareFork();
@@ -67,7 +81,10 @@ void PrepareFork() {
 }
 
 void PostforkParent() {
+  gpr_log(GPR_DEBUG,
+          "DO NOT SUBMIT: PostforkParent resetting gTestOnlyForkIsHappening");
   grpc_core::MutexLock lock(g_mu.get());
+  gTestOnlyForkIsHappening.reset();
   for (auto* forkable : *g_forkables) {
     GRPC_FORK_TRACE_LOG("Calling PostforkParent for forkable::%p", forkable);
     forkable->PostforkParent();
@@ -76,12 +93,22 @@ void PostforkParent() {
 }
 
 void PostforkChild() {
+  gpr_log(GPR_DEBUG,
+          "DO NOT SUBMIT: PostforkChild resetting gTestOnlyForkIsHappening");
   grpc_core::MutexLock lock(g_mu.get());
+  gTestOnlyForkIsHappening.reset();
   for (auto* forkable : *g_forkables) {
     GRPC_FORK_TRACE_LOG("Calling PostforkChild for forkable::%p", forkable);
     forkable->PostforkChild();
   }
   GRPC_FORK_TRACE_LOG_STRING("PostforkChild finished");
+}
+
+absl::optional<grpc_core::Timestamp> ForkStartTimeIfForking() {
+  auto ret = gTestOnlyForkIsHappening;
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: PID %d ForkStartTimeIfForking value? %d",
+          getpid(), ret.has_value());
+  return ret;
 }
 
 void ManageForkable(Forkable* forkable) {

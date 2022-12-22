@@ -1264,9 +1264,13 @@ grpc_cc_library(
     hdrs = [
         "lib/event_engine/forkable.h",
     ],
-    external_deps = ["absl/container:flat_hash_set"],
+    external_deps = [
+        "absl/container:flat_hash_set",
+        "absl/types:optional",
+    ],
     deps = [
         "no_destruct",
+        "time",
         "//:gpr",
         "//:gpr_platform",
         "//:grpc_trace",
@@ -1379,6 +1383,7 @@ grpc_cc_library(
         "useful",
         "//:event_engine_base_hdrs",
         "//:gpr",
+        "//test/core/util:stack_tracer",
     ],
 )
 

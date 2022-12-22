@@ -42,6 +42,8 @@ grpc_core::DebugOnlyTraceFlag grpc_event_engine_timer_trace(false, "timer");
 void TimerManager::RunSomeTimers(
     std::vector<experimental::EventEngine::Closure*> timers) {
   for (auto* timer : timers) {
+    gpr_log(GPR_ERROR, "DO NOT SUBMIT: TimerManager::%p running closure::%p",
+            this, timer);
     thread_pool_->Run(timer);
   }
 }
@@ -63,7 +65,7 @@ bool TimerManager::WaitUntil(grpc_core::Timestamp next) {
     ++wakeups_;
   }
   kicked_ = false;
-  return true;
+  return !shutdown_;
 }
 
 void TimerManager::MainLoop() {
@@ -120,6 +122,9 @@ void TimerManager::TimerInit(Timer* timer, grpc_core::Timestamp deadline,
               this, closure);
     }
   }
+  gpr_log(GPR_ERROR,
+          "DO NOT SUBMIT: TimerManager::%p: scheduling Closure::%p for ts ::%s",
+          this, closure, deadline.ToString().c_str());
   timer_list_->TimerInit(timer, deadline, closure);
 }
 
@@ -168,6 +173,7 @@ void TimerManager::RestartPostFork() {
 void TimerManager::PrepareFork() {
   GRPC_FORK_TRACE_LOG("TimerManager::%p PrepareFork", this);
   Shutdown();
+  GRPC_FORK_TRACE_LOG("TimerManager::%p PrepareFork DONE", this);
 }
 void TimerManager::PostforkParent() {
   GRPC_FORK_TRACE_LOG("TimerManager::%p PostforkParent", this);
