@@ -51,9 +51,9 @@ void RegisterForkHandlers() {
     return;
   }
   if (!std::exchange(g_registered, true)) {
-  GRPC_FORK_TRACE_LOG_STRING("RegisterForkHandlers");
-  pthread_atfork(PrepareFork, PostforkParent, PostforkChild);
-}
+    GRPC_FORK_TRACE_LOG_STRING("RegisterForkHandlers");
+    pthread_atfork(PrepareFork, PostforkParent, PostforkChild);
+  }
 };
 
 void PrepareFork() {

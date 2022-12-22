@@ -1378,6 +1378,7 @@ grpc_cc_library(
         "useful",
         "//:event_engine_base_hdrs",
         "//:gpr",
+        "//:grpc_trace",
     ],
 )
 
