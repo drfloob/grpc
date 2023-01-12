@@ -48,6 +48,7 @@ TEST_F(ForkableTest, BasicPthreadAtForkOperations) {
     void PrepareFork() override { prepare_called_ = true; }
     void PostforkParent() override { parent_called_ = true; }
     void PostforkChild() override { child_called_ = true; }
+    std::string forkable_name() const override { return "SomeForkable"; }
 
     void CheckParent() {
       EXPECT_TRUE(prepare_called_);

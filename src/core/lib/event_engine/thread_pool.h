@@ -59,6 +59,8 @@ class ThreadPool final : public Forkable, public Executor {
   void PostforkParent() override;
   void PostforkChild() override;
 
+  std::string forkable_name() const override { return "ThreadPool"; }
+
  private:
   class Queue {
    public:

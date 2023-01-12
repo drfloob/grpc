@@ -35,6 +35,7 @@
 #include <grpc/event_engine/event_engine.h>
 #include <grpc/support/log.h>
 
+#include "src/core/lib/event_engine/forkable.h"
 #include "src/core/lib/gprpp/sync.h"
 #include "test/core/event_engine/test_suite/event_engine_test.h"
 
@@ -66,6 +67,15 @@ class EventEngineTimerTest : public EventEngineTest {
 TEST_F(EventEngineTimerTest, ImmediateCallbackIsExecutedQuickly) {
   auto engine = this->NewEventEngine();
   grpc_core::MutexLock lock(&mu_);
+  grpc_event_engine::experimental::N0 n0;
+  grpc_event_engine::experimental::N1 n1;
+  grpc_event_engine::experimental::N1 n11;
+  grpc_event_engine::experimental::N2 n2;
+  grpc_event_engine::experimental::N3 n3;
+  grpc_event_engine::experimental::N4 n4;
+  grpc_event_engine::experimental::N5 n5;
+  grpc_event_engine::experimental::AssertDAG();
+  grpc_event_engine::experimental::TopoSortForkables();
   engine->RunAfter(0ms, [this]() {
     grpc_core::MutexLock lock(&mu_);
     signaled_ = true;

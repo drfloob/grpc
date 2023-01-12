@@ -16,6 +16,12 @@
 
 #include <grpc/support/port_platform.h>
 
+#include <string>
+
+#include "absl/container/flat_hash_set.h"
+
+#include "src/core/lib/gprpp/debug_location.h"
+
 namespace grpc_event_engine {
 namespace experimental {
 
@@ -39,11 +45,37 @@ void PostforkChild();
 // support.
 class Forkable {
  public:
-  Forkable();
+  explicit Forkable(grpc_core::SourceLocation = {});
   virtual ~Forkable();
   virtual void PrepareFork() = 0;
   virtual void PostforkParent() = 0;
   virtual void PostforkChild() = 0;
+  // Returns the name of the Forkable, for dependency resolution
+  virtual std::string forkable_name() const = 0;
+  // Returns the names of Forkables which must be handled before this object.
+  // Any named Forkable will have its PrepareFork, PostforkParent, and
+  // PostforkChild handlers called before the corresponding methods of this
+  // object.
+  // For example:
+  //
+  //    class Foo : public Forkable {
+  //      absl::flat_hash_set<std::string> GetForkableDependencies() override
+  //      {return "Bar"; } std::string forkable_name() { return "Foo"; }
+  //    };
+  //    class Bar : public Forkable {
+  //      std::string forkable_name() { return "Bar"; }
+  //    };
+  //
+  // This set of classes would result in the following ordering of fork handler
+  // execution upon fork events:
+  //
+  //   Parent process: Bar::PrepareFork, Foo::PrepareFork
+  //   -- fork --
+  //   Parent process: Bar::PostforkParent, Foo::PostforkParent
+  //   Child Process: Bar::PostforkChild, Foo::PostforkChild
+  virtual absl::flat_hash_set<std::string> GetForkableDependencies() const {
+    return {};
+  }
 };
 
 // Add Forkables from the set of objects that are supported.
@@ -51,9 +83,83 @@ class Forkable {
 // the thread that invoked the fork.
 //
 // Relative ordering of fork callback operations is not guaranteed.
-void ManageForkable(Forkable* forkable);
+void ManageForkable(Forkable* forkable,
+                    grpc_core::SourceLocation location = {});
 // Remove a forkable from the managed set.
 void StopManagingForkable(Forkable* forkable);
+
+// DO NOT SUBMIT(hork): temporary
+void AssertDAG();
+// DO NOT SUBMIT(hork): temporary
+std::vector<Forkable*> TopoSortForkables();
+
+// DO NOT SUBMIT(hork): tmp
+class N0 : public Forkable {
+  void PrepareFork() override {}
+  void PostforkParent() override {}
+  void PostforkChild() override {}
+
+  std::string forkable_name() const override { return "N0"; }
+};
+
+// DO NOT SUBMIT(hork): tmp
+class N1 : public Forkable {
+  void PrepareFork() override {}
+  void PostforkParent() override {}
+  void PostforkChild() override {}
+
+  std::string forkable_name() const override { return "N1"; }
+};
+
+// DO NOT SUBMIT(hork): tmp
+class N2 : public Forkable {
+  void PrepareFork() override {}
+  void PostforkParent() override {}
+  void PostforkChild() override {}
+
+  std::string forkable_name() const override { return "N2"; }
+  absl::flat_hash_set<std::string> GetForkableDependencies() const override {
+    return {"N3"};
+  }
+};
+
+// DO NOT SUBMIT(hork): tmp
+class N3 : public Forkable {
+  void PrepareFork() override {}
+  void PostforkParent() override {}
+  void PostforkChild() override {}
+
+  std::string forkable_name() const override { return "N3"; }
+  absl::flat_hash_set<std::string> GetForkableDependencies() const override {
+    return {"N1"};
+  }
+};
+
+
+// DO NOT SUBMIT(hork): tmp
+class N4 : public Forkable {
+  void PrepareFork() override {}
+  void PostforkParent() override {}
+  void PostforkChild() override {}
+
+  std::string forkable_name() const override { return "N4"; }
+  absl::flat_hash_set<std::string> GetForkableDependencies() const override {
+    return {"N0", "N1"};
+  }
+};
+
+// DO NOT SUBMIT(hork): tmp
+class N5 : public Forkable {
+  void PrepareFork() override {}
+  void PostforkParent() override {}
+  void PostforkChild() override {}
+
+  std::string forkable_name() const override { return "N5"; }
+  absl::flat_hash_set<std::string> GetForkableDependencies() const override {
+    return {"N0", "N2"};
+  }
+};
+
 
 }  // namespace experimental
 }  // namespace grpc_event_engine

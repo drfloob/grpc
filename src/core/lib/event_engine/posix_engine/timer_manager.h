@@ -67,6 +67,11 @@ class TimerManager final : public grpc_event_engine::experimental::Forkable {
   void PostforkParent() override;
   void PostforkChild() override;
 
+  std::string forkable_name() const override { return "TimerManager"; }
+  absl::flat_hash_set<std::string> GetForkableDependencies() const override {
+    return {"ThreadPool", "N1"};
+  }
+
  private:
   class Host final : public TimerListHost {
    public:
