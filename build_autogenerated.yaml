@@ -7133,6 +7133,7 @@ targets:
   - src/core/lib/event_engine/forkable.cc
   - test/core/event_engine/forkable_test.cc
   deps:
+  - absl/container:flat_hash_map
   - absl/container:flat_hash_set
   - absl/functional:any_invocable
   - absl/status:statusor
@@ -11664,6 +11665,7 @@ targets:
   - src/core/lib/gprpp/time.cc
   - test/core/event_engine/thread_pool_test.cc
   deps:
+  - absl/container:flat_hash_map
   - absl/container:flat_hash_set
   - absl/functional:any_invocable
   - absl/status:statusor

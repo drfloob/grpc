@@ -17,6 +17,7 @@
 #include <grpc/support/port_platform.h>
 
 #include <string>
+#include <vector>
 
 #include "absl/container/flat_hash_set.h"
 
@@ -135,7 +136,6 @@ class N3 : public Forkable {
   }
 };
 
-
 // DO NOT SUBMIT(hork): tmp
 class N4 : public Forkable {
   void PrepareFork() override {}
@@ -159,7 +159,6 @@ class N5 : public Forkable {
     return {"N0", "N2"};
   }
 };
-
 
 }  // namespace experimental
 }  // namespace grpc_event_engine

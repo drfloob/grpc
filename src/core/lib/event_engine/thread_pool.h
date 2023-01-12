@@ -26,6 +26,7 @@
 #include <atomic>
 #include <memory>
 #include <queue>
+#include <string>
 
 #include "absl/base/thread_annotations.h"
 #include "absl/functional/any_invocable.h"

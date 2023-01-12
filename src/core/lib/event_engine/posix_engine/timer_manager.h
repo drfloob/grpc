@@ -24,9 +24,11 @@
 #include <stdint.h>
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "absl/base/thread_annotations.h"
+#include "absl/container/flat_hash_set.h"
 #include "absl/types/optional.h"
 
 #include <grpc/event_engine/event_engine.h>

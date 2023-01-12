@@ -11129,6 +11129,7 @@ target_link_libraries(forkable_test
   ${_gRPC_PROTOBUF_LIBRARIES}
   ${_gRPC_ZLIB_LIBRARIES}
   ${_gRPC_ALLTARGETS_LIBRARIES}
+  absl::flat_hash_map
   absl::flat_hash_set
   absl::any_invocable
   absl::statusor
@@ -20631,6 +20632,7 @@ target_link_libraries(thread_pool_test
   ${_gRPC_PROTOBUF_LIBRARIES}
   ${_gRPC_ZLIB_LIBRARIES}
   ${_gRPC_ALLTARGETS_LIBRARIES}
+  absl::flat_hash_map
   absl::flat_hash_set
   absl::any_invocable
   absl::statusor
