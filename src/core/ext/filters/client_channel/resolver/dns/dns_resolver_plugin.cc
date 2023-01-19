@@ -25,7 +25,8 @@ namespace grpc_core {
 
 void RegisterAppropriateDnsResolver(CoreConfiguration::Builder* builder) {
   if (IsEventEngineDnsEnabled()) {
-    builder->resolver_registry()->RegisterResolverFactory(std::make_unique<EventEngineClientChannelResolver>());
+    builder->resolver_registry()->RegisterResolverFactory(
+        std::make_unique<EventEngineClientChannelResolver>());
   }
   // ---- Ares resolver ----
   if (UseAresDnsResolver()) {

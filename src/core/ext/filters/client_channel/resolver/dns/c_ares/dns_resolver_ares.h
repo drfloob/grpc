@@ -25,5 +25,4 @@ void RegisterAresDnsResolver(CoreConfiguration::Builder*);
 
 }  // namespace grpc_core
 
-
 #endif  // GRPC_CORE_EXT_FILTERS_CLIENT_CHANNEL_RESOLVER_DNS_C_ARES_DNS_RESOLVER_ARES_H
