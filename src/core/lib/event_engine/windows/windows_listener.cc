@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <grpc/support/port_platform.h>
+
 #include "src/core/lib/event_engine/windows/windows_listener.h"
 
 #include "absl/status/status.h"
@@ -116,7 +118,7 @@ class SinglePortSocketListener {
           gpr_log(GPR_ERROR, "invalid peer name: %s",
                   addr_uri.status().ToString().c_str());
         } else {
-            peer_name_string = *addr_uri;
+          peer_name_string = *addr_uri;
         }
       }
 

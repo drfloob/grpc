@@ -1989,15 +1989,15 @@ grpc_cc_library(
         "lib/event_engine/windows/windows_listener.h",
     ],
     external_deps = [
-        "absl/functional:any_invocable",
-        "absl/status:statusor",
         "absl/status",
+        "absl/status:statusor",
+        "absl/strings:str_format",
     ],
     deps = [
         "error",
         "event_engine_tcp_socket_utils",
         "event_engine_trace",
-        "//:debug_location",
+        "windows_iocp",
         "//:event_engine_base_hdrs",
         "//:gpr",
         "//:gpr_platform",
