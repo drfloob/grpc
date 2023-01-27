@@ -1432,6 +1432,7 @@ grpc_cc_library(
         "//src/core:closure",
         "//src/core:context",
         "//src/core:default_event_engine",
+        "//src/core:default_event_engine_factory",
         "//src/core:dual_ref_counted",
         "//src/core:error",
         "//src/core:event_engine_common",
