@@ -2017,10 +2017,10 @@ grpc_cc_library(
     ],
     external_deps = [
         "absl/base:core_headers",
+        "absl/container:flat_hash_set",
         "absl/functional:any_invocable",
         "absl/status",
         "absl/strings:str_format",
-        "absl/container:flat_hash_set",
     ],
     deps = [
         "error",
@@ -2071,19 +2071,17 @@ grpc_cc_library(
         "lib/event_engine/windows/windows_listener.h",
     ],
     external_deps = [
-        "absl/functional:any_invocable",
-        "absl/status:statusor",
         "absl/status",
+        "absl/status:statusor",
+        "absl/strings:str_format",
     ],
     deps = [
         "common_event_engine_closures",
         "error",
-        "event_engine_executor",
         "event_engine_tcp_socket_utils",
         "event_engine_trace",
         "windows_endpoint",
         "windows_iocp",
-        "//:debug_location",
         "//:event_engine_base_hdrs",
         "//:gpr",
         "//:gpr_platform",
