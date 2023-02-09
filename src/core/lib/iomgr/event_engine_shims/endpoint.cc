@@ -175,6 +175,7 @@ class EventEngineEndpointWrapper {
 
  private:
   void OnShutdownInternal() {
+    gpr_log(GPR_DEBUG, "DO NOT SUBMIT: shutting down endpoint shim");
     {
       grpc_core::MutexLock lock(&mu_);
       fd_ = -1;
@@ -286,12 +287,13 @@ void EndpointWrite(grpc_endpoint* ep, grpc_slice_buffer* slices,
       [eeep, cb](absl::Status status) {
         auto* write_buffer =
             reinterpret_cast<SliceBuffer*>(&eeep->write_buffer);
-        write_buffer->~SliceBuffer();
         if (GRPC_TRACE_FLAG_ENABLED(grpc_tcp_trace)) {
-          gpr_log(GPR_INFO, "TCP: %p WRITE (peer=%s) error=%s", eeep->wrapper,
+          gpr_log(GPR_INFO, "TCP: %p WRITE (peer=%s) size=%d error=%s",
+                  eeep->wrapper,
                   std::string(eeep->wrapper->PeerAddress()).c_str(),
-                  status.ToString().c_str());
+                  write_buffer->Length(), status.ToString().c_str());
         }
+        write_buffer->~SliceBuffer();
         {
           grpc_core::ApplicationCallbackExecCtx app_ctx;
           grpc_core::ExecCtx exec_ctx;

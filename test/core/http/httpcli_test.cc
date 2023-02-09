@@ -19,7 +19,9 @@
 #include "src/core/lib/http/httpcli.h"
 
 #include <string.h>
+#ifdef GRPC_POSIX_SOCKET_TCP
 #include <sys/socket.h>
+#endif
 
 #include <algorithm>
 #include <initializer_list>

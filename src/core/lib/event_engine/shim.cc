@@ -25,7 +25,7 @@ namespace experimental {
 bool UseEventEngineClient() {
 // TODO(hork, eryu): Adjust the ifdefs accordingly when event engines become
 // available for other platforms.
-#ifdef GRPC_POSIX_SOCKET_TCP
+#if defined(GRPC_POSIX_SOCKET_TCP) || defined(GPR_WINDOWS)
   return grpc_core::IsEventEngineClientEnabled();
 #else
   return false;
@@ -35,7 +35,7 @@ bool UseEventEngineClient() {
 bool UseEventEngineListener() {
 // TODO(hork, eryu): Adjust the ifdefs accordingly when event engines become
 // available for other platforms.
-#ifdef GRPC_POSIX_SOCKET_TCP
+#if defined(GRPC_POSIX_SOCKET_TCP) || defined(GPR_WINDOWS)
   return grpc_core::IsEventEngineListenerEnabled();
 #else
   return false;

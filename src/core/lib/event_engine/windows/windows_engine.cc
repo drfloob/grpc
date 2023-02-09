@@ -182,27 +182,34 @@ bool WindowsEventEngine::IsWorkerThread() { grpc_core::Crash("unimplemented"); }
 void WindowsEventEngine::OnConnectCompleted(
     std::shared_ptr<ConnectionState> state) {
   // Connection attempt complete!
-  grpc_core::MutexLock lock(&state->mu);
-  state->on_connected = nullptr;
+  absl::StatusOr<std::unique_ptr<WindowsEndpoint>> endpoint;
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: OnConnectCompleted for WinSocket::%p",
+          state->socket.get());
   {
-    grpc_core::MutexLock handle_lock(&connection_mu_);
-    known_connection_handles_.erase(state->connection_handle);
+    grpc_core::MutexLock lock(&state->mu);
+    state->on_connected = nullptr;
+    {
+      grpc_core::MutexLock handle_lock(&connection_mu_);
+      known_connection_handles_.erase(state->connection_handle);
+    }
+    // return early if we cannot cancel the connection timeout timer.
+    if (!Cancel(state->timer_handle)) return;
+    auto write_info = state->socket->write_info();
+    if (write_info->wsa_error() != 0) {
+      state->socket->Orphan(DEBUG_LOCATION, "ConnectEx failure");
+      endpoint = GRPC_WSA_ERROR(write_info->wsa_error(), "ConnectEx");
+      gpr_log(GPR_DEBUG, "DO NOT SUBMIT: WSA error on connect: %s",
+              endpoint.status().ToString().c_str());
+    } else {
+      // This code should be running in an executor thread already, so the
+      // callback can be run directly.
+      ChannelArgsEndpointConfig cfg;
+      endpoint = std::make_unique<WindowsEndpoint>(
+          state->address, std::move(state->socket), std::move(state->allocator),
+          cfg, executor_.get());
+    }
   }
-  // return early if we cannot cancel the connection timeout timer.
-  if (!Cancel(state->timer_handle)) return;
-  auto write_info = state->socket->write_info();
-  if (write_info->wsa_error() != 0) {
-    state->socket->Orphan(DEBUG_LOCATION, "ConnectEx failure");
-    state->on_connected_user_callback(
-        GRPC_WSA_ERROR(write_info->wsa_error(), "ConnectEx"));
-    return;
-  }
-  // This code should be running in an executor thread already, so the callback
-  // can be run directly.
-  ChannelArgsEndpointConfig cfg;
-  state->on_connected_user_callback(std::make_unique<WindowsEndpoint>(
-      state->address, std::move(state->socket), std::move(state->allocator),
-      cfg, executor_.get()));
+  state->on_connected_user_callback(std::move(endpoint));
 }
 
 EventEngine::ConnectionHandle WindowsEventEngine::Connect(
@@ -288,6 +295,10 @@ EventEngine::ConnectionHandle WindowsEventEngine::Connect(
       return EventEngine::kInvalidConnectionHandle;
     }
   }
+  auto addr_str_tmp = ResolvedAddressToString(address);
+  GRPC_EVENT_ENGINE_TRACE("WindowsEventEngine::%p %s successfully to %s", this,
+                          success ? "connected" : "async ConnectEx initiated",
+                          addr_str_tmp->c_str());
   GPR_ASSERT(watched_socket != nullptr);
   auto connection_state = std::make_shared<ConnectionState>();
   grpc_core::MutexLock lock(&connection_state->mu);

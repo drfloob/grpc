@@ -26,10 +26,12 @@
 #include "src/core/lib/event_engine/tcp_socket_utils.h"
 #include "src/core/lib/event_engine/trace.h"
 #include "src/core/lib/event_engine/windows/windows_endpoint.h"
+#include "src/core/lib/gpr/string.h"
 #include "src/core/lib/gprpp/debug_location.h"
 #include "src/core/lib/gprpp/orphanable.h"
 #include "src/core/lib/gprpp/status_helper.h"
 #include "src/core/lib/iomgr/error.h"
+#include "src/core/lib/slice/slice_string_helpers.h"
 
 namespace grpc_event_engine {
 namespace experimental {
@@ -75,18 +77,20 @@ WindowsEndpoint::WindowsEndpoint(
   peer_address_string_ = *ResolvedAddressToURI(peer_address_);
 }
 
-WindowsEndpoint::~WindowsEndpoint() {}
+WindowsEndpoint::~WindowsEndpoint() {
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: WindowsEndpoint::%p destroyed", this);
+}
 
 void WindowsEndpoint::Read(absl::AnyInvocable<void(absl::Status)> on_read,
                            SliceBuffer* buffer, const ReadArgs* args) {
   // TODO(hork): last_read_buffer from iomgr: Is it only garbage, or optimized?
-  GRPC_EVENT_ENGINE_ENDPOINT_TRACE("WindowsEndpoint::%p reading", this);
+  GRPC_EVENT_ENGINE_ENDPOINT_TRACE("WindowsEndpoint::%p reading from %s", this,
+                                   peer_address_string_.c_str());
   // Prepare the WSABUF struct
   WSABUF wsa_buffers[kMaxWSABUFCount];
   int min_read_size = kDefaultTargetReadSize;
-  if (args != nullptr && args->read_hint_bytes > 0) {
-    min_read_size = args->read_hint_bytes;
-  }
+  // TODO(hork): min_read_size if often set to 1. Utilize the read hint if it
+  // makes sense, but 1 byte is very likely inefficient. if (args != nullptr &&
   if (buffer->Length() < min_read_size && buffer->Count() < kMaxWSABUFCount) {
     buffer->AppendIndexed(Slice(allocator_.MakeSlice(min_read_size)));
   }
@@ -104,13 +108,22 @@ void WindowsEndpoint::Read(absl::AnyInvocable<void(absl::Status)> on_read,
   int wsa_error = status == 0 ? 0 : WSAGetLastError();
   // Did we get data immediately ? Yay.
   if (wsa_error != WSAEWOULDBLOCK) {
-    // prune slicebuffer
-    if (bytes_read != buffer->Length()) {
-      buffer->RemoveLastNBytes(buffer->Length() - bytes_read);
+    gpr_log(GPR_DEBUG, "DO NOT SUBMIT: got data immediately: %d", bytes_read);
+    absl::Status result;
+    if (bytes_read == 0) {
+      result = absl::UnavailableError("End of TCP stream");
+      grpc_core::StatusSetInt(&result, grpc_core::StatusIntProperty::kRpcStatus,
+                              GRPC_STATUS_UNAVAILABLE);
+      buffer->Clear();
+    } else {
+      result = absl::OkStatus();
+      // prune slicebuffer
+      if (bytes_read != buffer->Length()) {
+        buffer->RemoveLastNBytes(buffer->Length() - bytes_read);
+      }
     }
-    executor_->Run([on_read = std::move(on_read)]() mutable {
-      on_read(absl::OkStatus());
-    });
+    executor_->Run(
+        [result, on_read = std::move(on_read)]() mutable { on_read(result); });
     return;
   }
   // Otherwise, let's retry, by queuing a read.
@@ -135,17 +148,21 @@ void WindowsEndpoint::Read(absl::AnyInvocable<void(absl::Status)> on_read,
 
 void WindowsEndpoint::Write(absl::AnyInvocable<void(absl::Status)> on_writable,
                             SliceBuffer* data, const WriteArgs* /* args */) {
+  GRPC_EVENT_ENGINE_ENDPOINT_TRACE("WindowsEndpoint::%p writing %d bytes to %s",
+                                   this, data->Length(),
+                                   peer_address_string_.c_str());
   if (grpc_event_engine_endpoint_data_trace.enabled()) {
     for (int i = 0; i < data->Count(); i++) {
-      auto str = data->RefSlice(i).as_string_view();
-      gpr_log(GPR_INFO, "WindowsEndpoint::%p WRITE (peer=%s): %.*s", this,
-              peer_address_string_.c_str(), str.length(), str.data());
+      char* dump = grpc_dump_slice(internal::SliceCast<grpc_slice>((*data)[i]),
+                                   GPR_DUMP_HEX | GPR_DUMP_ASCII);
+      gpr_log(GPR_INFO, "WindowsEndpoint::%p WRITE DATA: %s", this, dump);
+      gpr_free(dump);
     }
   }
   GPR_ASSERT(data->Count() <= UINT_MAX);
   absl::InlinedVector<WSABUF, kMaxWSABUFCount> buffers(data->Count());
   for (int i = 0; i < data->Count(); i++) {
-    auto slice = data->RefSlice(i);
+    auto& slice = data->MutableSliceAt(i);
     GPR_ASSERT(slice.size() <= ULONG_MAX);
     buffers[i].len = slice.size();
     buffers[i].buf = (char*)slice.begin();
@@ -158,8 +175,11 @@ void WindowsEndpoint::Write(absl::AnyInvocable<void(absl::Status)> on_writable,
   if (status == 0) {
     if (bytes_sent == data->Length()) {
       // Write completed, exiting early
-      executor_->Run(
-          [cb = std::move(on_writable)]() mutable { cb(absl::OkStatus()); });
+      executor_->Run([cb = std::move(on_writable)]() mutable {
+        gpr_log(GPR_DEBUG,
+                "DO NOT SUBMIT: callback: EE write completed immediately.");
+        cb(absl::OkStatus());
+      });
       return;
     }
     // The data was not completely delivered, we should send the rest of it by
@@ -180,21 +200,25 @@ void WindowsEndpoint::Write(absl::AnyInvocable<void(absl::Status)> on_writable,
     int wsa_error = WSAGetLastError();
     if (wsa_error != WSAEWOULDBLOCK) {
       executor_->Run([cb = std::move(on_writable), wsa_error]() mutable {
+        gpr_log(GPR_DEBUG,
+                "DO NOT SUBMIT: callback: EE first write failed. msg=%s",
+                GRPC_WSA_ERROR(wsa_error, "WSASend"));
         cb(GRPC_WSA_ERROR(wsa_error, "WSASend"));
       });
       return;
     }
   }
-  auto write_info = socket_->write_info();
-  memset(write_info->overlapped(), 0, sizeof(OVERLAPPED));
   status = WSASend(socket_->socket(), &buffers[async_buffers_offset],
                    (DWORD)(data->Count() - async_buffers_offset), nullptr, 0,
-                   write_info->overlapped(), nullptr);
+                   socket_->write_info()->overlapped(), nullptr);
 
   if (status != 0) {
     int wsa_error = WSAGetLastError();
     if (wsa_error != WSA_IO_PENDING) {
       executor_->Run([cb = std::move(on_writable), wsa_error]() mutable {
+        gpr_log(GPR_DEBUG,
+                "DO NOT SUBMIT: callback: EE second write failed. msg=%s",
+                GRPC_WSA_ERROR(wsa_error, "WSASend"));
         cb(GRPC_WSA_ERROR(wsa_error, "WSASend"));
       });
       return;
@@ -230,28 +254,41 @@ void WindowsEndpoint::HandleReadClosure::Run() {
   if (read_info->wsa_error() != 0) {
     status = GRPC_WSA_ERROR(read_info->wsa_error(), "Async Read Error");
     buffer_->Clear();
+    gpr_log(GPR_DEBUG, "DO NOT SUBMIT: wsa error on HandleReadClosure: %s",
+            status.ToString().c_str());
     return;
   }
   if (read_info->bytes_transferred() > 0) {
+    gpr_log(GPR_DEBUG, "DO NOT SUBMIT: bytes transferred %d, buffer Length: %d",
+            read_info->bytes_transferred(), buffer_->Length());
     GPR_ASSERT(read_info->bytes_transferred() <= buffer_->Length());
     if (read_info->bytes_transferred() != buffer_->Length()) {
       buffer_->RemoveLastNBytes(buffer_->Length() -
                                 read_info->bytes_transferred());
     }
+    // DO NOT SUBMIT(hork):
+    for (int i = 0; i < buffer_->Count(); i++) {
+      char* sd = grpc_dump_slice(internal::SliceCast<grpc_slice>((*buffer_)[i]),
+                                 GPR_DUMP_HEX | GPR_DUMP_ASCII);
+      gpr_log(GPR_DEBUG, "DO NOT SUBMIT: raw data post-filter: %s", sd);
+      gpr_free(sd);
+    }
     GPR_ASSERT(read_info->bytes_transferred() == buffer_->Length());
     if (grpc_event_engine_endpoint_data_trace.enabled()) {
       for (int i = 0; i < buffer_->Count(); i++) {
-        auto str = buffer_->RefSlice(i).as_string_view();
-        gpr_log(GPR_INFO, "WindowsEndpoint::%p READ (peer=%s): %.*s", this,
-                endpoint_->peer_address_string_.c_str(), str.length(),
-                str.data());
+        char* data_dump =
+            grpc_dump_slice(internal::SliceCast<grpc_slice>((*buffer_)[i]),
+                            GPR_DUMP_HEX | GPR_DUMP_ASCII);
+        gpr_log(GPR_INFO, "WindowsEndpoint::%p READ (peer=%s): %s", this,
+                endpoint_->peer_address_string_.c_str(), data_dump);
+        gpr_free(data_dump);
       }
     }
     return;
   }
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: HandleReadClosure 0 bytes transferred");
   // Either the endpoint is shut down or we've seen the end of the stream
   buffer_->Clear();
-  // TODO(hork): different error message if shut down
   status = absl::UnavailableError("End of TCP stream");
 }
 

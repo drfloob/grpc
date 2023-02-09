@@ -146,10 +146,6 @@ void WinSocket::SetWritable() { write_info_.SetReady(); }
 bool WinSocket::IsShutdown() { return is_shutdown_.load(); }
 
 WinSocket::OpState* WinSocket::GetOpInfoForOverlapped(OVERLAPPED* overlapped) {
-  GRPC_EVENT_ENGINE_POLLER_TRACE(
-      "WinSocket::%p looking for matching OVERLAPPED::%p. "
-      "read(%p) write(%p)",
-      this, overlapped, &read_info_.overlapped_, &write_info_.overlapped_);
   if (overlapped == &read_info_.overlapped_) return &read_info_;
   if (overlapped == &write_info_.overlapped_) return &write_info_;
   return nullptr;
