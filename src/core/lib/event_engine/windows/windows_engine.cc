@@ -292,6 +292,7 @@ EventEngine::ConnectionHandle WindowsEventEngine::Connect(
       Run([on_connect = std::move(on_connect), status]() mutable {
         on_connect(status);
       });
+      watched_socket->Orphan();
       return EventEngine::kInvalidConnectionHandle;
     }
   }
@@ -384,7 +385,7 @@ WindowsEventEngine::CreateListener(
     absl::AnyInvocable<void(absl::Status)> on_shutdown,
     const EndpointConfig& config,
     std::unique_ptr<MemoryAllocatorFactory> memory_allocator_factory) {
-  return absl::make_unique<WindowsEventEngineListener>(
+  return std::make_unique<WindowsEventEngineListener>(
       &iocp_, std::move(on_accept), std::move(on_shutdown),
       std::move(memory_allocator_factory), executor_.get(), config);
 }

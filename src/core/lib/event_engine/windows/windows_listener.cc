@@ -57,12 +57,13 @@ WindowsEventEngineListener::SinglePortSocketListener::Create(
     closesocket(sock);
     return error;
   }
-  auto port = SinglePortSocketListener::PrepareListenerSocket(sock, addr);
-  GRPC_RETURN_IF_ERROR(port.status());
-  GPR_ASSERT(*port >= 0);
+  auto result = SinglePortSocketListener::PrepareListenerSocket(sock, addr);
+  GRPC_RETURN_IF_ERROR(result.status());
+  GPR_ASSERT(result->port >= 0);
   // Using `new` to access non-public constructor
   return absl::WrapUnique(new SinglePortSocketListener(
-      listener, AcceptEx, /*win_socket=*/listener->iocp_->Watch(sock), *port));
+      listener, AcceptEx, /*win_socket=*/listener->iocp_->Watch(sock),
+      result->port, result->hostbyname));
 }
 
 absl::Status WindowsEventEngineListener::SinglePortSocketListener::Start() {
@@ -119,9 +120,9 @@ void WindowsEventEngineListener::SinglePortSocketListener::
   auto read_info = listener_socket_->read_info();
   if (read_info->wsa_error() != 0) {
     gpr_log(GPR_INFO, "%s",
-            grpc_core::StatusToString(
-                GRPC_WSA_ERROR(read_info->wsa_error(),
-                               "Skipping on_accept due to error"))
+            GRPC_WSA_ERROR(read_info->wsa_error(),
+                           "Skipping on_accept due to error")
+                .ToString()
                 .c_str());
     return close_socket_and_restart();
   }
@@ -131,7 +132,7 @@ void WindowsEventEngineListener::SinglePortSocketListener::
   if (read_info->wsa_error() != 0) {
     auto error =
         GRPC_WSA_ERROR(WSAGetLastError(), "OnAccept - GetOverlappedResult");
-    gpr_log(GPR_ERROR, "%s", grpc_core::StatusToString(error).c_str());
+    gpr_log(GPR_ERROR, "%s", error.ToString().c_str());
     return close_socket_and_restart();
   }
   SOCKET tmp_listener_socket = listener_socket_->socket();
@@ -165,7 +166,7 @@ void WindowsEventEngineListener::SinglePortSocketListener::
   } else {
     peer_name = *addr_uri;
   }
-  auto endpoint = absl::make_unique<WindowsEndpoint>(
+  auto endpoint = std::make_unique<WindowsEndpoint>(
       peer_address, listener_->iocp_->Watch(accept_socket_),
       listener_->memory_allocator_factory_->CreateMemoryAllocator(
           absl::StrFormat("listener endpoint %s", peer_name)),
@@ -179,23 +180,17 @@ void WindowsEventEngineListener::SinglePortSocketListener::
 
 WindowsEventEngineListener::SinglePortSocketListener::SinglePortSocketListener(
     WindowsEventEngineListener* listener, LPFN_ACCEPTEX AcceptEx,
-    grpc_core::OrphanablePtr<WinSocket> win_socket, int port)
+    grpc_core::OrphanablePtr<WinSocket> win_socket, int port,
+    EventEngine::ResolvedAddress hostbyname)
     : AcceptEx(AcceptEx),
       listener_(listener),
       on_accept_([this]() { OnAcceptCallbackImpl(); }),
       port_(port),
-      listener_socket_(std::move(win_socket)) {
-  EventEngine::ResolvedAddress tmp_addr;
-  int sockname_temp_len = sizeof(struct sockaddr_storage);
-  if (getsockname(listener_socket_->socket(),
-                  const_cast<sockaddr*>(tmp_addr.address()),
-                  &sockname_temp_len) == 0) {
-    listener_sockname_ =
-        EventEngine::ResolvedAddress(tmp_addr.address(), sockname_temp_len);
-  }
-}
+      listener_socket_(std::move(win_socket)),
+      listener_sockname_(hostbyname) {}
 
-absl::StatusOr<int>
+absl::StatusOr<WindowsEventEngineListener::SinglePortSocketListener::
+                   PrepareListenerSocketResult>
 WindowsEventEngineListener::SinglePortSocketListener::PrepareListenerSocket(
     SOCKET sock, const EventEngine::ResolvedAddress& addr) {
   auto fail = [&](absl::Status error) -> absl::Status {
@@ -211,7 +206,6 @@ WindowsEventEngineListener::SinglePortSocketListener::PrepareListenerSocket(
     if (sock != INVALID_SOCKET) closesocket(sock);
     return error;
   };
-
   auto error = PrepareSocket(sock);
   if (!error.ok()) return fail(error);
   if (bind(sock, addr.address(), addr.size()) == SOCKET_ERROR) {
@@ -228,7 +222,8 @@ WindowsEventEngineListener::SinglePortSocketListener::PrepareListenerSocket(
   }
   sockname_temp =
       EventEngine::ResolvedAddress(sockname_temp.address(), sockname_temp_len);
-  return ResolvedAddressGetPort(sockname_temp);
+  return PrepareListenerSocketResult{ResolvedAddressGetPort(sockname_temp),
+                                     sockname_temp};
 }
 
 // ---- WindowsEventEngineListener ----
@@ -246,9 +241,10 @@ WindowsEventEngineListener::WindowsEventEngineListener(
       executor_(executor) {}
 
 WindowsEventEngineListener::~WindowsEventEngineListener() {
-  auto shutdown_msg =
-      absl::StrFormat("WindowsEventEngineListener::%p shutting down", this);
-  GRPC_EVENT_ENGINE_TRACE("%s", shutdown_msg.c_str());
+  GRPC_EVENT_ENGINE_TRACE(
+      "%s",
+      absl::StrFormat("WindowsEventEngineListener::%p shutting down", this)
+          .c_str());
   // Shut down each port listener before destroying this EventEngine::Listener
   for (auto& port_listener : port_listeners_) {
     port_listener.reset();
@@ -258,7 +254,7 @@ WindowsEventEngineListener::~WindowsEventEngineListener() {
 
 absl::StatusOr<int> WindowsEventEngineListener::Bind(
     const EventEngine::ResolvedAddress& addr) {
-  if (started_) {
+  if (started_.load()) {
     return absl::FailedPreconditionError(
         absl::StrFormat("WindowsEventEngineListener::%p is already started, "
                         "ports can no longer be bound",
@@ -301,8 +297,8 @@ absl::StatusOr<int> WindowsEventEngineListener::Bind(
 }
 
 absl::Status WindowsEventEngineListener::Start() {
+  GPR_ASSERT(!started_.exchange(true));
   grpc_core::MutexLock lock(&socket_listeners_mu_);
-  started_ = true;
   for (auto& port_listener : port_listeners_) {
     GRPC_RETURN_IF_ERROR(port_listener->Start());
   }

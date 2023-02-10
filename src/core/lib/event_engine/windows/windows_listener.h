@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef GRPC_CORE_LIB_EVENT_ENGINE_WINDOWS_WINDOWS_LISTENER_H
-#define GRPC_CORE_LIB_EVENT_ENGINE_WINDOWS_WINDOWS_LISTENER_H
+#ifndef GRPC_SRC_CORE_LIB_EVENT_ENGINE_WINDOWS_WINDOWS_LISTENER_H
+#define GRPC_SRC_CORE_LIB_EVENT_ENGINE_WINDOWS_WINDOWS_LISTENER_H
 
 #include <grpc/support/port_platform.h>
 
@@ -45,7 +45,6 @@ class WindowsEventEngineListener : public EventEngine::Listener {
   absl::Status Start() override;
 
  private:
-  friend class SinglePortSocketListener;
   /// Responsible for listening on a single port.
   class SinglePortSocketListener {
    public:
@@ -72,10 +71,14 @@ class WindowsEventEngineListener : public EventEngine::Listener {
     SinglePortSocketListener(WindowsEventEngineListener* listener,
                              LPFN_ACCEPTEX AcceptEx,
                              grpc_core::OrphanablePtr<WinSocket> win_socket,
-                             int port);
+                             int port, EventEngine::ResolvedAddress hostbyname);
 
     // Bind a recently-created socket for listening
-    static absl::StatusOr<int> PrepareListenerSocket(
+    struct PrepareListenerSocketResult {
+      int port;
+      EventEngine::ResolvedAddress hostbyname;
+    };
+    static absl::StatusOr<PrepareListenerSocketResult> PrepareListenerSocket(
         SOCKET sock, const EventEngine::ResolvedAddress& addr);
 
     void OnAcceptCallbackImpl();
@@ -102,16 +105,16 @@ class WindowsEventEngineListener : public EventEngine::Listener {
   absl::StatusOr<SinglePortSocketListener*> AddSinglePortSocketListener(
       SOCKET sock, EventEngine::ResolvedAddress addr);
 
-  IOCP* iocp_;
+  IOCP* const iocp_;
+  const EndpointConfig& config_;
+  Executor* const executor_;
+  const std::unique_ptr<MemoryAllocatorFactory> memory_allocator_factory_;
   AcceptCallback accept_cb_;
   absl::AnyInvocable<void(absl::Status)> on_shutdown_;
-  bool started_{false};
-  std::unique_ptr<MemoryAllocatorFactory> memory_allocator_factory_;
+  std::atomic<bool> started_{false};
   grpc_core::Mutex socket_listeners_mu_;
   std::list<std::unique_ptr<SinglePortSocketListener>> port_listeners_
       ABSL_GUARDED_BY(socket_listeners_mu_);
-  const EndpointConfig& config_;
-  Executor* executor_;
 };
 
 }  // namespace experimental
@@ -119,4 +122,4 @@ class WindowsEventEngineListener : public EventEngine::Listener {
 
 #endif
 
-#endif  // GRPC_CORE_LIB_EVENT_ENGINE_WINDOWS_WINDOWS_LISTENER_H
+#endif  // GRPC_SRC_CORE_LIB_EVENT_ENGINE_WINDOWS_WINDOWS_LISTENER_H
