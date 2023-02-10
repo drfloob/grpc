@@ -51,6 +51,7 @@
 #include "src/core/lib/gprpp/time_util.h"
 #include "src/core/lib/iomgr/pollset.h"
 #include "src/core/lib/iomgr/pollset_set.h"
+#include "src/core/lib/iomgr/port.h"
 #include "src/core/lib/security/credentials/credentials.h"
 #include "test/core/http/httpcli_test_util.h"
 #include "test/core/util/fake_udp_and_tcp_server.h"

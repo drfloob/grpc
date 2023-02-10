@@ -2055,6 +2055,7 @@ grpc_cc_library(
         "error",
         "event_engine_tcp_socket_utils",
         "event_engine_trace",
+        "slice",
         "status_helper",
         "windows_iocp",
         "//:debug_location",
