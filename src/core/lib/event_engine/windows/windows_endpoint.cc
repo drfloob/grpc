@@ -33,7 +33,7 @@
 namespace grpc_event_engine {
 namespace experimental {
 
-namespace { 
+namespace {
 constexpr int64_t kDefaultTargetReadSize = 8192;
 constexpr int kMaxWSABUFCount = 16;
 
