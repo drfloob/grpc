@@ -176,7 +176,8 @@ static grpc_error_handle CreateEventEngineListener(
         delete s;
       },
       config,
-      std::make_unique<MemoryQuotaBasedMemoryAllocatorFactory>(
+      std::make_unique<grpc_event_engine::experimental::
+                           MemoryQuotaBasedMemoryAllocatorFactory>(
           s->memory_quota));
   if (!listener.ok()) {
     delete s;
