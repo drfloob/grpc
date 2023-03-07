@@ -18,9 +18,9 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+from typing import Tuple
 
 from rules_python.python.runfiles import runfiles
-from typing import Tuple
 
 
 def GetBinaryAbsolutePath(fixture_name: str) -> str:
@@ -40,7 +40,9 @@ def SplitBinaryPathByRunfileLocation(abspath: str) -> Tuple[str, str]:
     """Converts the path to platform-specific cwd and related path strings."""
     exec_cwd, exec_path = None, abspath
     if sys.platform == "win32" and len(abspath) > 260:
-        print(f"Path is too long for Windows ({len(abspath)} > 260). Skipping test")
+        print(
+            f"Path is too long for Windows ({len(abspath)} > 260). Skipping test"
+        )
         sys.exit(0)
     return exec_cwd, exec_path
 
