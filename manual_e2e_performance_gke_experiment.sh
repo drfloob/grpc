@@ -26,6 +26,8 @@ PREBUILT_IMAGE_PREFIX="gcr.io/grpc-testing/e2etest/prebuilt/hork"
 PREBUILT_IMAGE_TAG="latest"
 # * specify the benchmark you want to run
 BENCHMARK="cpp_generic_async_streaming_ping_pong_secure"
+# * specify some [\-a-z] descriptor to disambiguate the logs
+DESCRIPTOR='ee-client-listener'
 # * Define the env mapping you want to use in the execution
 declare -A CLIENT_ENV=(["GRPC_EXPERIMENTS"]="event_engine_client,event_engine_listener")
 declare -A SERVER_ENV=(["GRPC_EXPERIMENTS"]="event_engine_client,event_engine_listener")
@@ -49,7 +51,7 @@ LOAD_TEST_PREFIX="${USER}"
 BIGQUERY_TABLE_8CORE="e2e_benchmarks.${USER}_experimental_results"
 # BIGQUERY_TABLE_32CORE="e2e_benchmarks.${USER}_experimental_results_32core"
 # END differentiate experimental configuration from master configuration.
-UNIQUE_IDENTIFIER="$(date +%Y%m%d%H%M%S)"
+UNIQUE_IDENTIFIER="${DESCRIPTOR}-$(date +%Y%m%d%H%M%S)"
 ROOT_DIRECTORY_OF_DOCKERFILES="../test-infra/containers/pre_built_workers/"
 # Head of the workspace checked out by Kokoro.
 GRPC_GITREF="$(git show --format="%H" --no-patch)"
@@ -69,13 +71,25 @@ getConfigName() {
 }
 
 CLIENT_ENV_STR=""
-if [ "$CLIENT_ENV" ]; then
-    echo "TODO: client env"
+if [ "${#CLIENT_ENV[@]}" -ne 0 ]; then
+    indent="      "
+    CLIENT_ENV_STR="env:"
+    for key in "${!CLIENT_ENV[@]}"; do
+        CLIENT_ENV_STR="${CLIENT_ENV_STR}
+${indent}- name: ${key}
+${indent}  value: ${CLIENT_ENV[$key]}"
+    done
 fi
 
 SERVER_ENV_STR=""
-if [ "$SERVER_ENV" ]; then
-    echo "TODO: server env"
+if [ "${#SERVER_ENV[@]}" -ne 0 ]; then
+    indent="      "
+    SERVER_ENV_STR="env:"
+    for key in "${!SERVER_ENV[@]}"; do
+        SERVER_ENV_STR="${SERVER_ENV_STR}
+${indent}- name: ${key}
+${indent}  value: ${SERVER_ENV[$key]}"
+    done
 fi
 
 # Build test configurations.
@@ -112,6 +126,7 @@ time ../test-infra/bin/runner \
     -delete-successful-tests \
     -c "${WORKER_POOL_8CORE}:2" \
     -o "runner/sponge_log.xml"
+
 #    -log-url-prefix "${LOG_URL_PREFIX}" \
 #    -i "loadtest_with_prebuilt_workers_${WORKER_POOL_32CORE}.yaml" \
 #    -c "${WORKER_POOL_32CORE}:2" \
