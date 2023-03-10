@@ -25,7 +25,7 @@ set -ex
 PREBUILT_IMAGE_PREFIX="gcr.io/grpc-testing/e2etest/prebuilt/hork"
 PREBUILT_IMAGE_TAG="latest"
 # * specify the benchmark you want to run
-BENCHMARK="cpp_generic_async_streaming_ping_pong_secure"
+BENCHMARK="cpp_protobuf_sync_unary_ping_pong_secure"
 # * specify some [\-a-z] descriptor to disambiguate the logs
 DESCRIPTOR='ee-client-listener'
 # * Define the env mapping you want to use in the execution
@@ -110,7 +110,7 @@ buildConfigs() {
         -a ci_gitCommit="${GRPC_GITREF}" \
         -a ci_gitActualCommit="${KOKORO_GIT_COMMIT}" \
         --prefix="${LOAD_TEST_PREFIX}" -u "${UNIQUE_IDENTIFIER}" -u "${pool}" \
-        -a pool="${pool}" -r "${BENCHMARK}" \
+        -a pool="${pool}" -r "^${BENCHMARK}$" \
         --allow_client_language=c++ --allow_server_language=c++ \
         --runs_per_test=${RUNS_PER_TEST} \
         -o ${config_name}
