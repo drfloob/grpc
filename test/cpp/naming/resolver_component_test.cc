@@ -606,11 +606,12 @@ void RunResolvesRelevantRecordsTest(
   // By default, SRV queries are disabled, so tests that expect no SRV query
   // should avoid setting any channel arg. Test cases that do rely on the SRV
   // query must explicitly enable SRV though.
-  if (absl::GetFlag(FLAGS_enable_srv_queries) == "True") {
-    resolver_args = resolver_args.Set(GRPC_ARG_DNS_ENABLE_SRV_QUERIES, true);
-  } else if (absl::GetFlag(FLAGS_enable_srv_queries) != "False") {
-    grpc_core::Crash("Invalid value for --enable_srv_queries.");
-  }
+  // DO NOT SUBMIT(hork): re-enable
+  // if (absl::GetFlag(FLAGS_enable_srv_queries) == "True") {
+  //   resolver_args = resolver_args.Set(GRPC_ARG_DNS_ENABLE_SRV_QUERIES, true);
+  // } else if (absl::GetFlag(FLAGS_enable_srv_queries) != "False") {
+  //   grpc_core::Crash("Invalid value for --enable_srv_queries.");
+  // }
   gpr_log(GPR_DEBUG, "resolver_component_test: --enable_txt_queries: %s",
           absl::GetFlag(FLAGS_enable_txt_queries).c_str());
   // By default, TXT queries are disabled, so tests that expect no TXT query

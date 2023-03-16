@@ -1923,14 +1923,17 @@ grpc_cc_library(
         "absl/base:core_headers",
         "absl/cleanup",
         "absl/container:flat_hash_map",
+        "absl/container:flat_hash_set",
         "absl/functional:any_invocable",
         "absl/hash",
         "absl/meta:type_traits",
         "absl/status",
         "absl/status:statusor",
         "absl/strings",
+        "absl/synchronization",
     ],
     deps = [
+        "ares_driver",
         "event_engine_common",
         "event_engine_poller",
         "event_engine_shim",
@@ -2201,6 +2204,49 @@ grpc_cc_library(
         "//:event_engine_base_hdrs",
         "//:gpr",
         "//:grpc_trace",
+    ],
+)
+
+grpc_cc_library(
+    name = "ares_driver",
+    srcs = [
+        "lib/event_engine/ares_driver.cc",
+        "lib/event_engine/nameser.h",
+    ],
+    hdrs = [
+        "lib/event_engine/ares_driver.h",
+    ],
+    external_deps = [
+        "absl/base:core_headers",
+        "absl/functional:any_invocable",
+        "absl/strings",
+        "absl/strings:str_format",
+        "absl/synchronization",
+        "absl/types:optional",
+        "cares",
+    ],
+    select_deps = [{
+        "//:windows": ["windows_iocp"],
+        "//:windows_msvc": ["windows_iocp"],
+        "//:windows_other": ["windows_iocp"],
+        "//conditions:default": [
+            "posix_event_engine_closure",
+            "posix_event_engine_event_poller",
+            "posix_event_engine_tcp_socket_utils",
+        ],
+    }],
+    deps = [
+        "error",
+        "examine_stack",
+        "status_helper",
+        "//:debug_location",
+        "//:event_engine_base_hdrs",
+        "//:gpr",
+        "//:grpc_trace",
+        "//:orphanable",
+        "//:parse_address",
+        "//:ref_counted_ptr",
+        "//:sockaddr_utils",
     ],
 )
 

@@ -33,6 +33,7 @@ namespace grpc_core {
 
 void RegisterDnsResolver(CoreConfiguration::Builder* builder) {
   if (IsEventEngineDnsEnabled()) {
+    gpr_log(GPR_DEBUG, "DO NOT SUBMIT: using EE resolver");
     builder->resolver_registry()->RegisterResolverFactory(
         std::make_unique<grpc_event_engine::experimental::
                              EventEngineClientChannelDNSResolverFactory>());

@@ -172,7 +172,9 @@ EventEngineClientChannelDNSResolver::EventEngineClientChannelDNSResolver(
           std::max(0, channel_args()
                           .GetInt(GRPC_ARG_DNS_ARES_QUERY_TIMEOUT_MS)
                           .value_or(GRPC_DNS_DEFAULT_QUERY_TIMEOUT_MS)))),
-      event_engine_(channel_args().GetObjectRef<EventEngine>()) {}
+      event_engine_(channel_args().GetObjectRef<EventEngine>()) {
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: created EE resolver");
+}
 
 OrphanablePtr<Orphanable> EventEngineClientChannelDNSResolver::StartRequest() {
   return MakeOrphanable<EventEngineDNSRequestWrapper>(
@@ -189,6 +191,12 @@ EventEngineDNSRequestWrapper::EventEngineDNSRequestWrapper(
     std::unique_ptr<EventEngine::DNSResolver> event_engine_resolver)
     : resolver_(std::move(resolver)),
       event_engine_resolver_(std::move(event_engine_resolver)) {
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: creating request wrapper");
+  if(grpc_event_engine_dns_trace.enabled()) {
+    gpr_log(GPR_DEBUG, "DO NOT SUBMIT: dns tracing enabled");
+  } else {
+    gpr_log(GPR_DEBUG, "DO NOT SUBMIT: dns tracing NOT enabled!!!!!!!!!!!!!!"); 
+  }
   // Locking to prevent completion before all records are queried
   MutexLock lock(&on_resolved_mu_);
   hostname_handle_ = event_engine_resolver_->LookupHostname(
@@ -244,6 +252,7 @@ void EventEngineDNSRequestWrapper::Orphan() {
 
 void EventEngineDNSRequestWrapper::OnHostnameResolved(
     absl::StatusOr<std::vector<EventEngine::ResolvedAddress>> addresses) {
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: hostname resolved");
   absl::optional<grpc_core::Resolver::Result> result;
   {
     MutexLock lock(&on_resolved_mu_);
@@ -265,6 +274,7 @@ void EventEngineDNSRequestWrapper::OnHostnameResolved(
 void EventEngineDNSRequestWrapper::OnSRVResolved(
     absl::StatusOr<std::vector<EventEngine::DNSResolver::SRVRecord>>
         srv_records) {
+  gpr_log(GPR_DEBUG, "DO NOT SUBMIT: SRV resolved");
   absl::optional<grpc_core::Resolver::Result> result;
   {
     // DO NOT SUBMIT(hork): handle subsequent requesting hostname records
