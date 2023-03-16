@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <chrono>
 #include <memory>
+#include <ratio>
 #include <string>
 #include <utility>
 #include <vector>
@@ -192,10 +193,10 @@ EventEngineDNSRequestWrapper::EventEngineDNSRequestWrapper(
     : resolver_(std::move(resolver)),
       event_engine_resolver_(std::move(event_engine_resolver)) {
   gpr_log(GPR_DEBUG, "DO NOT SUBMIT: creating request wrapper");
-  if(grpc_event_engine_dns_trace.enabled()) {
+  if (grpc_event_engine_dns_trace.enabled()) {
     gpr_log(GPR_DEBUG, "DO NOT SUBMIT: dns tracing enabled");
   } else {
-    gpr_log(GPR_DEBUG, "DO NOT SUBMIT: dns tracing NOT enabled!!!!!!!!!!!!!!"); 
+    gpr_log(GPR_DEBUG, "DO NOT SUBMIT: dns tracing NOT enabled!!!!!!!!!!!!!!");
   }
   // Locking to prevent completion before all records are queried
   MutexLock lock(&on_resolved_mu_);

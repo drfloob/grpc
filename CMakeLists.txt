@@ -2179,6 +2179,7 @@ add_library(grpc
   src/core/lib/debug/stats.cc
   src/core/lib/debug/stats_data.cc
   src/core/lib/debug/trace.cc
+  src/core/lib/event_engine/ares_driver.cc
   src/core/lib/event_engine/channel_args_endpoint_config.cc
   src/core/lib/event_engine/default_event_engine.cc
   src/core/lib/event_engine/default_event_engine_factory.cc
@@ -2871,6 +2872,7 @@ add_library(grpc_unsecure
   src/core/lib/debug/stats.cc
   src/core/lib/debug/stats_data.cc
   src/core/lib/debug/trace.cc
+  src/core/lib/event_engine/ares_driver.cc
   src/core/lib/event_engine/channel_args_endpoint_config.cc
   src/core/lib/event_engine/default_event_engine.cc
   src/core/lib/event_engine/default_event_engine_factory.cc
@@ -4390,6 +4392,7 @@ add_library(grpc_authorization_provider
   src/core/lib/debug/stats.cc
   src/core/lib/debug/stats_data.cc
   src/core/lib/debug/trace.cc
+  src/core/lib/event_engine/ares_driver.cc
   src/core/lib/event_engine/channel_args_endpoint_config.cc
   src/core/lib/event_engine/default_event_engine.cc
   src/core/lib/event_engine/default_event_engine_factory.cc
@@ -11451,6 +11454,7 @@ add_executable(frame_test
   src/core/lib/debug/stats.cc
   src/core/lib/debug/stats_data.cc
   src/core/lib/debug/trace.cc
+  src/core/lib/event_engine/ares_driver.cc
   src/core/lib/event_engine/channel_args_endpoint_config.cc
   src/core/lib/event_engine/default_event_engine.cc
   src/core/lib/event_engine/default_event_engine_factory.cc
@@ -16644,8 +16648,21 @@ if(_gRPC_PLATFORM_LINUX OR _gRPC_PLATFORM_MAC OR _gRPC_PLATFORM_POSIX)
     test/core/event_engine/test_suite/posix/oracle_event_engine_posix.cc
     test/core/event_engine/test_suite/posix_event_engine_test.cc
     test/core/event_engine/test_suite/tests/client_test.cc
+    test/core/event_engine/test_suite/tests/dns_test.cc
     test/core/event_engine/test_suite/tests/server_test.cc
     test/core/event_engine/test_suite/tests/timer_test.cc
+    test/core/util/cmdline.cc
+    test/core/util/fuzzer_util.cc
+    test/core/util/grpc_profiler.cc
+    test/core/util/histogram.cc
+    test/core/util/mock_endpoint.cc
+    test/core/util/parse_hexstring.cc
+    test/core/util/passthru_endpoint.cc
+    test/core/util/resolve_localhost_ip46.cc
+    test/core/util/slice_splitter.cc
+    test/core/util/subprocess_posix.cc
+    test/core/util/subprocess_windows.cc
+    test/core/util/tracer_util.cc
     third_party/googletest/googletest/src/gtest-all.cc
     third_party/googletest/googlemock/src/gmock-all.cc
   )
