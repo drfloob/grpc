@@ -269,7 +269,7 @@ void EventEngineDNSRequestWrapper::OnSRVResolved(
   {
     // DO NOT SUBMIT(hork): handle subsequent requesting hostname records
     MutexLock lock(&on_resolved_mu_);
-    hostname_handle_.reset();
+    srv_handle_.reset();
     if (srv_records.ok()) {
       balancer_addresses_ = std::move(*srv_records);
     } else if (resolution_error_.ok()) {
@@ -289,7 +289,7 @@ void EventEngineDNSRequestWrapper::OnTXTResolved(
   absl::optional<grpc_core::Resolver::Result> result;
   {
     MutexLock lock(&on_resolved_mu_);
-    hostname_handle_.reset();
+    txt_handle_.reset();
     if (service_config.ok()) {
       service_config_json_ = std::move(*service_config);
     } else if (resolution_error_.ok()) {
