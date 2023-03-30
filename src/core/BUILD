@@ -4858,7 +4858,6 @@ grpc_cc_library(
     srcs = ["ext/filters/client_channel/resolver/dns/event_engine/service_config_helper.cc"],
     hdrs = ["ext/filters/client_channel/resolver/dns/event_engine/service_config_helper.h"],
     external_deps = [
-        "absl/status",
         "absl/status:statusor",
         "absl/strings",
     ],
@@ -4868,7 +4867,6 @@ grpc_cc_library(
         "json_args",
         "json_object_loader",
         "status_helper",
-        "validation_errors",
         "//:gpr_platform",
         "//:grpc_base",
     ],
@@ -4885,7 +4883,6 @@ grpc_cc_library(
         "absl/status",
         "absl/status:statusor",
         "absl/strings",
-        "absl/strings:str_format",
         "absl/types:optional",
     ],
     language = "c++",
