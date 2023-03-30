@@ -20,7 +20,6 @@
 
 #include <algorithm>
 #include <chrono>
-#include <initializer_list>
 #include <memory>
 #include <string>
 #include <utility>
@@ -32,7 +31,6 @@
 #include "absl/status/status.h"
 #include "absl/status/statusor.h"
 #include "absl/strings/str_cat.h"
-#include "absl/strings/str_format.h"
 #include "absl/strings/strip.h"
 #include "absl/types/optional.h"
 
