@@ -35,6 +35,8 @@
     <file baseinstalldir="/" name="include/grpc/compression.h" role="src" />
     <file baseinstalldir="/" name="include/grpc/event_engine/endpoint_config.h" role="src" />
     <file baseinstalldir="/" name="include/grpc/event_engine/event_engine.h" role="src" />
+    <file baseinstalldir="/" name="include/grpc/event_engine/internal/debug_shared_ptr.cc" role="src" />
+    <file baseinstalldir="/" name="include/grpc/event_engine/internal/debug_shared_ptr.h" role="src" />
     <file baseinstalldir="/" name="include/grpc/event_engine/internal/memory_allocator_impl.h" role="src" />
     <file baseinstalldir="/" name="include/grpc/event_engine/internal/slice_cast.h" role="src" />
     <file baseinstalldir="/" name="include/grpc/event_engine/memory_allocator.h" role="src" />
@@ -1720,6 +1722,8 @@
     <file baseinstalldir="/" name="src/php/ext/grpc/timeval.c" role="src" />
     <file baseinstalldir="/" name="src/php/ext/grpc/timeval.h" role="src" />
     <file baseinstalldir="/" name="src/php/ext/grpc/version.h" role="src" />
+    <file baseinstalldir="/" name="test/core/util/stack_tracer.cc" role="src" />
+    <file baseinstalldir="/" name="test/core/util/stack_tracer.h" role="src" />
     <file baseinstalldir="/" name="third_party/abseil-cpp/absl/algorithm/algorithm.h" role="src" />
     <file baseinstalldir="/" name="third_party/abseil-cpp/absl/algorithm/container.h" role="src" />
     <file baseinstalldir="/" name="third_party/abseil-cpp/absl/base/attributes.h" role="src" />

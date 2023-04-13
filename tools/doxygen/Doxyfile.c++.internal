@@ -881,6 +881,8 @@ include/grpc/census.h \
 include/grpc/compression.h \
 include/grpc/event_engine/endpoint_config.h \
 include/grpc/event_engine/event_engine.h \
+include/grpc/event_engine/internal/debug_shared_ptr.cc \
+include/grpc/event_engine/internal/debug_shared_ptr.h \
 include/grpc/event_engine/internal/memory_allocator_impl.h \
 include/grpc/event_engine/internal/slice_cast.h \
 include/grpc/event_engine/memory_allocator.h \
@@ -2771,6 +2773,8 @@ src/cpp/util/byte_buffer_cc.cc \
 src/cpp/util/status.cc \
 src/cpp/util/string_ref.cc \
 src/cpp/util/time_cc.cc \
+test/core/util/stack_tracer.cc \
+test/core/util/stack_tracer.h \
 third_party/xxhash/xxhash.h
 
 # This tag can be used to specify the character encoding of the source files

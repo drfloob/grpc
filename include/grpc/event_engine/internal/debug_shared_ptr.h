@@ -17,6 +17,8 @@
 // event_engine.h must have been included already
 // DO NOT SUBMIT - needs to be flag-guarded
 
+#include <grpc/support/port_platform.h>
+
 #include <string>
 #include <unordered_map>
 
@@ -38,7 +40,7 @@ class shared_ptr<grpc_event_engine::experimental::EventEngine>
 #endif  // _HAS_CXX17
 
   shared_ptr() noexcept : id_(GetId("empty")) {}
-  shared_ptr(nullptr_t) noexcept : id_(GetId("nullptr")) {}
+  explicit shared_ptr(nullptr_t) noexcept : id_(GetId("nullptr")) {}
   template <class _Ux,
             enable_if_t<conjunction_v<conditional_t<is_array_v<_Ty>,
                                                     _Can_array_delete<_Ux>,
@@ -299,9 +301,8 @@ class shared_ptr<grpc_event_engine::experimental::EventEngine>
 
   template <class _Ty2 = _Ty,
             enable_if_t<!disjunction_v<is_array<_Ty2>, is_void<_Ty2>>, int> = 0>
-  _NODISCARD _Ty2& operator*() const noexcept {
-    return *get();
-  }
+  _NODISCARD _Ty2;
+  &operator*() const noexcept { return *get(); }
 
   template <class _Ty2 = _Ty, enable_if_t<!is_array_v<_Ty2>, int> = 0>
   _NODISCARD _Ty2* operator->() const noexcept {

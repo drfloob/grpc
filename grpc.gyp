@@ -250,6 +250,8 @@
         'absl/container:flat_hash_map',
         'absl/container:flat_hash_set',
         'absl/container:inlined_vector',
+        'absl/debugging:stacktrace',
+        'absl/debugging:symbolize',
         'absl/functional:bind_front',
         'absl/functional:function_ref',
         'absl/hash:hash',
@@ -262,6 +264,7 @@
         'upb',
       ],
       'sources': [
+        'include/grpc/event_engine/internal/debug_shared_ptr.cc',
         'src/core/ext/filters/backend_metrics/backend_metric_filter.cc',
         'src/core/ext/filters/census/grpc_context.cc',
         'src/core/ext/filters/channel_idle/channel_idle_filter.cc',
@@ -1014,6 +1017,7 @@
         'src/core/tsi/ssl_transport_security_utils.cc',
         'src/core/tsi/transport_security.cc',
         'src/core/tsi/transport_security_grpc.cc',
+        'test/core/util/stack_tracer.cc',
       ],
     },
     {
@@ -1021,8 +1025,6 @@
       'type': 'static_library',
       'dependencies': [
         'absl/debugging:failure_signal_handler',
-        'absl/debugging:stacktrace',
-        'absl/debugging:symbolize',
         'grpc',
       ],
       'sources': [
@@ -1032,7 +1034,6 @@
         'test/core/util/port_isolated_runtime_environment.cc',
         'test/core/util/port_server_client.cc',
         'test/core/util/reconnect_server.cc',
-        'test/core/util/stack_tracer.cc',
         'test/core/util/test_config.cc',
         'test/core/util/test_tcp_server.cc',
         'test/core/util/tls_utils.cc',
@@ -1043,8 +1044,6 @@
       'type': 'static_library',
       'dependencies': [
         'absl/debugging:failure_signal_handler',
-        'absl/debugging:stacktrace',
-        'absl/debugging:symbolize',
         'grpc_unsecure',
       ],
       'sources': [
@@ -1054,7 +1053,6 @@
         'test/core/util/port_isolated_runtime_environment.cc',
         'test/core/util/port_server_client.cc',
         'test/core/util/reconnect_server.cc',
-        'test/core/util/stack_tracer.cc',
         'test/core/util/test_config.cc',
         'test/core/util/test_tcp_server.cc',
       ],
@@ -1067,6 +1065,8 @@
         'absl/container:flat_hash_map',
         'absl/container:flat_hash_set',
         'absl/container:inlined_vector',
+        'absl/debugging:stacktrace',
+        'absl/debugging:symbolize',
         'absl/functional:bind_front',
         'absl/functional:function_ref',
         'absl/hash:hash',
@@ -1079,6 +1079,7 @@
         'upb',
       ],
       'sources': [
+        'include/grpc/event_engine/internal/debug_shared_ptr.cc',
         'src/core/ext/filters/backend_metrics/backend_metric_filter.cc',
         'src/core/ext/filters/census/grpc_context.cc',
         'src/core/ext/filters/channel_idle/channel_idle_filter.cc',
@@ -1442,6 +1443,7 @@
         'src/core/tsi/local_transport_security.cc',
         'src/core/tsi/transport_security.cc',
         'src/core/tsi/transport_security_grpc.cc',
+        'test/core/util/stack_tracer.cc',
       ],
     },
     {
@@ -1686,6 +1688,8 @@
         'absl/container:flat_hash_map',
         'absl/container:flat_hash_set',
         'absl/container:inlined_vector',
+        'absl/debugging:stacktrace',
+        'absl/debugging:symbolize',
         'absl/functional:function_ref',
         'absl/hash:hash',
         'absl/meta:type_traits',
@@ -1696,6 +1700,7 @@
         'upb',
       ],
       'sources': [
+        'include/grpc/event_engine/internal/debug_shared_ptr.cc',
         'src/core/ext/upb-generated/google/protobuf/any.upb.c',
         'src/core/ext/upb-generated/google/rpc/status.upb.c',
         'src/core/ext/upb-generated/src/proto/grpc/gcp/altscontext.upb.c',
@@ -1940,6 +1945,7 @@
         'src/core/tsi/alts/handshaker/transport_security_common_api.cc',
         'src/core/tsi/transport_security.cc',
         'src/core/tsi/transport_security_grpc.cc',
+        'test/core/util/stack_tracer.cc',
       ],
     },
     {

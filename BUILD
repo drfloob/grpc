@@ -1206,7 +1206,7 @@ grpc_cc_library(
     ],
     deps = [
         "gpr",
-        "//test/core/util:stack_tracer"
+        "//test/core/util:stack_tracer",
     ],
 )
 
@@ -1540,6 +1540,7 @@ grpc_cc_library(
         "//src/core:useful",
         "//src/core:windows_event_engine",
         "//src/core:windows_event_engine_listener",
+        "//test/core/util:stack_tracer",
     ],
 )
 

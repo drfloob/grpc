@@ -814,6 +814,8 @@ include/grpc/census.h \
 include/grpc/compression.h \
 include/grpc/event_engine/endpoint_config.h \
 include/grpc/event_engine/event_engine.h \
+include/grpc/event_engine/internal/debug_shared_ptr.cc \
+include/grpc/event_engine/internal/debug_shared_ptr.h \
 include/grpc/event_engine/internal/memory_allocator_impl.h \
 include/grpc/event_engine/internal/slice_cast.h \
 include/grpc/event_engine/memory_allocator.h \
@@ -2496,6 +2498,8 @@ src/core/tsi/transport_security.h \
 src/core/tsi/transport_security_grpc.cc \
 src/core/tsi/transport_security_grpc.h \
 src/core/tsi/transport_security_interface.h \
+test/core/util/stack_tracer.cc \
+test/core/util/stack_tracer.h \
 third_party/xxhash/xxhash.h
 
 # This tag can be used to specify the character encoding of the source files

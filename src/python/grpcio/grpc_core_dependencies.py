@@ -15,6 +15,7 @@
 # AUTO-GENERATED FROM `$REPO_ROOT/templates/src/python/grpcio/grpc_core_dependencies.py.template`!!!
 
 CORE_SOURCE_FILES = [
+    'include/grpc/event_engine/internal/debug_shared_ptr.cc',
     'src/core/ext/filters/backend_metrics/backend_metric_filter.cc',
     'src/core/ext/filters/census/grpc_context.cc',
     'src/core/ext/filters/channel_idle/channel_idle_filter.cc',
@@ -813,6 +814,7 @@ CORE_SOURCE_FILES = [
     'src/core/tsi/ssl_transport_security_utils.cc',
     'src/core/tsi/transport_security.cc',
     'src/core/tsi/transport_security_grpc.cc',
+    'test/core/util/stack_tracer.cc',
     'third_party/abseil-cpp/absl/base/internal/cycleclock.cc',
     'third_party/abseil-cpp/absl/base/internal/low_level_alloc.cc',
     'third_party/abseil-cpp/absl/base/internal/raw_logging.cc',

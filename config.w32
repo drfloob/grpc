@@ -6,6 +6,7 @@ ARG_WITH("grpc", "grpc support", "no");
 if (PHP_GRPC != "no") {
 
   EXTENSION("grpc",
+    "include\\grpc\\event_engine\\internal\\debug_shared_ptr.cc " +
     "src\\core\\ext\\filters\\backend_metrics\\backend_metric_filter.cc " +
     "src\\core\\ext\\filters\\census\\grpc_context.cc " +
     "src\\core\\ext\\filters\\channel_idle\\channel_idle_filter.cc " +
@@ -814,6 +815,7 @@ if (PHP_GRPC != "no") {
     "src\\php\\ext\\grpc\\server.c " +
     "src\\php\\ext\\grpc\\server_credentials.c " +
     "src\\php\\ext\\grpc\\timeval.c " +
+    "test\\core\\util\\stack_tracer.cc " +
     "third_party\\abseil-cpp\\absl\\base\\internal\\cycleclock.cc " +
     "third_party\\abseil-cpp\\absl\\base\\internal\\low_level_alloc.cc " +
     "third_party\\abseil-cpp\\absl\\base\\internal\\raw_logging.cc " +
@@ -1273,6 +1275,10 @@ if (PHP_GRPC != "no") {
   base_dir = get_define('BUILD_DIR');
   FSO.CreateFolder(base_dir+"\\ext");
   FSO.CreateFolder(base_dir+"\\ext\\grpc");
+  FSO.CreateFolder(base_dir+"\\ext\\grpc\\include");
+  FSO.CreateFolder(base_dir+"\\ext\\grpc\\include\\grpc");
+  FSO.CreateFolder(base_dir+"\\ext\\grpc\\include\\grpc\\event_engine");
+  FSO.CreateFolder(base_dir+"\\ext\\grpc\\include\\grpc\\event_engine\\internal");
   FSO.CreateFolder(base_dir+"\\ext\\grpc\\src");
   FSO.CreateFolder(base_dir+"\\ext\\grpc\\src\\core");
   FSO.CreateFolder(base_dir+"\\ext\\grpc\\src\\core\\ext");
@@ -1627,6 +1633,9 @@ if (PHP_GRPC != "no") {
   FSO.CreateFolder(base_dir+"\\ext\\grpc\\src\\php");
   FSO.CreateFolder(base_dir+"\\ext\\grpc\\src\\php\\ext");
   FSO.CreateFolder(base_dir+"\\ext\\grpc\\src\\php\\ext\\grpc");
+  FSO.CreateFolder(base_dir+"\\ext\\grpc\\test");
+  FSO.CreateFolder(base_dir+"\\ext\\grpc\\test\\core");
+  FSO.CreateFolder(base_dir+"\\ext\\grpc\\test\\core\\util");
   FSO.CreateFolder(base_dir+"\\ext\\grpc\\third_party");
   FSO.CreateFolder(base_dir+"\\ext\\grpc\\third_party\\abseil-cpp");
   FSO.CreateFolder(base_dir+"\\ext\\grpc\\third_party\\abseil-cpp\\absl");

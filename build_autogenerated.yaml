@@ -146,6 +146,7 @@ libs:
   - include/grpc/compression.h
   - include/grpc/event_engine/endpoint_config.h
   - include/grpc/event_engine/event_engine.h
+  - include/grpc/event_engine/internal/debug_shared_ptr.h
   - include/grpc/event_engine/internal/memory_allocator_impl.h
   - include/grpc/event_engine/internal/slice_cast.h
   - include/grpc/event_engine/memory_allocator.h
@@ -987,8 +988,10 @@ libs:
   - src/core/tsi/transport_security.h
   - src/core/tsi/transport_security_grpc.h
   - src/core/tsi/transport_security_interface.h
+  - test/core/util/stack_tracer.h
   - third_party/xxhash/xxhash.h
   src:
+  - include/grpc/event_engine/internal/debug_shared_ptr.cc
   - src/core/ext/filters/backend_metrics/backend_metric_filter.cc
   - src/core/ext/filters/census/grpc_context.cc
   - src/core/ext/filters/channel_idle/channel_idle_filter.cc
@@ -1741,11 +1744,14 @@ libs:
   - src/core/tsi/ssl_transport_security_utils.cc
   - src/core/tsi/transport_security.cc
   - src/core/tsi/transport_security_grpc.cc
+  - test/core/util/stack_tracer.cc
   deps:
   - absl/cleanup:cleanup
   - absl/container:flat_hash_map
   - absl/container:flat_hash_set
   - absl/container:inlined_vector
+  - absl/debugging:stacktrace
+  - absl/debugging:symbolize
   - absl/functional:bind_front
   - absl/functional:function_ref
   - absl/hash:hash
@@ -1769,7 +1775,6 @@ libs:
   - test/core/util/port.h
   - test/core/util/port_server_client.h
   - test/core/util/reconnect_server.h
-  - test/core/util/stack_tracer.h
   - test/core/util/test_config.h
   - test/core/util/test_tcp_server.h
   - test/core/util/tls_utils.h
@@ -1780,14 +1785,11 @@ libs:
   - test/core/util/port_isolated_runtime_environment.cc
   - test/core/util/port_server_client.cc
   - test/core/util/reconnect_server.cc
-  - test/core/util/stack_tracer.cc
   - test/core/util/test_config.cc
   - test/core/util/test_tcp_server.cc
   - test/core/util/tls_utils.cc
   deps:
   - absl/debugging:failure_signal_handler
-  - absl/debugging:stacktrace
-  - absl/debugging:symbolize
   - grpc
 - name: grpc_test_util_unsecure
   build: private
@@ -1799,7 +1801,6 @@ libs:
   - test/core/util/port.h
   - test/core/util/port_server_client.h
   - test/core/util/reconnect_server.h
-  - test/core/util/stack_tracer.h
   - test/core/util/test_config.h
   - test/core/util/test_tcp_server.h
   src:
@@ -1809,13 +1810,10 @@ libs:
   - test/core/util/port_isolated_runtime_environment.cc
   - test/core/util/port_server_client.cc
   - test/core/util/reconnect_server.cc
-  - test/core/util/stack_tracer.cc
   - test/core/util/test_config.cc
   - test/core/util/test_tcp_server.cc
   deps:
   - absl/debugging:failure_signal_handler
-  - absl/debugging:stacktrace
-  - absl/debugging:symbolize
   - grpc_unsecure
 - name: grpc_unsecure
   build: all
@@ -1827,6 +1825,7 @@ libs:
   - include/grpc/compression.h
   - include/grpc/event_engine/endpoint_config.h
   - include/grpc/event_engine/event_engine.h
+  - include/grpc/event_engine/internal/debug_shared_ptr.h
   - include/grpc/event_engine/internal/memory_allocator_impl.h
   - include/grpc/event_engine/internal/slice_cast.h
   - include/grpc/event_engine/memory_allocator.h
@@ -2282,8 +2281,10 @@ libs:
   - src/core/tsi/transport_security.h
   - src/core/tsi/transport_security_grpc.h
   - src/core/tsi/transport_security_interface.h
+  - test/core/util/stack_tracer.h
   - third_party/xxhash/xxhash.h
   src:
+  - include/grpc/event_engine/internal/debug_shared_ptr.cc
   - src/core/ext/filters/backend_metrics/backend_metric_filter.cc
   - src/core/ext/filters/census/grpc_context.cc
   - src/core/ext/filters/channel_idle/channel_idle_filter.cc
@@ -2647,11 +2648,14 @@ libs:
   - src/core/tsi/local_transport_security.cc
   - src/core/tsi/transport_security.cc
   - src/core/tsi/transport_security_grpc.cc
+  - test/core/util/stack_tracer.cc
   deps:
   - absl/cleanup:cleanup
   - absl/container:flat_hash_map
   - absl/container:flat_hash_set
   - absl/container:inlined_vector
+  - absl/debugging:stacktrace
+  - absl/debugging:symbolize
   - absl/functional:bind_front
   - absl/functional:function_ref
   - absl/hash:hash
@@ -3395,6 +3399,7 @@ libs:
   - include/grpc/compression.h
   - include/grpc/event_engine/endpoint_config.h
   - include/grpc/event_engine/event_engine.h
+  - include/grpc/event_engine/internal/debug_shared_ptr.h
   - include/grpc/event_engine/internal/memory_allocator_impl.h
   - include/grpc/event_engine/internal/slice_cast.h
   - include/grpc/event_engine/memory_allocator.h
@@ -3744,7 +3749,9 @@ libs:
   - src/core/tsi/transport_security.h
   - src/core/tsi/transport_security_grpc.h
   - src/core/tsi/transport_security_interface.h
+  - test/core/util/stack_tracer.h
   src:
+  - include/grpc/event_engine/internal/debug_shared_ptr.cc
   - src/core/ext/upb-generated/google/protobuf/any.upb.c
   - src/core/ext/upb-generated/google/rpc/status.upb.c
   - src/core/ext/upb-generated/src/proto/grpc/gcp/altscontext.upb.c
@@ -3989,11 +3996,14 @@ libs:
   - src/core/tsi/alts/handshaker/transport_security_common_api.cc
   - src/core/tsi/transport_security.cc
   - src/core/tsi/transport_security_grpc.cc
+  - test/core/util/stack_tracer.cc
   deps:
   - absl/cleanup:cleanup
   - absl/container:flat_hash_map
   - absl/container:flat_hash_set
   - absl/container:inlined_vector
+  - absl/debugging:stacktrace
+  - absl/debugging:symbolize
   - absl/functional:function_ref
   - absl/hash:hash
   - absl/meta:type_traits
@@ -5679,7 +5689,9 @@ targets:
   - src/core/lib/slice/slice_internal.h
   - src/core/lib/slice/slice_refcount.h
   - src/core/lib/slice/slice_string_helpers.h
+  - test/core/util/stack_tracer.h
   src:
+  - include/grpc/event_engine/internal/debug_shared_ptr.cc
   - src/core/ext/upb-generated/google/protobuf/any.upb.c
   - src/core/ext/upb-generated/google/rpc/status.upb.c
   - src/core/lib/debug/trace.cc
@@ -5706,8 +5718,11 @@ targets:
   - src/core/lib/slice/slice_refcount.cc
   - src/core/lib/slice/slice_string_helpers.cc
   - test/core/gprpp/chunked_vector_test.cc
+  - test/core/util/stack_tracer.cc
   deps:
   - absl/container:flat_hash_set
+  - absl/debugging:stacktrace
+  - absl/debugging:symbolize
   - absl/functional:function_ref
   - absl/hash:hash
   - absl/meta:type_traits
@@ -6000,9 +6015,14 @@ targets:
   headers:
   - src/core/lib/event_engine/common_closures.h
   - src/core/lib/gprpp/notification.h
+  - test/core/util/stack_tracer.h
   src:
+  - include/grpc/event_engine/internal/debug_shared_ptr.cc
   - test/core/event_engine/common_closures_test.cc
+  - test/core/util/stack_tracer.cc
   deps:
+  - absl/debugging:stacktrace
+  - absl/debugging:symbolize
   - absl/status:statusor
   - gpr
 - name: completion_queue_threading_test
@@ -6572,13 +6592,18 @@ targets:
   - src/core/lib/gprpp/ref_counted_ptr.h
   - src/core/lib/gprpp/time.h
   - src/core/lib/surface/channel_stack_type.h
+  - test/core/util/stack_tracer.h
   src:
+  - include/grpc/event_engine/internal/debug_shared_ptr.cc
   - src/core/lib/channel/channel_args.cc
   - src/core/lib/event_engine/channel_args_endpoint_config.cc
   - src/core/lib/gprpp/time.cc
   - src/core/lib/surface/channel_stack_type.cc
   - test/core/event_engine/endpoint_config_test.cc
+  - test/core/util/stack_tracer.cc
   deps:
+  - absl/debugging:stacktrace
+  - absl/debugging:symbolize
   - absl/meta:type_traits
   - absl/status:statusor
   - gpr
@@ -6835,7 +6860,9 @@ targets:
   - src/core/lib/slice/slice_internal.h
   - src/core/lib/slice/slice_refcount.h
   - src/core/lib/slice/slice_string_helpers.h
+  - test/core/util/stack_tracer.h
   src:
+  - include/grpc/event_engine/internal/debug_shared_ptr.cc
   - src/core/ext/upb-generated/google/protobuf/any.upb.c
   - src/core/ext/upb-generated/google/rpc/status.upb.c
   - src/core/lib/debug/trace.cc
@@ -6853,7 +6880,10 @@ targets:
   - src/core/lib/slice/slice_refcount.cc
   - src/core/lib/slice/slice_string_helpers.cc
   - test/core/promise/exec_ctx_wakeup_scheduler_test.cc
+  - test/core/util/stack_tracer.cc
   deps:
+  - absl/debugging:stacktrace
+  - absl/debugging:symbolize
   - absl/hash:hash
   - absl/meta:type_traits
   - absl/status:statusor
@@ -7144,7 +7174,9 @@ targets:
   - src/core/lib/transport/bdp_estimator.h
   - src/core/lib/transport/http2_errors.h
   - src/core/lib/transport/pid_controller.h
+  - test/core/util/stack_tracer.h
   src:
+  - include/grpc/event_engine/internal/debug_shared_ptr.cc
   - src/core/ext/transport/chttp2/transport/flow_control.cc
   - src/core/ext/transport/chttp2/transport/http2_settings.cc
   - src/core/ext/upb-generated/google/protobuf/any.upb.c
@@ -7174,8 +7206,11 @@ targets:
   - src/core/lib/transport/bdp_estimator.cc
   - src/core/lib/transport/pid_controller.cc
   - test/core/transport/chttp2/flow_control_test.cc
+  - test/core/util/stack_tracer.cc
   deps:
   - absl/container:flat_hash_set
+  - absl/debugging:stacktrace
+  - absl/debugging:symbolize
   - absl/functional:function_ref
   - absl/hash:hash
   - absl/meta:type_traits
@@ -7243,7 +7278,9 @@ targets:
   - src/core/lib/slice/slice_refcount.h
   - src/core/lib/slice/slice_string_helpers.h
   - test/core/promise/test_wakeup_schedulers.h
+  - test/core/util/stack_tracer.h
   src:
+  - include/grpc/event_engine/internal/debug_shared_ptr.cc
   - src/core/ext/upb-generated/google/protobuf/any.upb.c
   - src/core/ext/upb-generated/google/rpc/status.upb.c
   - src/core/lib/debug/trace.cc
@@ -7271,8 +7308,11 @@ targets:
   - src/core/lib/slice/slice_refcount.cc
   - src/core/lib/slice/slice_string_helpers.cc
   - test/core/promise/for_each_test.cc
+  - test/core/util/stack_tracer.cc
   deps:
   - absl/container:flat_hash_set
+  - absl/debugging:stacktrace
+  - absl/debugging:symbolize
   - absl/functional:function_ref
   - absl/hash:hash
   - absl/meta:type_traits
@@ -7301,11 +7341,16 @@ targets:
   language: c++
   headers:
   - src/core/lib/event_engine/forkable.h
+  - test/core/util/stack_tracer.h
   src:
+  - include/grpc/event_engine/internal/debug_shared_ptr.cc
   - src/core/lib/event_engine/forkable.cc
   - test/core/event_engine/forkable_test.cc
+  - test/core/util/stack_tracer.cc
   deps:
   - absl/container:flat_hash_set
+  - absl/debugging:stacktrace
+  - absl/debugging:symbolize
   - absl/status:statusor
   - gpr
 - name: format_request_test
@@ -7651,7 +7696,9 @@ targets:
   - src/core/lib/transport/transport_impl.h
   - src/core/lib/uri/uri_parser.h
   - src/core/tsi/alts/handshaker/transport_security_common_api.h
+  - test/core/util/stack_tracer.h
   src:
+  - include/grpc/event_engine/internal/debug_shared_ptr.cc
   - src/core/ext/transport/chaotic_good/frame.cc
   - src/core/ext/transport/chaotic_good/frame_header.cc
   - src/core/ext/transport/chttp2/transport/bin_encoder.cc
@@ -7881,11 +7928,14 @@ targets:
   - src/core/lib/uri/uri_parser.cc
   - src/core/tsi/alts/handshaker/transport_security_common_api.cc
   - test/core/transport/chaotic_good/frame_test.cc
+  - test/core/util/stack_tracer.cc
   deps:
   - absl/cleanup:cleanup
   - absl/container:flat_hash_map
   - absl/container:flat_hash_set
   - absl/container:inlined_vector
+  - absl/debugging:stacktrace
+  - absl/debugging:symbolize
   - absl/functional:function_ref
   - absl/hash:hash
   - absl/meta:type_traits
@@ -8947,7 +8997,9 @@ targets:
   - src/core/lib/slice/slice_refcount.h
   - src/core/lib/slice/slice_string_helpers.h
   - test/core/promise/test_context.h
+  - test/core/util/stack_tracer.h
   src:
+  - include/grpc/event_engine/internal/debug_shared_ptr.cc
   - src/core/ext/upb-generated/google/protobuf/any.upb.c
   - src/core/ext/upb-generated/google/rpc/status.upb.c
   - src/core/lib/debug/trace.cc
@@ -8975,8 +9027,11 @@ targets:
   - src/core/lib/slice/slice_refcount.cc
   - src/core/lib/slice/slice_string_helpers.cc
   - test/core/promise/interceptor_list_test.cc
+  - test/core/util/stack_tracer.cc
   deps:
   - absl/container:flat_hash_set
+  - absl/debugging:stacktrace
+  - absl/debugging:symbolize
   - absl/functional:function_ref
   - absl/hash:hash
   - absl/meta:type_traits
@@ -9365,7 +9420,9 @@ targets:
   - src/core/lib/slice/slice_refcount.h
   - src/core/lib/slice/slice_string_helpers.h
   - test/core/promise/test_wakeup_schedulers.h
+  - test/core/util/stack_tracer.h
   src:
+  - include/grpc/event_engine/internal/debug_shared_ptr.cc
   - src/core/ext/upb-generated/google/protobuf/any.upb.c
   - src/core/ext/upb-generated/google/rpc/status.upb.c
   - src/core/lib/debug/trace.cc
@@ -9393,8 +9450,11 @@ targets:
   - src/core/lib/slice/slice_refcount.cc
   - src/core/lib/slice/slice_string_helpers.cc
   - test/core/promise/map_pipe_test.cc
+  - test/core/util/stack_tracer.cc
   deps:
   - absl/container:flat_hash_set
+  - absl/debugging:stacktrace
+  - absl/debugging:symbolize
   - absl/functional:function_ref
   - absl/hash:hash
   - absl/meta:type_traits
@@ -9919,7 +9979,9 @@ targets:
   - src/core/lib/slice/slice_internal.h
   - src/core/lib/slice/slice_refcount.h
   - src/core/lib/slice/slice_string_helpers.h
+  - test/core/util/stack_tracer.h
   src:
+  - include/grpc/event_engine/internal/debug_shared_ptr.cc
   - src/core/ext/upb-generated/google/protobuf/any.upb.c
   - src/core/ext/upb-generated/google/rpc/status.upb.c
   - src/core/lib/debug/trace.cc
@@ -9937,7 +9999,10 @@ targets:
   - src/core/lib/slice/slice_refcount.cc
   - src/core/lib/slice/slice_string_helpers.cc
   - test/core/resource_quota/periodic_update_test.cc
+  - test/core/util/stack_tracer.cc
   deps:
+  - absl/debugging:stacktrace
+  - absl/debugging:symbolize
   - absl/functional:function_ref
   - absl/hash:hash
   - absl/status:statusor
@@ -11089,13 +11154,18 @@ targets:
   - src/core/lib/slice/slice_internal.h
   - src/core/lib/slice/slice_refcount.h
   - src/core/lib/slice/slice_string_helpers.h
+  - test/core/util/stack_tracer.h
   src:
+  - include/grpc/event_engine/internal/debug_shared_ptr.cc
   - src/core/lib/debug/trace.cc
   - src/core/lib/slice/slice.cc
   - src/core/lib/slice/slice_refcount.cc
   - src/core/lib/slice/slice_string_helpers.cc
   - test/core/slice/slice_string_helpers_test.cc
+  - test/core/util/stack_tracer.cc
   deps:
+  - absl/debugging:stacktrace
+  - absl/debugging:symbolize
   - absl/hash:hash
   - absl/status:statusor
   - gpr
@@ -11678,13 +11748,18 @@ targets:
   - src/core/lib/gprpp/bitset.h
   - src/core/lib/gprpp/time.h
   - src/core/lib/gprpp/time_averaged_stats.h
+  - test/core/util/stack_tracer.h
   src:
+  - include/grpc/event_engine/internal/debug_shared_ptr.cc
   - src/core/lib/event_engine/posix_engine/timer.cc
   - src/core/lib/event_engine/posix_engine/timer_heap.cc
   - src/core/lib/gprpp/time.cc
   - src/core/lib/gprpp/time_averaged_stats.cc
   - test/core/event_engine/posix/timer_heap_test.cc
+  - test/core/util/stack_tracer.cc
   deps:
+  - absl/debugging:stacktrace
+  - absl/debugging:symbolize
   - absl/status:statusor
   - gpr
   uses_polling: false
@@ -11697,13 +11772,18 @@ targets:
   - src/core/lib/event_engine/posix_engine/timer_heap.h
   - src/core/lib/gprpp/time.h
   - src/core/lib/gprpp/time_averaged_stats.h
+  - test/core/util/stack_tracer.h
   src:
+  - include/grpc/event_engine/internal/debug_shared_ptr.cc
   - src/core/lib/event_engine/posix_engine/timer.cc
   - src/core/lib/event_engine/posix_engine/timer_heap.cc
   - src/core/lib/gprpp/time.cc
   - src/core/lib/gprpp/time_averaged_stats.cc
   - test/core/event_engine/posix/timer_list_test.cc
+  - test/core/util/stack_tracer.cc
   deps:
+  - absl/debugging:stacktrace
+  - absl/debugging:symbolize
   - absl/status:statusor
   - gpr
   uses_polling: false
@@ -11722,7 +11802,9 @@ targets:
   - src/core/lib/slice/slice_internal.h
   - src/core/lib/slice/slice_refcount.h
   - src/core/lib/slice/slice_string_helpers.h
+  - test/core/util/stack_tracer.h
   src:
+  - include/grpc/event_engine/internal/debug_shared_ptr.cc
   - src/core/lib/debug/trace.cc
   - src/core/lib/event_engine/event_engine.cc
   - src/core/lib/event_engine/resolved_address.cc
@@ -11733,8 +11815,11 @@ targets:
   - src/core/lib/slice/slice_refcount.cc
   - src/core/lib/slice/slice_string_helpers.cc
   - test/core/event_engine/slice_buffer_test.cc
+  - test/core/util/stack_tracer.cc
   deps:
   - absl/container:flat_hash_set
+  - absl/debugging:stacktrace
+  - absl/debugging:symbolize
   - absl/hash:hash
   - absl/status:statusor
   - absl/utility:utility
@@ -11765,10 +11850,15 @@ targets:
   language: c++
   headers:
   - src/core/lib/gprpp/time.h
+  - test/core/util/stack_tracer.h
   src:
+  - include/grpc/event_engine/internal/debug_shared_ptr.cc
   - src/core/lib/gprpp/time.cc
   - test/core/gprpp/time_test.cc
+  - test/core/util/stack_tracer.cc
   deps:
+  - absl/debugging:stacktrace
+  - absl/debugging:symbolize
   - absl/status:statusor
   - gpr
   uses_polling: false
@@ -11972,13 +12062,18 @@ targets:
   - src/core/lib/event_engine/thread_pool.h
   - src/core/lib/gprpp/notification.h
   - src/core/lib/gprpp/time.h
+  - test/core/util/stack_tracer.h
   src:
+  - include/grpc/event_engine/internal/debug_shared_ptr.cc
   - src/core/lib/event_engine/forkable.cc
   - src/core/lib/event_engine/thread_pool.cc
   - src/core/lib/gprpp/time.cc
   - test/core/event_engine/thread_pool_test.cc
+  - test/core/util/stack_tracer.cc
   deps:
   - absl/container:flat_hash_set
+  - absl/debugging:stacktrace
+  - absl/debugging:symbolize
   - absl/status:statusor
   - gpr
 - name: thread_quota_test

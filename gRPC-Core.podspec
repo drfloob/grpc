@@ -112,6 +112,7 @@ Pod::Spec.new do |s|
                       'include/grpc/compression.h',
                       'include/grpc/event_engine/endpoint_config.h',
                       'include/grpc/event_engine/event_engine.h',
+                      'include/grpc/event_engine/internal/debug_shared_ptr.h',
                       'include/grpc/event_engine/internal/memory_allocator_impl.h',
                       'include/grpc/event_engine/internal/slice_cast.h',
                       'include/grpc/event_engine/memory_allocator.h',
@@ -186,6 +187,8 @@ Pod::Spec.new do |s|
     ss.dependency 'abseil/container/flat_hash_map', abseil_version
     ss.dependency 'abseil/container/flat_hash_set', abseil_version
     ss.dependency 'abseil/container/inlined_vector', abseil_version
+    ss.dependency 'abseil/debugging/stacktrace', abseil_version
+    ss.dependency 'abseil/debugging/symbolize', abseil_version
     ss.dependency 'abseil/flags/flag', abseil_version
     ss.dependency 'abseil/flags/marshalling', abseil_version
     ss.dependency 'abseil/functional/any_invocable', abseil_version
@@ -208,7 +211,8 @@ Pod::Spec.new do |s|
     ss.dependency 'abseil/utility/utility', abseil_version
     ss.compiler_flags = '-DBORINGSSL_PREFIX=GRPC -Wno-unreachable-code -Wno-shorten-64-to-32'
 
-    ss.source_files = 'src/core/ext/filters/backend_metrics/backend_metric_filter.cc',
+    ss.source_files = 'include/grpc/event_engine/internal/debug_shared_ptr.cc',
+                      'src/core/ext/filters/backend_metrics/backend_metric_filter.cc',
                       'src/core/ext/filters/backend_metrics/backend_metric_filter.h',
                       'src/core/ext/filters/backend_metrics/backend_metric_provider.h',
                       'src/core/ext/filters/census/grpc_context.cc',
@@ -1809,6 +1813,8 @@ Pod::Spec.new do |s|
                       'src/core/tsi/transport_security_grpc.cc',
                       'src/core/tsi/transport_security_grpc.h',
                       'src/core/tsi/transport_security_interface.h',
+                      'test/core/util/stack_tracer.cc',
+                      'test/core/util/stack_tracer.h',
                       'third_party/re2/re2/bitmap256.h',
                       'third_party/re2/re2/bitstate.cc',
                       'third_party/re2/re2/compile.cc',
@@ -2713,6 +2719,7 @@ Pod::Spec.new do |s|
                               'src/core/tsi/transport_security.h',
                               'src/core/tsi/transport_security_grpc.h',
                               'src/core/tsi/transport_security_interface.h',
+                              'test/core/util/stack_tracer.h',
                               'third_party/re2/re2/bitmap256.h',
                               'third_party/re2/re2/filtered_re2.h',
                               'third_party/re2/re2/pod_array.h',
