@@ -287,7 +287,7 @@ grpc_cc_test(
         "absl/types:optional",
         "gtest",
     ],
-    shard_count = 50,
+    # shard_count = 50,
     tags = ["core_end2end_test"],
     deps = [
         "cq_verifier",

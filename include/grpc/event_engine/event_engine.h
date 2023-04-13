@@ -502,4 +502,7 @@ std::unique_ptr<EventEngine> CreateEventEngine();
 }  // namespace experimental
 }  // namespace grpc_event_engine
 
+// DO NOT SUBMIT - see if this can be moved
+#include <grpc/event_engine/internal/debug_shared_ptr.h>
+
 #endif  // GRPC_EVENT_ENGINE_EVENT_ENGINE_H

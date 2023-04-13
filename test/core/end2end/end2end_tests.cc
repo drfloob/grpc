@@ -30,6 +30,7 @@
 
 #include "src/core/lib/compression/message_compress.h"
 #include "src/core/lib/config/core_configuration.h"
+#include "src/core/lib/event_engine/default_event_engine.h"
 #include "src/core/lib/gprpp/no_destruct.h"
 #include "test/core/end2end/cq_verifier.h"
 
@@ -89,6 +90,8 @@ void CoreEnd2endTest::TearDown() {
     // no gRPC resources (such as thread) are active. (timeout = 10s)
     if (!grpc_wait_until_shutdown(10)) {
       gpr_log(GPR_ERROR, "Timeout in waiting for gRPC shutdown");
+      auto ee = grpc_event_engine::experimental::GetDefaultEventEngine();
+      ee.PrintLivingEngines();
     }
   }
   initialized_ = false;
