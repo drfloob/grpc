@@ -2077,6 +2077,7 @@ add_library(grpc
   src/core/lib/event_engine/windows/windows_endpoint.cc
   src/core/lib/event_engine/windows/windows_engine.cc
   src/core/lib/event_engine/windows/windows_listener.cc
+  src/core/lib/event_engine/work_queue.cc
   src/core/lib/experiments/config.cc
   src/core/lib/experiments/experiments.cc
   src/core/lib/gprpp/load_file.cc
@@ -2767,6 +2768,7 @@ add_library(grpc_unsecure
   src/core/lib/event_engine/windows/windows_endpoint.cc
   src/core/lib/event_engine/windows/windows_engine.cc
   src/core/lib/event_engine/windows/windows_listener.cc
+  src/core/lib/event_engine/work_queue.cc
   src/core/lib/experiments/config.cc
   src/core/lib/experiments/experiments.cc
   src/core/lib/gprpp/load_file.cc
@@ -4289,6 +4291,7 @@ add_library(grpc_authorization_provider
   src/core/lib/event_engine/windows/windows_endpoint.cc
   src/core/lib/event_engine/windows/windows_engine.cc
   src/core/lib/event_engine/windows/windows_listener.cc
+  src/core/lib/event_engine/work_queue.cc
   src/core/lib/experiments/config.cc
   src/core/lib/experiments/experiments.cc
   src/core/lib/gprpp/load_file.cc
@@ -11488,6 +11491,7 @@ add_executable(frame_test
   src/core/lib/event_engine/windows/windows_endpoint.cc
   src/core/lib/event_engine/windows/windows_engine.cc
   src/core/lib/event_engine/windows/windows_listener.cc
+  src/core/lib/event_engine/work_queue.cc
   src/core/lib/experiments/config.cc
   src/core/lib/experiments/experiments.cc
   src/core/lib/gprpp/load_file.cc
@@ -21058,6 +21062,7 @@ if(gRPC_BUILD_TESTS)
 add_executable(thread_pool_test
   src/core/lib/event_engine/forkable.cc
   src/core/lib/event_engine/thread_pool.cc
+  src/core/lib/event_engine/work_queue.cc
   src/core/lib/gprpp/time.cc
   test/core/event_engine/thread_pool_test.cc
   third_party/googletest/googletest/src/gtest-all.cc
@@ -22652,7 +22657,6 @@ endif()
 if(gRPC_BUILD_TESTS)
 
 add_executable(work_queue_test
-  src/core/lib/event_engine/work_queue.cc
   test/core/event_engine/work_queue/work_queue_test.cc
   third_party/googletest/googletest/src/gtest-all.cc
   third_party/googletest/googlemock/src/gmock-all.cc
