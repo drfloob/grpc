@@ -13,19 +13,18 @@
 // limitations under the License.
 #include <grpc/support/port_platform.h>
 
+#include "src/core/lib/event_engine/work_queue/basic_work_queue.h"
+
+#include <algorithm>
 #include <thread>
 #include <vector>
 
 #include "absl/functional/any_invocable.h"
-#include "absl/time/clock.h"
-#include "absl/time/time.h"
 #include "gtest/gtest.h"
 
 #include <grpc/event_engine/event_engine.h>
 
 #include "src/core/lib/event_engine/common_closures.h"
-#include "src/core/lib/event_engine/work_queue/basic_work_queue.h"
-#include "src/core/lib/gprpp/time.h"
 #include "test/core/util/test_config.h"
 
 // TODO(hork): parameterize these tests for other WorkQueue implementations.

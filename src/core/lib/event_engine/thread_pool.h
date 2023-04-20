@@ -29,6 +29,7 @@
 #include "absl/base/thread_annotations.h"
 #include "absl/container/flat_hash_set.h"
 #include "absl/functional/any_invocable.h"
+#include "absl/time/time.h"
 
 #include <grpc/event_engine/event_engine.h>
 #include <grpc/support/cpu.h>
