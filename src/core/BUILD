@@ -1485,6 +1485,7 @@ grpc_cc_library(
         "forkable",
         "time",
         "useful",
+        "//:backoff",
         "//:event_engine_base_hdrs",
         "//:gpr",
     ],
