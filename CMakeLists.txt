@@ -21127,11 +21127,6 @@ endif()
 if(gRPC_BUILD_TESTS)
 
 add_executable(thread_pool_test
-  src/core/lib/backoff/backoff.cc
-  src/core/lib/event_engine/forkable.cc
-  src/core/lib/event_engine/thread_pool.cc
-  src/core/lib/event_engine/work_queue/basic_work_queue.cc
-  src/core/lib/gprpp/time.cc
   test/core/event_engine/thread_pool_test.cc
   third_party/googletest/googletest/src/gtest-all.cc
   third_party/googletest/googlemock/src/gmock-all.cc
@@ -21161,9 +21156,7 @@ target_link_libraries(thread_pool_test
   ${_gRPC_PROTOBUF_LIBRARIES}
   ${_gRPC_ZLIB_LIBRARIES}
   ${_gRPC_ALLTARGETS_LIBRARIES}
-  absl::flat_hash_set
-  absl::statusor
-  gpr
+  grpc_test_util_unsecure
 )
 
 
