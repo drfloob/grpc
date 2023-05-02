@@ -41,6 +41,7 @@ class PerCpu {
   T* end() { return data_.get() + cpus_; }
   const T* begin() const { return data_.get(); }
   const T* end() const { return data_.get() + cpus_; }
+  size_t cpus() { return cpus_; }
 
  private:
   const size_t cpus_;

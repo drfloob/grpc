@@ -31,6 +31,10 @@ namespace experimental {
 // All methods must be guaranteed thread-safe.
 class WorkQueue {
  public:
+  struct ClosureWithMetadata {
+    EventEngine::Closure* closure;
+    double enqueued_at_cycle_counter;
+  };
   virtual ~WorkQueue() = default;
   // Returns whether the queue is empty.
   virtual bool Empty() const = 0;
@@ -41,7 +45,7 @@ class WorkQueue {
   //
   // Implementations are permitted to return nullptr even if the queue is not
   // empty. This is to support potential optimizations.
-  virtual EventEngine::Closure* PopMostRecent() = 0;
+  virtual ClosureWithMetadata PopMostRecent() = 0;
   // Returns the most recent element from the queue, or nullptr if either empty
   // or the queue is under contention.
   // This is expected to be the slower of the two ways to retrieve closures from
@@ -49,11 +53,13 @@ class WorkQueue {
   //
   // Implementations are permitted to return nullptr even if the queue is not
   // empty. This is to support potential optimizations.
-  virtual EventEngine::Closure* PopOldest() = 0;
+  virtual ClosureWithMetadata PopOldest() = 0;
   // Adds a closure to the queue.
   virtual void Add(EventEngine::Closure* closure) = 0;
   // Wraps an AnyInvocable and adds it to the the queue.
   virtual void Add(absl::AnyInvocable<void()> invocable) = 0;
+  // Useful for transferring closures between queues without losing metadata.
+  virtual void Add(ClosureWithMetadata closure_with_metadata) = 0;
 };
 
 }  // namespace experimental

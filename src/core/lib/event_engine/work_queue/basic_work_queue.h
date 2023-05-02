@@ -46,23 +46,23 @@ class BasicWorkQueue : public WorkQueue {
   // elements from the queue.
   //
   // This method may return nullptr even if the queue is not empty.
-  EventEngine::Closure* PopMostRecent() override ABSL_LOCKS_EXCLUDED(mu_);
+  ClosureWithMetadata PopMostRecent() override ABSL_LOCKS_EXCLUDED(mu_);
   // Returns the most recent element from the queue, or nullptr if either empty
   // or the queue is under contention.
   // This is expected to be the slower of the two ways to retrieve closures from
   // the queue.
   //
   // This method may return nullptr even if the queue is not empty.
-  EventEngine::Closure* PopOldest() override ABSL_LOCKS_EXCLUDED(mu_);
+  ClosureWithMetadata PopOldest() override ABSL_LOCKS_EXCLUDED(mu_);
   // Adds a closure to the queue.
   void Add(EventEngine::Closure* closure) override ABSL_LOCKS_EXCLUDED(mu_);
   // Wraps an AnyInvocable and adds it to the the queue.
   void Add(absl::AnyInvocable<void()> invocable) override
       ABSL_LOCKS_EXCLUDED(mu_);
+  void Add(ClosureWithMetadata closure_with_metadata) override ABSL_LOCKS_EXCLUDED(mu_);
 
- private:
-  mutable grpc_core::Mutex mu_;
-  std::deque<EventEngine::Closure*> q_ ABSL_GUARDED_BY(mu_);
+      private : mutable grpc_core::Mutex mu_;
+  std::deque<ClosureWithMetadata> q_ ABSL_GUARDED_BY(mu_);
 };
 
 }  // namespace experimental

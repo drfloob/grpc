@@ -36,6 +36,8 @@
 #include "src/core/lib/event_engine/thread_pool/thread_pool.h"
 #include "src/core/lib/event_engine/work_queue/basic_work_queue.h"
 #include "src/core/lib/event_engine/work_queue/work_queue.h"
+#include "src/core/lib/gpr/time_precise.h"
+#include "src/core/lib/gprpp/per_cpu.h"
 #include "src/core/lib/gprpp/sync.h"
 #include "src/core/lib/gprpp/time.h"
 
@@ -123,11 +125,30 @@ class WorkStealingThreadPool final : public ThreadPool {
     void Unenroll(WorkQueue* queue) ABSL_LOCKS_EXCLUDED(mu_);
     // Returns one closure from another thread, or nullptr if none are
     // available.
-    EventEngine::Closure* StealOne() ABSL_LOCKS_EXCLUDED(mu_);
+    WorkQueue::ClosureWithMetadata StealOne() ABSL_LOCKS_EXCLUDED(mu_);
 
    private:
     grpc_core::Mutex mu_;
     absl::flat_hash_set<WorkQueue*> queues_ ABSL_GUARDED_BY(mu_);
+  };
+
+  // Calculates a running average of time between when closures were enqueued,
+  // and when they have finished running. See
+  // https://en.wikipedia.org/wiki/Moving_average
+  class SimpleMovingAverage {
+   public:
+    void Update(gpr_cycle_counter duration);
+    uint32_t CurrentAverage();
+
+   private:
+    static constexpr size_t kDataPointCount = 10;
+
+    // The continued moving average.
+    std::atomic<uint32_t> moving_avg_{0};
+    // Number of updates seen thus far.
+    uint64_t update_count_ = 0;
+    // Buffer for duration data.
+    uint32_t datum_[kDataPointCount] = {0};
   };
 
   // An implementation of the ThreadPool
@@ -148,6 +169,9 @@ class WorkStealingThreadPool final : public ThreadPool {
     // threads created to populate the initial pool are not rate-limited, but
     // all others thread creation scenarios are rate-limited.
     void StartThread();
+    // Returns true if per-CPU closure execution metrics alone indicate it might
+    // be worth starting a new thread.
+    bool ClosureLatencyMeritsStartingANewThread();
     // Shut down the pool, and wait for all threads to exit.
     // This method is safe to call from within a ThreadPool thread.
     void Quiesce();
@@ -179,7 +203,8 @@ class WorkStealingThreadPool final : public ThreadPool {
     // Lifeguard monitors the pool and keeps it healthy.
     // It has two main responsibilities:
     //  * scale the pool to match demand.
-    //  * distribute work to worker threads if the global queue is backing up
+    //  * distribute work to worker threads if the global queue is backing
+    //  up
     //    and there are threads that can accept work.
     class Lifeguard {
      public:
@@ -216,6 +241,7 @@ class WorkStealingThreadPool final : public ThreadPool {
     std::atomic<bool> throttled_{false};
     WorkSignal work_signal_;
     Lifeguard lifeguard_;
+    grpc_core::PerCpu<SimpleMovingAverage> per_cpu_closure_queue_time_averages_;
   };
 
   class ThreadState {
@@ -234,6 +260,7 @@ class WorkStealingThreadPool final : public ThreadPool {
     // count is decremented after all other state is cleaned up (preventing
     // leaks).
     ThreadCount::AutoThreadCount auto_thread_count_;
+    // Amount of time to sleep between checking for work.
     grpc_core::BackOff backoff_;
   };
 

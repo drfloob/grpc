@@ -22,6 +22,7 @@
 
 #include <atomic>
 #include <memory>
+#include <numeric>
 #include <utility>
 
 #include "absl/time/clock.h"
@@ -56,9 +57,10 @@ constexpr grpc_core::Duration kLifeguardMinSleepBetweenChecks{
 constexpr grpc_core::Duration kLifeguardMaxSleepBetweenChecks{
     grpc_core::Duration::Seconds(1)};
 constexpr absl::Duration kSleepBetweenQuiesceCheck{absl::Milliseconds(10)};
-}  // namespace
 
 thread_local WorkQueue* g_local_queue = nullptr;
+
+}  // namespace
 
 // -------- WorkStealingThreadPool --------
 
@@ -93,14 +95,14 @@ void WorkStealingThreadPool::TheftRegistry::Unenroll(WorkQueue* queue) {
   queues_.erase(queue);
 }
 
-EventEngine::Closure* WorkStealingThreadPool::TheftRegistry::StealOne() {
+WorkQueue::ClosureWithMetadata
+WorkStealingThreadPool::TheftRegistry::StealOne() {
   grpc_core::MutexLock lock(&mu_);
-  EventEngine::Closure* closure;
   for (auto* queue : queues_) {
-    closure = queue->PopMostRecent();
-    if (closure != nullptr) return closure;
+    auto closure_with_metadata = queue->PopMostRecent();
+    if (closure_with_metadata.closure != nullptr) return closure_with_metadata;
   }
-  return nullptr;
+  return WorkQueue::ClosureWithMetadata();
 }
 
 void WorkStealingThreadPool::PrepareFork() { pool_->PrepareFork(); }
@@ -149,12 +151,28 @@ void WorkStealingThreadPool::WorkStealingThreadPoolImpl::StartThread() {
       .Start();
 }
 
+bool WorkStealingThreadPool::WorkStealingThreadPoolImpl::
+    ClosureLatencyMeritsStartingANewThread() {
+  // Evaluate average queue-to-closure-completion time, and start new threads if
+  // either:
+  // * latency is trending upwards, or
+  // * we haven't already tried adding threads until latency stabilizes
+  uint32_t sum_of_time_averages =
+      std::accumulate(per_cpu_closure_queue_time_averages_.begin(),
+                      per_cpu_closure_queue_time_averages_.end(), 0,
+                      [](uint32_t init, SimpleMovingAverage* next_avg) {
+                        return init + next_avg->CurrentAverage();
+                      });
+  auto avg_time =
+      sum_of_time_averages / per_cpu_closure_queue_time_averages_.cpus();
+}
+
 void WorkStealingThreadPool::WorkStealingThreadPoolImpl::Quiesce() {
   SetShutdown(true);
   // Wait until all threads have exited.
   // Note that if this is a threadpool thread then we won't exit this thread
-  // until all other threads have exited, so we need to wait for just one thread
-  // running instead of zero.
+  // until all other threads have exited, so we need to wait for just one
+  // thread running instead of zero.
   bool is_threadpool_thread = g_local_queue != nullptr;
   thread_count()->BlockUntilThreadCount(CounterType::kLivingThreadCount,
                                         is_threadpool_thread ? 1 : 0,
@@ -207,7 +225,7 @@ void WorkStealingThreadPool::WorkStealingThreadPoolImpl::Postfork() {
 }
 
 // -------- WorkStealingThreadPool::WorkStealingThreadPoolImpl::Lifeguard
-// --------
+// -----
 
 WorkStealingThreadPool::WorkStealingThreadPoolImpl::Lifeguard::Lifeguard()
     : backoff_(grpc_core::BackOff::Options()
@@ -255,11 +273,11 @@ void WorkStealingThreadPool::WorkStealingThreadPoolImpl::Lifeguard::
   // No new threads are started when forking.
   // No new work is done when forking needs to begin.
   if (pool_->forking_.load()) return;
+  // Wake an idle worker thread if there's global work to be had.
   int busy_thread_count =
       pool_->thread_count_.GetCount(CounterType::kBusyCount);
   int living_thread_count =
       pool_->thread_count_.GetCount(CounterType::kLivingThreadCount);
-  // Wake an idle worker thread if there's global work to be had.
   if (busy_thread_count < living_thread_count) {
     if (!pool_->queue_.Empty()) {
       pool_->work_signal()->Signal();
@@ -277,16 +295,40 @@ void WorkStealingThreadPool::WorkStealingThreadPoolImpl::Lifeguard::
     backoff_.Reset();
     return;
   }
-  // All workers are busy and the pool is not throttled. Start a new thread.
-  // TODO(hork): new threads may spawn when there is no work in the global
-  // queue, nor any work to steal. Add more sophisticated logic about when to
-  // start a thread.
-  GRPC_EVENT_ENGINE_TRACE(
-      "Starting new ThreadPool thread due to backlog (total threads: %d)",
-      living_thread_count + 1);
-  pool_->StartThread();
-  // Tell the lifeguard to monitor the pool more closely.
-  backoff_.Reset();
+  if (pool_->ClosureLatencyMeritsStartingANewThread()) {
+    GRPC_EVENT_ENGINE_TRACE(
+        "Starting new ThreadPool thread due to closure latency (total "
+        "threads: "
+        "%d)",
+        living_thread_count + 1);
+    pool_->StartThread();
+    // Tell the lifeguard to monitor the pool more closely.
+    backoff_.Reset();
+  }
+}
+
+// -------- WorkStealingThreadPool::SimpleMovingAverage --------
+
+void WorkStealingThreadPool::SimpleMovingAverage::Update(
+    gpr_cycle_counter duration) {
+  if (++update_count_ < kDataPointCount) {
+    // calculate the cumulative average
+    moving_avg_.store(
+        (duration + (update_count_ - 1) * moving_avg_) / (update_count_),
+        std::memory_order_relaxed);
+  } else {
+    // calculate the running simple average
+    auto removed_oldest_duration =
+        std::exchange(datum_[update_count_ % kDataPointCount], duration);
+    moving_avg_.fetch_add(
+        (duration - removed_oldest_duration) / kDataPointCount,
+        std::memory_order_relaxed);
+  }
+}
+
+gpr_cycle_counter
+WorkStealingThreadPool::SimpleMovingAverage::CurrentAverage() {
+  return moving_avg_;
 }
 
 // -------- WorkStealingThreadPool::ThreadState --------
@@ -310,11 +352,10 @@ void WorkStealingThreadPool::ThreadState::ThreadBody() {
   }
   // cleanup
   if (pool_->IsForking()) {
-    // TODO(hork): consider WorkQueue::AddAll(WorkQueue*)
-    EventEngine::Closure* closure;
+    // TODO(hork): consider WorkQueue::TakeAll(WorkQueue*)
     while (!g_local_queue->Empty()) {
-      closure = g_local_queue->PopMostRecent();
-      if (closure != nullptr) {
+      auto closure = g_local_queue->PopMostRecent();
+      if (closure.closure != nullptr) {
         pool_->queue()->Add(closure);
       }
     }
@@ -332,12 +373,15 @@ void WorkStealingThreadPool::ThreadState::SleepIfRunning() {
 
 bool WorkStealingThreadPool::ThreadState::Step() {
   if (pool_->IsForking()) return false;
-  auto* closure = g_local_queue->PopMostRecent();
+  auto closure_with_metadata = g_local_queue->PopMostRecent();
   // If local work is available, run it.
-  if (closure != nullptr) {
+  if (closure_with_metadata.closure != nullptr) {
     ThreadCount::AutoThreadCount auto_busy{pool_->thread_count(),
                                            CounterType::kBusyCount};
-    closure->Run();
+    closure_with_metadata.closure->Run();
+    pool_->per_cpu_closure_queue_time_averages()->this_cpu().Update(
+        gpr_get_cycle_counter() -
+        closure_with_metadata.enqueued_at_cycle_counter);
     return true;
   }
   // Thread shutdown exit condition (ignoring fork). All must be true:
@@ -350,17 +394,17 @@ bool WorkStealingThreadPool::ThreadState::Step() {
   // Wait until work is available or until shut down.
   while (!pool_->IsForking()) {
     // Pull from the global queue next
-    // TODO(hork): consider an empty check for performance wins. Depends on the
-    // queue implementation, the BasicWorkQueue takes two locks when you do an
-    // empty check then pop.
-    closure = pool_->queue()->PopMostRecent();
-    if (closure != nullptr) {
+    // TODO(hork): consider an empty check for performance wins. Depends on
+    // the queue implementation, the BasicWorkQueue takes two locks when you
+    // do an empty check then pop.
+    closure_with_metadata = pool_->queue()->PopMostRecent();
+    if (closure_with_metadata.closure != nullptr) {
       should_run_again = true;
       break;
     };
     // Try stealing if the queue is empty
-    closure = pool_->theft_registry()->StealOne();
-    if (closure != nullptr) {
+    closure_with_metadata = pool_->theft_registry()->StealOne();
+    if (closure_with_metadata.closure != nullptr) {
       should_run_again = true;
       break;
     }
@@ -380,13 +424,18 @@ bool WorkStealingThreadPool::ThreadState::Step() {
   }
   if (pool_->IsForking()) {
     // save the closure since we aren't going to execute it.
-    if (closure != nullptr) g_local_queue->Add(closure);
+    if (closure_with_metadata.closure != nullptr) {
+      g_local_queue->Add(closure_with_metadata);
+    }
     return false;
   }
-  if (closure != nullptr) {
+  if (closure_with_metadata.closure != nullptr) {
     ThreadCount::AutoThreadCount auto_busy{pool_->thread_count(),
                                            CounterType::kBusyCount};
-    closure->Run();
+    closure_with_metadata.closure->Run();
+    pool_->per_cpu_closure_queue_time_averages()->this_cpu().Update(
+        gpr_get_cycle_counter() -
+        closure_with_metadata.enqueued_at_cycle_counter);
   }
   backoff_.Reset();
   return should_run_again;

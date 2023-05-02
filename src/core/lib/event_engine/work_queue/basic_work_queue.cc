@@ -18,6 +18,7 @@
 #include <utility>
 
 #include "src/core/lib/event_engine/common_closures.h"
+#include "src/core/lib/gpr/time_precise.h"
 #include "src/core/lib/gprpp/sync.h"
 
 namespace grpc_event_engine {
@@ -33,17 +34,17 @@ size_t BasicWorkQueue::Size() const {
   return q_.size();
 }
 
-EventEngine::Closure* BasicWorkQueue::PopMostRecent() {
+WorkQueue::ClosureWithMetadata BasicWorkQueue::PopMostRecent() {
   grpc_core::MutexLock lock(&mu_);
-  if (q_.empty()) return nullptr;
+  if (q_.empty()) return ClosureWithMetadata();
   auto tmp = q_.back();
   q_.pop_back();
   return tmp;
 }
 
-EventEngine::Closure* BasicWorkQueue::PopOldest() {
+WorkQueue::ClosureWithMetadata BasicWorkQueue::PopOldest() {
   grpc_core::MutexLock lock(&mu_);
-  if (q_.empty()) return nullptr;
+  if (q_.empty()) return ClosureWithMetadata();
   auto tmp = q_.front();
   q_.pop_front();
   return tmp;
@@ -51,12 +52,18 @@ EventEngine::Closure* BasicWorkQueue::PopOldest() {
 
 void BasicWorkQueue::Add(EventEngine::Closure* closure) {
   grpc_core::MutexLock lock(&mu_);
-  q_.push_back(closure);
+  q_.push_back({closure, gpr_get_cycle_counter()});
 }
 
 void BasicWorkQueue::Add(absl::AnyInvocable<void()> invocable) {
   grpc_core::MutexLock lock(&mu_);
-  q_.push_back(SelfDeletingClosure::Create(std::move(invocable)));
+  q_.push_back({SelfDeletingClosure::Create(std::move(invocable)),
+                gpr_get_cycle_counter()});
+}
+
+void BasicWorkQueue::Add(ClosureWithMetadata closure_with_metadata) {
+  grpc_core::MutexLock lock(&mu_);
+  q_.push_back(closure_with_metadata);
 }
 
 }  // namespace experimental
