@@ -59,9 +59,11 @@ class BasicWorkQueue : public WorkQueue {
   // Wraps an AnyInvocable and adds it to the the queue.
   void Add(absl::AnyInvocable<void()> invocable) override
       ABSL_LOCKS_EXCLUDED(mu_);
-  void Add(ClosureWithMetadata closure_with_metadata) override ABSL_LOCKS_EXCLUDED(mu_);
+  void Add(ClosureWithMetadata closure_with_metadata) override
+      ABSL_LOCKS_EXCLUDED(mu_);
 
-      private : mutable grpc_core::Mutex mu_;
+ private:
+  mutable grpc_core::Mutex mu_;
   std::deque<ClosureWithMetadata> q_ ABSL_GUARDED_BY(mu_);
 };
 

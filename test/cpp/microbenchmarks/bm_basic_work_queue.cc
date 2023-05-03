@@ -152,7 +152,7 @@ void BM_WorkQueueClosureExecution(benchmark::State& state) {
   for (auto _ : state) {
     for (int i = 0; i < element_count; i++) queue.Add(&closure);
     do {
-      queue.PopMostRecent()->Run();
+      queue.PopMostRecent().Run();
     } while (run_count < element_count);
     run_count = 0;
   }
@@ -175,7 +175,7 @@ void BM_WorkQueueAnyInvocableExecution(benchmark::State& state) {
       queue.Add([&run_count] { ++run_count; });
     }
     do {
-      queue.PopMostRecent()->Run();
+      queue.PopMostRecent().Run();
     } while (run_count < element_count);
     run_count = 0;
   }

@@ -1487,6 +1487,7 @@ grpc_cc_library(
         "event_engine_work_queue",
         "experiments",
         "forkable",
+        "per_cpu",
         "time",
         "useful",
         "//:backoff",
