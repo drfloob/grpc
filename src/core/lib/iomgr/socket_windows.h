@@ -61,7 +61,9 @@ typedef struct grpc_winsocket_callback_info {
   // The results of the overlapped operation.
   DWORD bytes_transferred;
   int wsa_error;
-  bool skip;
+  // Tracks whether the final closure has already been run when the socket is
+  // shut down. This allows closures to be run immediately upon socket shutdown.
+  bool closure_already_executed_at_shutdown = false;
 } grpc_winsocket_callback_info;
 
 // This is a wrapper to a Windows socket. A socket can have one outstanding
@@ -100,7 +102,8 @@ SOCKET grpc_winsocket_wrapped_socket(grpc_winsocket* socket);
 
 // Initiate an asynchronous shutdown of the socket. Will call off any pending
 // operation to cancel them.
-void grpc_winsocket_shutdown(grpc_winsocket* socket);
+void grpc_winsocket_shutdown(grpc_winsocket* socket)
+    ABSL_LOCKS_EXCLUDED(socket->state_mu);
 
 // Destroy a socket. Should only be called if there's no pending operation.
 void grpc_winsocket_destroy(grpc_winsocket* socket);
@@ -121,9 +124,6 @@ int grpc_ipv6_loopback_available(void);
 void grpc_wsa_socket_flags_init();
 
 DWORD grpc_get_default_wsa_socket_flags();
-
-// Final cleanup operations on the socket prior to deletion.
-void grpc_winsocket_finish(grpc_winsocket*);
 
 #endif
 

@@ -103,10 +103,10 @@ grpc_iocp_work_status grpc_iocp_work(grpc_core::Timestamp deadline) {
   }
   GPR_ASSERT(overlapped == &info->overlapped);
   bool should_destroy = grpc_socket_become_ready(socket, info);
-  gpr_mu_unlock(&socket->state_mu);
   if (should_destroy) {
-    grpc_winsocket_finish(socket);
+    grpc_iocp_finish_socket_shutdown_socket_locked(socket);
   }
+  gpr_mu_unlock(&socket->state_mu);
   return GRPC_IOCP_WORK_WORK;
 }
 
@@ -163,7 +163,7 @@ void grpc_iocp_add_socket(grpc_winsocket* socket) {
   GPR_ASSERT(ret == g_iocp);
 }
 
-void grpc_iocp_register_socket_shutdown(grpc_winsocket* socket) {
+void grpc_iocp_register_socket_shutdown_socket_locked(grpc_winsocket* socket) {
   if (!socket->shutdown_registered) {
     socket->shutdown_registered = true;
     // Register beginning of this socket shutdown. This implies that gRPC
@@ -172,7 +172,7 @@ void grpc_iocp_register_socket_shutdown(grpc_winsocket* socket) {
   }
 }
 
-void grpc_iocp_finish_socket_shutdown(grpc_winsocket* socket) {
+void grpc_iocp_finish_socket_shutdown_socket_locked(grpc_winsocket* socket) {
   if (socket->shutdown_registered) {
     // Mark the completion of this socket shutdown.
     gpr_atm_full_fetch_add(&g_pending_socket_shutdowns, -1);
