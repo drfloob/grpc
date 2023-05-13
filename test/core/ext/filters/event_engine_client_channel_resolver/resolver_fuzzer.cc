@@ -62,7 +62,7 @@ using grpc_event_engine::experimental::FuzzingEventEngine;
 class FuzzingResolverEventEngine
     : public grpc_event_engine::experimental::AbortingEventEngine {
  public:
-  FuzzingResolverEventEngine(
+  explicit FuzzingResolverEventEngine(
       const event_engine_client_channel_resolver::Msg& msg)
       : runner_(FuzzingEventEngine::Options(),
                 fuzzing_event_engine::Actions()) {
@@ -123,9 +123,10 @@ class FuzzingResolverEventEngine
    public:
     explicit FuzzingDNSResolver(FuzzingResolverEventEngine* engine)
         : engine_(engine) {}
-    virtual LookupTaskHandle LookupHostname(
-        LookupHostnameCallback on_resolve, absl::string_view /* name */,
-        absl::string_view /* default_port */, Duration /* timeout */) override {
+    LookupTaskHandle LookupHostname(LookupHostnameCallback on_resolve,
+                                    absl::string_view /* name */,
+                                    absl::string_view /* default_port */,
+                                    Duration /* timeout */) override {
       auto finish =
           [cb = std::move(on_resolve), runner = &engine_->runner_](
               absl::StatusOr<std::vector<ResolvedAddress>> response) mutable {
@@ -145,9 +146,9 @@ class FuzzingResolverEventEngine
       }
       return finish(*canned_response);
     }
-    virtual LookupTaskHandle LookupSRV(LookupSRVCallback on_resolve,
-                                       absl::string_view /* name */,
-                                       Duration /* timeout */) override {
+    LookupTaskHandle LookupSRV(LookupSRVCallback on_resolve,
+                               absl::string_view /* name */,
+                               Duration /* timeout */) override {
       auto finish =
           [cb = std::move(on_resolve), runner = &engine_->runner_](
               absl::StatusOr<std::vector<SRVRecord>> response) mutable {
@@ -167,9 +168,9 @@ class FuzzingResolverEventEngine
       }
       return finish(*response);
     }
-    virtual LookupTaskHandle LookupTXT(LookupTXTCallback on_resolve,
-                                       absl::string_view /* name */,
-                                       Duration /* timeout */) override {
+    LookupTaskHandle LookupTXT(LookupTXTCallback on_resolve,
+                               absl::string_view /* name */,
+                               Duration /* timeout */) override {
       auto finish = [cb = std::move(on_resolve), runner = &engine_->runner_](
                         absl::StatusOr<std::string> response) mutable {
         runner->Run(
@@ -188,9 +189,7 @@ class FuzzingResolverEventEngine
       }
       return finish(*response);
     }
-    virtual bool CancelLookup(LookupTaskHandle handle) override {
-      return false;
-    }
+    bool CancelLookup(LookupTaskHandle handle) override { return false; }
 
    private:
     FuzzingResolverEventEngine* engine_;
