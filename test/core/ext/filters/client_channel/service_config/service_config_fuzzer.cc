@@ -14,11 +14,10 @@
 #include <grpc/support/port_platform.h>
 
 #include <string>
+#include <tuple>
 
-#include "absl/status/statusor.h"
+#include "absl/status/status.h"
 #include "google/protobuf/json/json.h"
-
-#include <grpc/grpc.h>
 
 #include "src/core/ext/filters/client_channel/resolver/dns/event_engine/service_config_helper.h"
 #include "src/libfuzzer/libfuzzer_macro.h"
