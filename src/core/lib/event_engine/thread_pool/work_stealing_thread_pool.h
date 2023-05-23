@@ -222,7 +222,6 @@ class WorkStealingThreadPool final : public ThreadPool {
    public:
     explicit ThreadState(std::shared_ptr<WorkStealingThreadPoolImpl> pool);
     void ThreadBody();
-    void SleepIfRunning();
     bool Step();
     // After the pool is shut down, ensure all local and global callbacks are
     // executed before quitting the thread.

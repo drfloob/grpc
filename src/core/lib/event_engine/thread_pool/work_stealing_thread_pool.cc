@@ -329,12 +329,6 @@ void WorkStealingThreadPool::ThreadState::ThreadBody() {
   delete g_local_queue;
 }
 
-void WorkStealingThreadPool::ThreadState::SleepIfRunning() {
-  if (pool_->IsForking()) return;
-  absl::SleepFor(
-      absl::Milliseconds(kTimeBetweenThrottledThreadStarts.millis()));
-}
-
 bool WorkStealingThreadPool::ThreadState::Step() {
   if (pool_->IsForking()) return false;
   auto* closure = g_local_queue->PopMostRecent();
