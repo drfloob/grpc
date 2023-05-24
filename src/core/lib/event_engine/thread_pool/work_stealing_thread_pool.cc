@@ -21,6 +21,7 @@
 #include "src/core/lib/event_engine/thread_pool/work_stealing_thread_pool.h"
 
 #include <atomic>
+#include <cmath>
 #include <memory>
 #include <utility>
 
@@ -36,6 +37,7 @@
 #include "src/core/lib/event_engine/trace.h"
 #include "src/core/lib/event_engine/work_queue/basic_work_queue.h"
 #include "src/core/lib/event_engine/work_queue/work_queue.h"
+#include "src/core/lib/gprpp/crash.h"
 #include "src/core/lib/gprpp/thd.h"
 #include "src/core/lib/gprpp/time.h"
 
@@ -45,6 +47,8 @@ namespace experimental {
 namespace {
 constexpr grpc_core::Duration kIdleThreadLimit =
     grpc_core::Duration::Seconds(20);
+constexpr grpc_core::Duration kBlockingQuiesceLogRate{
+    grpc_core::Duration::Seconds(3)};
 constexpr grpc_core::Duration kTimeBetweenThrottledThreadStarts =
     grpc_core::Duration::Seconds(1);
 constexpr grpc_core::Duration kWorkerThreadMinSleepBetweenChecks{
@@ -55,9 +59,8 @@ constexpr grpc_core::Duration kLifeguardMinSleepBetweenChecks{
     grpc_core::Duration::Milliseconds(15)};
 constexpr grpc_core::Duration kLifeguardMaxSleepBetweenChecks{
     grpc_core::Duration::Seconds(1)};
-// TODO(hork): quiesce may be faster and more efficient with a lock + condition
-// on thread_count = N.
-constexpr absl::Duration kSleepBetweenQuiesceCheck{absl::Microseconds(50)};
+constexpr grpc_core::Duration kLifeguardShutdownTimeoutDuration{
+    grpc_core::Duration::Seconds(60)};
 }  // namespace
 
 thread_local WorkQueue* g_local_queue = nullptr;
@@ -211,8 +214,7 @@ void WorkStealingThreadPool::WorkStealingThreadPoolImpl::Postfork() {
   Start();
 }
 
-// -------- WorkStealingThreadPool::WorkStealingThreadPoolImpl::Lifeguard
-// --------
+// -------- WorkStealingThreadPool::WorkStealingThreadPoolImpl::Lifeguard -----
 
 WorkStealingThreadPool::WorkStealingThreadPoolImpl::Lifeguard::Lifeguard()
     : backoff_(grpc_core::BackOff::Options()
@@ -222,10 +224,13 @@ WorkStealingThreadPool::WorkStealingThreadPoolImpl::Lifeguard::Lifeguard()
 
 void WorkStealingThreadPool::WorkStealingThreadPoolImpl::Lifeguard::Start(
     std::shared_ptr<WorkStealingThreadPoolImpl> pool) {
-  // thread_running_ is set early to avoid a quiesce race while the lifeguard is
-  // still starting up.
-  thread_running_.store(true);
+  // lifeguard_running_ is set early to avoid a quiesce race while the lifeguard
+  // is still starting up.
   pool_ = std::move(pool);
+  {
+    grpc_core::MutexLock lock(&pool_->lifeguard_shutdown_mu_);
+    pool_->lifeguard_running_ = true;
+  }
   grpc_core::Thread(
       "lifeguard",
       [](void* arg) {
@@ -252,13 +257,26 @@ void WorkStealingThreadPool::WorkStealingThreadPoolImpl::Lifeguard::
     MaybeStartNewThread();
   }
   pool_.reset();
-  thread_running_.store(false);
+  grpc_core::MutexLock lock(&pool_->lifeguard_shutdown_mu_);
+  pool_->lifeguard_running_ = false;
+  pool_->lifeguard_shutdown_cv_.Signal();
 }
 
 void WorkStealingThreadPool::WorkStealingThreadPoolImpl::Lifeguard::
     BlockUntilShutdown() {
-  while (thread_running_.load()) {
-    absl::SleepFor(kSleepBetweenQuiesceCheck);
+  grpc_core::MutexLock lock(&pool_->lifeguard_shutdown_mu_);
+  auto deadline = absl::Now() + absl::Milliseconds(
+                                    kLifeguardShutdownTimeoutDuration.millis());
+  while (pool_->lifeguard_running_) {
+    pool_->lifeguard_shutdown_cv_.WaitWithDeadline(
+        &pool_->lifeguard_shutdown_mu_, deadline);
+    if (deadline < absl::Now()) {
+      grpc_core::Crash(
+          absl::StrCat("Thread pool did not quiesce within ",
+                       std::floor(kLifeguardShutdownTimeoutDuration.seconds()),
+                       " seconds, some callbacks were left unexecuted"));
+      break;
+    }
   }
 }
 
@@ -433,31 +451,43 @@ void WorkStealingThreadPool::ThreadState::FinishDraining() {
 
 void WorkStealingThreadPool::ThreadCount::Add(CounterType counter_type) {
   thread_counts_[counter_type].fetch_add(1, std::memory_order_relaxed);
+  grpc_core::MutexLock lock(&wait_mu_[counter_type]);
+  wait_cv_[counter_type].SignalAll();
 }
 
 void WorkStealingThreadPool::ThreadCount::Remove(CounterType counter_type) {
   thread_counts_[counter_type].fetch_sub(1, std::memory_order_relaxed);
+  grpc_core::MutexLock lock(&wait_mu_[counter_type]);
+  wait_cv_[counter_type].SignalAll();
 }
 
 void WorkStealingThreadPool::ThreadCount::BlockUntilThreadCount(
     CounterType counter_type, int desired_threads, const char* why,
     WorkSignal* work_signal) {
-  auto& counter = thread_counts_[counter_type];
-  int curr_threads = counter.load(std::memory_order_relaxed);
   // Wait for all threads to exit.
+  int curr_threads = GetCount(counter_type);
   auto last_log_time = grpc_core::Timestamp::Now();
   while (curr_threads > desired_threads) {
-    absl::SleepFor(kSleepBetweenQuiesceCheck);
-    work_signal->SignalAll();
-    if (grpc_core::Timestamp::Now() - last_log_time >
-        grpc_core::Duration::Seconds(3)) {
+    curr_threads = WaitForCountChange(counter_type, desired_threads,
+                                      kBlockingQuiesceLogRate);
+    if (grpc_core::Timestamp::Now() - last_log_time > kBlockingQuiesceLogRate) {
       gpr_log(GPR_DEBUG,
               "Waiting for thread pool to idle before %s. (%d to %d)", why,
               curr_threads, desired_threads);
       last_log_time = grpc_core::Timestamp::Now();
     }
-    curr_threads = counter.load(std::memory_order_relaxed);
+    work_signal->SignalAll();
   }
+}
+
+size_t WorkStealingThreadPool::ThreadCount::WaitForCountChange(
+    CounterType counter_type, int desired_threads,
+    grpc_core::Duration timeout) {
+  if (GetCount(counter_type) == desired_threads) return desired_threads;
+  grpc_core::MutexLock lock(&wait_mu_[counter_type]);
+  wait_cv_[counter_type].WaitWithTimeout(&wait_mu_[counter_type],
+                                         absl::Milliseconds(timeout.millis()));
+  return GetCount(counter_type);
 }
 
 size_t WorkStealingThreadPool::ThreadCount::GetCount(CounterType counter_type) {

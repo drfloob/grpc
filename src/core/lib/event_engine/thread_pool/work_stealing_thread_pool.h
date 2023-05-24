@@ -107,6 +107,11 @@ class WorkStealingThreadPool final : public ThreadPool {
     };
 
    private:
+    size_t WaitForCountChange(CounterType counter_type, int desired_threads,
+                              grpc_core::Duration timeout);
+
+    grpc_core::Mutex wait_mu_[2];
+    grpc_core::CondVar wait_cv_[2];
     std::atomic<size_t> thread_counts_[2]{{0}, {0}};
   };
 
@@ -194,9 +199,9 @@ class WorkStealingThreadPool final : public ThreadPool {
       void LifeguardMain();
       // Starts a new thread if the pool is backlogged
       void MaybeStartNewThread();
+
       std::shared_ptr<WorkStealingThreadPoolImpl> pool_;
       grpc_core::BackOff backoff_;
-      std::atomic<bool> thread_running_{false};
     };
 
     const size_t reserve_threads_;
@@ -216,6 +221,11 @@ class WorkStealingThreadPool final : public ThreadPool {
     std::atomic<bool> throttled_{false};
     WorkSignal work_signal_;
     Lifeguard lifeguard_;
+    // Used for signaling that the lifeguard thread has stopped running.
+    grpc_core::Mutex lifeguard_shutdown_mu_;
+    bool lifeguard_running_ ABSL_GUARDED_BY(lifeguard_shutdown_mu_) = false;
+    grpc_core::CondVar lifeguard_shutdown_cv_
+        ABSL_GUARDED_BY(lifeguard_shutdown_mu_);
   };
 
   class ThreadState {
