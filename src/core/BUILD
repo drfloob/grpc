@@ -1483,6 +1483,7 @@ grpc_cc_library(
         "absl/base:core_headers",
         "absl/container:flat_hash_set",
         "absl/functional:any_invocable",
+        "absl/strings",
         "absl/time",
     ],
     deps = [
