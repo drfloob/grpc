@@ -15,6 +15,7 @@
 // limitations under the License.
 //
 //
+#include <grpc/support/port_platform.h>
 
 #include "test/core/util/test_config.h"
 
@@ -53,6 +54,28 @@ static unsigned seed(void) { return static_cast<unsigned>(getpid()); }
 #include <process.h>
 
 static unsigned seed(void) { return (unsigned)_getpid(); }
+#endif
+
+#ifdef GPR_WINDOWS
+#include <windows.h>
+
+#include "src/core/lib/gprpp/examine_stack.h"
+
+long exception_handler(PEXCEPTION_POINTERS p) {
+  long r = EXCEPTION_CONTINUE_SEARCH;
+  if (p->ExceptionRecord->ExceptionCode == STATUS_ACCESS_VIOLATION) {
+    r = EXCEPTION_EXECUTE_HANDLER;
+    auto trace = grpc_core::GetCurrentStackTrace();
+    fprintf(stderr,
+            "gRPC Exception Handler caught STATUS_ACCESS_VIOLATION. %s\n",
+            trace.has_value() ? trace->c_str() : "Could not get stack trace.");
+  } else {
+    fprintf(stderr,
+            "DO NOT SUBMIT: gRPC ignoring exception with status: 0x%08x\n",
+            p->ExceptionRecord->ExceptionCode);
+  }
+  return r;
+}
 #endif
 
 int64_t grpc_test_sanitizer_slowdown_factor() {
@@ -128,6 +151,10 @@ void grpc_test_init(int* argc, char** argv) {
   ParseTestArgs(argc, argv);
   grpc_core::testing::InitializeStackTracer(argv[0]);
   absl::FailureSignalHandlerOptions options;
+#ifdef GPR_WINDOWS
+  options.call_previous_handler = true;
+  AddVectoredExceptionHandler(1, exception_handler);
+#endif
   absl::InstallFailureSignalHandler(options);
   gpr_log(GPR_DEBUG,
           "test slowdown factor: sanitizer=%" PRId64 ", fixture=%" PRId64
