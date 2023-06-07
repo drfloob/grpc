@@ -69,9 +69,61 @@ long exception_handler(PEXCEPTION_POINTERS p) {
     fprintf(stderr,
             "gRPC Exception Handler caught STATUS_ACCESS_VIOLATION. %s\n",
             trace.has_value() ? trace->c_str() : "Could not get stack trace.");
-    WCHAR buffer[MAX_PATH];
-    GetModuleFileNameW(0, buffer, MAX_PATH);
-    fprintf(stderr, "----\n  module filename: %ls", buffer);
+    {
+      void* trace[63 /* "must be less than 64" according to MSDN */];
+      unsigned int const skip = 0;
+      size_t const nbacktrace =
+          CaptureStackBackTrace(skip, (std::size(trace) - skip), trace, NULL);
+      TCHAR line[2 << 10];
+      size_t i = 0;
+      while (i < nbacktrace &&
+             trace[i] != reinterpret_cast<void*>(p->ContextRecord->
+#if defined(_M_IX86)
+                                                 Eip
+#else
+                                                 Rip
+#endif
+                                                 )) {
+        ++i;
+      }
+      if (i == nbacktrace) {
+        i = 0;
+      }
+      for (; i < nbacktrace; ++i) {
+        // if (n >= static_cast<int>(std::size(line)) - 1) {
+        //   break;
+        // }
+        HMODULE base_address = NULL;
+        if (!GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT |
+                                   GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
+                               reinterpret_cast<TCHAR const*>(trace[i]),
+                               &base_address)) {
+          base_address = NULL;
+        }
+        unsigned int relative_address = static_cast<unsigned int>(
+            static_cast<unsigned char const*>(trace[i]) -
+            reinterpret_cast<unsigned char const*>(base_address));
+        // int m = _sntprintf(&line[n], static_cast<int>(std::size(line)) - 1 -
+        // n,
+        //                    _T("\r\n0x%llX+0x%X"),
+        //                    static_cast<unsigned long long>(
+        //                        reinterpret_cast<uintptr_t>(base_address)),
+        //                    relative_address);
+        int m = fprintf(stderr, "\r\n0x%llX+0x%X",
+                        static_cast<unsigned long long>(
+                            reinterpret_cast<uintptr_t>(base_address)),
+                        relative_address);
+        if (m < 0) {
+          m = 0;
+        }
+        WCHAR module_name[MAX_PATH];
+        size_t module_name_length = GetModuleFileNameW(
+            base_address, module_name, std::size(module_name));
+        // module_name now contains the DLL name
+        fprintf(stderr, "  module: %ls", module_name);
+      }
+      // buf now contains all the base addresses + offsets
+    }
   } else {
     fprintf(stderr,
             "DO NOT SUBMIT: gRPC ignoring exception with status: 0x%08x\n",
