@@ -69,9 +69,9 @@ long exception_handler(PEXCEPTION_POINTERS p) {
     fprintf(stderr,
             "gRPC Exception Handler caught STATUS_ACCESS_VIOLATION. %s\n",
             trace.has_value() ? trace->c_str() : "Could not get stack trace.");
-    wchar_t buffer[MAX_PATH];
-    GetModuleFileName(NULL, buffer, MAX_PATH);
-    fprintf(stderr, "----\n  module filename: %s", buffer);
+    WCHAR buffer[MAX_PATH];
+    GetModuleFileNameW(0, buffer, MAX_PATH);
+    fprintf(stderr, "----\n  module filename: %ls", buffer);
   } else {
     fprintf(stderr,
             "DO NOT SUBMIT: gRPC ignoring exception with status: 0x%08x\n",
