@@ -373,11 +373,20 @@ bool WindowsEventEngine::CancelConnect(EventEngine::ConnectionHandle handle) {
 
 bool WindowsEventEngine::CancelConnectFromDeadlineTimer(
     ConnectionState* connection_state) {
-  // Erase the connection handle, which is guaranteed to exist.
   {
     grpc_core::MutexLock lock(&connection_mu_);
-    GPR_ASSERT(known_connection_handles_.erase(
-                   connection_state->connection_handle) == 1);
+    // Erase the connection handle, which may not exist if OnConnectCompleted
+    // was called concurrently. In that case, OnConnectCompleted should fail
+    // since this timer is not cancellable.
+    if (known_connection_handles_.erase(connection_state->connection_handle) !=
+        1) {
+      GRPC_EVENT_ENGINE_TRACE(
+          "The connection deadline timer fired, but the connection handle was "
+          "unknown. Connection Handle: %s",
+          HandleToString<EventEngine::ConnectionHandle>(
+              connection_state->connection_handle)
+              .c_str());
+    }
   }
   return CancelConnectInternalStateLocked(connection_state);
 }
