@@ -126,11 +126,11 @@ void print_stack_22467604(CONTEXT* ctx) {
 
     // try to get line
     if (SymGetLineFromAddr64(process, stack.AddrPC.Offset, &disp, line)) {
-      fprintf(stderr, "\tat %s in %s: line: %lu: address: 0x%0X\n", pSymbol->Name,
+      fprintf(stderr, "\tat %s in %s: line: %lu: address: 0x%llX\n", pSymbol->Name,
              line->FileName, line->LineNumber, pSymbol->Address);
     } else {
       // failed to get line
-      fprintf(stderr, "\tat %s, address 0x%0X.\n", pSymbol->Name, pSymbol->Address);
+      fprintf(stderr, "\tat %s, address 0x%llX.\n", pSymbol->Name, pSymbol->Address);
       hModule = NULL;
       lstrcpyA(module, "");
       GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |

@@ -658,3 +658,18 @@ grpc_proto_fuzzer(
         "//test/core/util:test_lb_policies",
     ],
 )
+
+# DO NOT SUBMIT - hack to get pdb files uploaded
+# filegroup(
+#     name = "dns_e2e_pdb",
+#     srcs = [":core_end2end_tests@experiment=event_engine_client"],
+#     output_group = "pdb_file",
+#     testonly = True,
+# )
+
+sh_test(
+    name = "dns_e2e",
+    srcs = ["dns_e2e.sh"],
+    # deps = [":core_end2end_tests@experiment=event_engine_client"],
+    data = [":core_end2end_tests@experiment=event_engine_client"],
+)
