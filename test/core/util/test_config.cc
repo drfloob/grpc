@@ -126,11 +126,11 @@ void print_stack_22467604(CONTEXT* ctx) {
 
     // try to get line
     if (SymGetLineFromAddr64(process, stack.AddrPC.Offset, &disp, line)) {
-      printf("\tat %s in %s: line: %lu: address: 0x%0X\n", pSymbol->Name,
+      fprintf(stderr, "\tat %s in %s: line: %lu: address: 0x%0X\n", pSymbol->Name,
              line->FileName, line->LineNumber, pSymbol->Address);
     } else {
       // failed to get line
-      printf("\tat %s, address 0x%0X.\n", pSymbol->Name, pSymbol->Address);
+      fprintf(stderr, "\tat %s, address 0x%0X.\n", pSymbol->Name, pSymbol->Address);
       hModule = NULL;
       lstrcpyA(module, "");
       GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
@@ -140,7 +140,7 @@ void print_stack_22467604(CONTEXT* ctx) {
       // at least print module name
       if (hModule != NULL) GetModuleFileNameA(hModule, module, MaxNameLen);
 
-      printf("in %s\n", module);
+      fprintf(stderr, "in %s\n", module);
     }
 
     free(line);
@@ -181,12 +181,6 @@ void print_stack_mehrdad(CONTEXT* ctx) {
     unsigned int relative_address = static_cast<unsigned int>(
         static_cast<unsigned char const*>(trace[i]) -
         reinterpret_cast<unsigned char const*>(base_address));
-    // int m = _sntprintf(&line[n], static_cast<int>(std::size(line)) - 1 -
-    // n,
-    //                    _T("\r\n0x%llX+0x%X"),
-    //                    static_cast<unsigned long long>(
-    //                        reinterpret_cast<uintptr_t>(base_address)),
-    //                    relative_address);
     int m = fprintf(stderr, "\r\n0x%llX+0x%X",
                     static_cast<unsigned long long>(
                         reinterpret_cast<uintptr_t>(base_address)),
@@ -211,9 +205,9 @@ long exception_handler(PEXCEPTION_POINTERS p) {
     fprintf(stderr,
             "gRPC Exception Handler caught STATUS_ACCESS_VIOLATION. %s\n",
             trace.has_value() ? trace->c_str() : "Could not get stack trace.");
-    printf("---- mehrdad ----\n");
+    fprintf(stderr, "---- mehrdad ----\n");
     print_stack_mehrdad(p->ContextRecord);
-    printf("\n---- 22467604 ----\n");
+    fprintf(stderr, "\n---- 22467604 ----\n");
     print_stack_22467604(p->ContextRecord);
   } else {
     fprintf(stderr,
