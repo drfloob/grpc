@@ -59,7 +59,149 @@ static unsigned seed(void) { return (unsigned)_getpid(); }
 #ifdef GPR_WINDOWS
 #include <windows.h>
 
+#include <iostream>
+
+#include "dbghelp.h"
+
 #include "src/core/lib/gprpp/examine_stack.h"
+
+void print_stack_22467604(CONTEXT* ctx) {
+  BOOL result;
+  HANDLE process;
+  HANDLE thread;
+  HMODULE hModule;
+
+  STACKFRAME64 stack;
+  ULONG frame;
+  DWORD64 displacement;
+
+  DWORD disp;
+  IMAGEHLP_LINE64* line;
+
+  char buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
+  const int MaxNameLen = 256;
+  char name[MaxNameLen];
+  char module[MaxNameLen];
+  PSYMBOL_INFO pSymbol = (PSYMBOL_INFO)buffer;
+
+  // On x64, StackWalk64 modifies the context record, that could
+  // cause crashes, so we create a copy to prevent it
+  CONTEXT ctxCopy;
+  memcpy(&ctxCopy, ctx, sizeof(CONTEXT));
+  memset(&stack, 0, sizeof(STACKFRAME64));
+
+  process = GetCurrentProcess();
+  thread = GetCurrentThread();
+  displacement = 0;
+#if !defined(_M_AMD64)
+  stack.AddrPC.Offset = (*ctx).Eip;
+  stack.AddrPC.Mode = AddrModeFlat;
+  stack.AddrStack.Offset = (*ctx).Esp;
+  stack.AddrStack.Mode = AddrModeFlat;
+  stack.AddrFrame.Offset = (*ctx).Ebp;
+  stack.AddrFrame.Mode = AddrModeFlat;
+#endif
+
+  for (frame = 0;; frame++) {
+    // get next call from stack
+    result = StackWalk64(
+#if defined(_M_AMD64)
+        IMAGE_FILE_MACHINE_AMD64
+#else
+        IMAGE_FILE_MACHINE_I386
+#endif
+        ,
+        process, thread, &stack, &ctxCopy, NULL, SymFunctionTableAccess64,
+        SymGetModuleBase64, NULL);
+
+    if (!result) break;
+
+    // get symbol name for address
+    pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+    pSymbol->MaxNameLen = MAX_SYM_NAME;
+    SymFromAddr(process, (ULONG64)stack.AddrPC.Offset, &displacement, pSymbol);
+
+    line = (IMAGEHLP_LINE64*)malloc(sizeof(IMAGEHLP_LINE64));
+    line->SizeOfStruct = sizeof(IMAGEHLP_LINE64);
+
+    // try to get line
+    if (SymGetLineFromAddr64(process, stack.AddrPC.Offset, &disp, line)) {
+      printf("\tat %s in %s: line: %lu: address: 0x%0X\n", pSymbol->Name,
+             line->FileName, line->LineNumber, pSymbol->Address);
+    } else {
+      // failed to get line
+      printf("\tat %s, address 0x%0X.\n", pSymbol->Name, pSymbol->Address);
+      hModule = NULL;
+      lstrcpyA(module, "");
+      GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                            GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                        (LPCTSTR)(stack.AddrPC.Offset), &hModule);
+
+      // at least print module name
+      if (hModule != NULL) GetModuleFileNameA(hModule, module, MaxNameLen);
+
+      printf("in %s\n", module);
+    }
+
+    free(line);
+    line = NULL;
+  }
+}
+
+void print_stack_mehrdad(CONTEXT* ctx) {
+  void* trace[63 /* "must be less than 64" according to MSDN */];
+  unsigned int const skip = 0;
+  size_t const nbacktrace =
+      CaptureStackBackTrace(skip, (std::size(trace) - skip), trace, NULL);
+  TCHAR line[2 << 10];
+  size_t i = 0;
+  while (i < nbacktrace && trace[i] != reinterpret_cast<void*>(ctx->
+#if defined(_M_IX86)
+                                                               Eip
+#else
+                                                               Rip
+#endif
+                                                               )) {
+    ++i;
+  }
+  if (i == nbacktrace) {
+    i = 0;
+  }
+  for (; i < nbacktrace; ++i) {
+    // if (n >= static_cast<int>(std::size(line)) - 1) {
+    //   break;
+    // }
+    HMODULE base_address = NULL;
+    if (!GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT |
+                               GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
+                           reinterpret_cast<TCHAR const*>(trace[i]),
+                           &base_address)) {
+      base_address = NULL;
+    }
+    unsigned int relative_address = static_cast<unsigned int>(
+        static_cast<unsigned char const*>(trace[i]) -
+        reinterpret_cast<unsigned char const*>(base_address));
+    // int m = _sntprintf(&line[n], static_cast<int>(std::size(line)) - 1 -
+    // n,
+    //                    _T("\r\n0x%llX+0x%X"),
+    //                    static_cast<unsigned long long>(
+    //                        reinterpret_cast<uintptr_t>(base_address)),
+    //                    relative_address);
+    int m = fprintf(stderr, "\r\n0x%llX+0x%X",
+                    static_cast<unsigned long long>(
+                        reinterpret_cast<uintptr_t>(base_address)),
+                    relative_address);
+    if (m < 0) {
+      m = 0;
+    }
+    WCHAR module_name[MAX_PATH];
+    size_t module_name_length =
+        GetModuleFileNameW(base_address, module_name, std::size(module_name));
+    // module_name now contains the DLL name
+    fprintf(stderr, "  module: %ls", module_name);
+  }
+  // buf now contains all the base addresses + offsets
+}
 
 long exception_handler(PEXCEPTION_POINTERS p) {
   long r = EXCEPTION_CONTINUE_SEARCH;
@@ -69,61 +211,10 @@ long exception_handler(PEXCEPTION_POINTERS p) {
     fprintf(stderr,
             "gRPC Exception Handler caught STATUS_ACCESS_VIOLATION. %s\n",
             trace.has_value() ? trace->c_str() : "Could not get stack trace.");
-    {
-      void* trace[63 /* "must be less than 64" according to MSDN */];
-      unsigned int const skip = 0;
-      size_t const nbacktrace =
-          CaptureStackBackTrace(skip, (std::size(trace) - skip), trace, NULL);
-      TCHAR line[2 << 10];
-      size_t i = 0;
-      while (i < nbacktrace &&
-             trace[i] != reinterpret_cast<void*>(p->ContextRecord->
-#if defined(_M_IX86)
-                                                 Eip
-#else
-                                                 Rip
-#endif
-                                                 )) {
-        ++i;
-      }
-      if (i == nbacktrace) {
-        i = 0;
-      }
-      for (; i < nbacktrace; ++i) {
-        // if (n >= static_cast<int>(std::size(line)) - 1) {
-        //   break;
-        // }
-        HMODULE base_address = NULL;
-        if (!GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT |
-                                   GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
-                               reinterpret_cast<TCHAR const*>(trace[i]),
-                               &base_address)) {
-          base_address = NULL;
-        }
-        unsigned int relative_address = static_cast<unsigned int>(
-            static_cast<unsigned char const*>(trace[i]) -
-            reinterpret_cast<unsigned char const*>(base_address));
-        // int m = _sntprintf(&line[n], static_cast<int>(std::size(line)) - 1 -
-        // n,
-        //                    _T("\r\n0x%llX+0x%X"),
-        //                    static_cast<unsigned long long>(
-        //                        reinterpret_cast<uintptr_t>(base_address)),
-        //                    relative_address);
-        int m = fprintf(stderr, "\r\n0x%llX+0x%X",
-                        static_cast<unsigned long long>(
-                            reinterpret_cast<uintptr_t>(base_address)),
-                        relative_address);
-        if (m < 0) {
-          m = 0;
-        }
-        WCHAR module_name[MAX_PATH];
-        size_t module_name_length = GetModuleFileNameW(
-            base_address, module_name, std::size(module_name));
-        // module_name now contains the DLL name
-        fprintf(stderr, "  module: %ls", module_name);
-      }
-      // buf now contains all the base addresses + offsets
-    }
+    printf("---- mehrdad ----\n");
+    print_stack_mehrdad(p->ContextRecord);
+    printf("\n---- 22467604 ----\n");
+    print_stack_22467604(p->ContextRecord);
   } else {
     fprintf(stderr,
             "DO NOT SUBMIT: gRPC ignoring exception with status: 0x%08x\n",
