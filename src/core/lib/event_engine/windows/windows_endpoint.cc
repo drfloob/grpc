@@ -79,6 +79,9 @@ WindowsEndpoint::~WindowsEndpoint() {
 
 absl::Status WindowsEndpoint::DoTcpRead(SliceBuffer* buffer) {
   GRPC_EVENT_ENGINE_ENDPOINT_TRACE("WindowsEndpoint::%p reading", this);
+  // DO NOT SUBMIT: test assertions
+  GPR_ASSERT(io_state_ != nullptr);
+  GPR_ASSERT(io_state_->socket != nullptr);
   if (io_state_->socket->IsShutdown()) {
     return absl::UnavailableError("Socket is shutting down.");
   }
@@ -362,9 +365,10 @@ void WindowsEndpoint::HandleWriteClosure::Run() {
 WindowsEndpoint::AsyncIOState::AsyncIOState(WindowsEndpoint* endpoint,
                                             std::unique_ptr<WinSocket> socket,
                                             std::shared_ptr<EventEngine> engine)
-    : endpoint(endpoint),
-      socket(std::move(socket)),
-      engine(std::move(engine)) {}
+    : endpoint(endpoint), socket(std::move(socket)), engine(std::move(engine)) {
+  // DO NOT SUBMIT: test assertion
+  GPR_ASSERT(this->socket != nullptr);
+}
 
 WindowsEndpoint::AsyncIOState::~AsyncIOState() {
   socket->Shutdown(DEBUG_LOCATION, "~AsyncIOState");
