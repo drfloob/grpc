@@ -321,6 +321,12 @@ void WindowsEndpoint::HandleReadClosure::Run() {
   }
   // DO NOT SUBMIT: test assertions
   GPR_ASSERT(io_state->socket != nullptr);
+  if (io_state->socket->IsShutdown()) {
+    // It's possible the endpoint has already been destroyed, so we
+    // short-circuit the read.
+    return ResetAndReturnCallback()(
+        absl::UnavailableError("Socket is shutting down."));
+  }
   // Doing another read. Let's keep the AsyncIOState alive a bit longer.
   io_state_ = std::move(io_state);
   // DO NOT SUBMIT: test assertions
