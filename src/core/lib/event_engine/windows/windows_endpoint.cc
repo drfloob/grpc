@@ -289,6 +289,8 @@ void WindowsEndpoint::HandleReadClosure::Run() {
   GRPC_EVENT_ENGINE_ENDPOINT_TRACE("WindowsEndpoint::%p Handling Read Event",
                                    io_state->endpoint);
   absl::Status status;
+  // DO NOT SUBMIT: test assertions
+  GPR_ASSERT(io_state->socket != nullptr);
   const auto result = io_state->socket->read_info()->result();
   if (result.wsa_error != 0) {
     status = GRPC_WSA_ERROR(result.wsa_error, "Async Read Error");
@@ -317,8 +319,12 @@ void WindowsEndpoint::HandleReadClosure::Run() {
     buffer_->Swap(last_read_buffer_);
     return ResetAndReturnCallback()(status);
   }
+  // DO NOT SUBMIT: test assertions
+  GPR_ASSERT(io_state->socket != nullptr);
   // Doing another read. Let's keep the AsyncIOState alive a bit longer.
   io_state_ = std::move(io_state);
+  // DO NOT SUBMIT: test assertions
+  GPR_ASSERT(io_state_->socket != nullptr);
   status = io_state_->endpoint->DoTcpRead(buffer_);
   if (!status.ok()) {
     return ResetAndReturnCallback()(status);
