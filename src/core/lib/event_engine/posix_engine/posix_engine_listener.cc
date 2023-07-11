@@ -14,7 +14,10 @@
 
 #include <grpc/support/port_platform.h>
 
+#include <tuple>
+
 #include "src/core/lib/event_engine/posix.h"
+#include "src/core/lib/gprpp/time.h"
 #include "src/core/lib/iomgr/exec_ctx.h"
 #include "src/core/lib/iomgr/port.h"
 
