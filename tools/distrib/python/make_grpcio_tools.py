@@ -237,6 +237,7 @@ def _delete_source_tree(target):
     print("Deleting copied folder %s" % (target_abs))
     shutil.rmtree(target_abs, ignore_errors=True)
 
+
 def main():
     os.chdir(GRPC_ROOT)
 
