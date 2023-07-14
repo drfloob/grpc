@@ -238,10 +238,14 @@ def _delete_source_tree(target):
     print("Deleting copied folder %s" % (target_abs))
     shutil.rmtree(target_abs, ignore_errors=True)
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--keep-third-party", default=False, action="store_true", help="Do not delete the temporary third_party folder"
+        "--keep-third-party",
+        default=False,
+        action="store_true",
+        help="Do not delete the temporary third_party folder",
     )
     args = parser.parse_args()
     os.chdir(GRPC_ROOT)
