@@ -36,6 +36,7 @@ int main(int argc, char** argv) {
   // TODO(ctiller): make this per fixture?
   grpc_core::ConfigVars::Overrides overrides;
   overrides.default_ssl_roots_file_path = CA_CERT_PATH;
+  overrides.trace = "event_engine,event_engine_endpoint,event_engine_endpoint_data,event_engine_poller";
   grpc_core::ConfigVars::SetOverrides(overrides);
   const auto all_tests = grpc_core::CoreEnd2endTestRegistry::Get().AllTests();
   for (const auto& test : all_tests) {
