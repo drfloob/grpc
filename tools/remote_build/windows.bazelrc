@@ -11,6 +11,11 @@ build --platforms=//third_party/toolchains:rbe_windows_default_platform
 build --shell_executable=C:\\msys64\\usr\\bin\\bash.exe
 build --python_path="C:\\Program Files\\Python310\\python.exe"
 
+# Capture PDB files
+build --cxxopt="/Z7"
+build --linkopt="/DEBUG:FASTLINK"
+build --output_groups=pdb_file,default
+
 build --test_tag_filters=-no_windows
 build --build_tag_filters=-no_windows
 

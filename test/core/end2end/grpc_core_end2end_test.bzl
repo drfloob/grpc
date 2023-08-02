@@ -176,3 +176,9 @@ def grpc_core_end2end_test(name, shard_count = 10):
             "//test/core/util:test_lb_policies",
         ],
     )
+
+    native.filegroup(
+        name = "%s_test_pdb_file" % name,
+        srcs = ["%s_test" % name],
+        output_group = "pdb_file",
+    )
