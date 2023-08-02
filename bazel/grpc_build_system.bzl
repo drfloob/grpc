@@ -448,7 +448,7 @@ def expand_tests(name, srcs, deps, tags, args, exclude_pollers, uses_polling, us
                     experiment_config.append(config)
     return experiment_config
 
-def grpc_cc_test(name, srcs = [], deps = [], external_deps = [], args = [], data = [], uses_polling = True, language = "C++", size = "medium", timeout = None, tags = [], exec_compatible_with = [], exec_properties = {}, shard_count = None, flaky = None, copts = [], linkstatic = None, exclude_pollers = [], uses_event_engine = True):
+def grpc_cc_test(name, srcs = [], deps = [], external_deps = [], args = [], data = [], uses_polling = True, language = "C++", size = "medium", timeout = None, tags = [], exec_compatible_with = [], exec_properties = {}, shard_count = None, flaky = None, copts = [], linkstatic = None, exclude_pollers = [], uses_event_engine = True, features = []):
     """A cc_test target for use in the gRPC repo.
 
     Args:
@@ -474,6 +474,7 @@ def grpc_cc_test(name, srcs = [], deps = [], external_deps = [], args = [], data
         exclude_pollers: list of poller names to exclude for this set of tests.
         uses_event_engine: set to False if the test is not sensitive to
             EventEngine implementation differences
+        features: set of features passed to cc_test
     """
     if language.upper() == "C":
         copts = copts + if_not_windows(["-std=c11"])
@@ -491,6 +492,7 @@ def grpc_cc_test(name, srcs = [], deps = [], external_deps = [], args = [], data
         "exec_properties": exec_properties,
         "shard_count": shard_count,
         "linkstatic": linkstatic,
+        "features": features,
     }
 
     if "grpc-fuzzer" not in tags and "no_test_ios" not in tags:

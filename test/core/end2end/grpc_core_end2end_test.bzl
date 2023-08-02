@@ -16,7 +16,7 @@
 Generate one e2e test & associated fuzzer
 """
 
-load("//bazel:grpc_build_system.bzl", "grpc_cc_test")
+load("//bazel:grpc_build_system.bzl", "grpc_cc_test", "if_windows")
 load("//test/core/util:grpc_fuzzer.bzl", "grpc_proto_fuzzer")
 
 END2END_TEST_DATA = [
@@ -34,6 +34,7 @@ def grpc_core_end2end_test(name, shard_count = 10):
         srcs = [
             "tests/%s.cc" % name,
         ],
+        features = if_windows(["generate_pdb_file"]),
         shard_count = shard_count,
         data = END2END_TEST_DATA,
         external_deps = [
@@ -175,11 +176,4 @@ def grpc_core_end2end_test(name, shard_count = 10):
             "//test/core/util:grpc_test_util",
             "//test/core/util:test_lb_policies",
         ],
-    )
-
-    native.filegroup(
-        name = "%s_test_pdb_file" % name,
-        srcs = ["%s_test" % name],
-        output_group = "pdb_file",
-        testonly = True,
     )
