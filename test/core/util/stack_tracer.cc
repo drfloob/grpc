@@ -92,7 +92,7 @@ namespace testing {
 
 std::string GetCurrentStackTrace() {
   std::string result = "Stack trace:\n";
-  constexpr int kNumStackFrames = 32;
+  constexpr int kNumStackFrames = 60;
   void* stack[kNumStackFrames];
   int frame_sizes[kNumStackFrames];
   int depth = absl::GetStackFrames(stack, frame_sizes, kNumStackFrames, 1);
