@@ -65,9 +65,9 @@ int main(int argc, char** argv) {
   grpc_core::ConfigVars::Overrides overrides;
   overrides.default_ssl_roots_file_path = CA_CERT_PATH;
   // DO NOT SUBMIT(hork): remove
-  overrides.trace =
-      "event_engine,event_engine_endpoint,event_engine_endpoint_data,"
-      "event_engine_poller";
+  // overrides.trace =
+  //     "event_engine,event_engine_endpoint,event_engine_endpoint_data,"
+  //     "event_engine_poller";
   prev_handler = signal(SIGABRT, sigabrt_handler);
   // DO NOT SUBMIT(hork): remove above
   grpc_core::ConfigVars::SetOverrides(overrides);
