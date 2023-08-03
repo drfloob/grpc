@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#include <grpc/support/port_platform.h>
 
 #include <string>
 #include <vector>
@@ -25,6 +26,10 @@
 #include "test/core/end2end/fixtures/h2_tls_common.h"
 #include "test/core/util/test_config.h"
 
+#ifdef GPR_WINDOWS
+#include <signal.h>
+#endif
+
 namespace grpc_core {
 extern void EnsureSuitesLinked();
 }
@@ -34,15 +39,16 @@ void (*prev_handler)(int);
 void sigabrt_handler(int i) {
 #ifdef GPR_WINDOWS
   // Caught SIGABRT C++ signal
-  HMODULE base_address;
+  HMODULE base_address = NULL;
   if (!GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT |
-                                   GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
-                               NULL,
-                               &base_address) {
+                             GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
+                         reinterpret_cast<LPCTSTR>(sigabrt_handler),
+                         &base_address)) {
     base_address = NULL;
   }
-  fprintf(stderr, "\r\nModule base address: 0x%llX\r\n", static_cast<unsigned long long>(
-                            reinterpret_cast<uintptr_t>(base_address)));
+  fprintf(stderr, "\r\nModule base address: 0x%llX\r\n",
+          static_cast<unsigned long long>(
+              reinterpret_cast<uintptr_t>(base_address)));
   // Call prev handler and Terminate program
   prev_handler(i);
   exit(42);
