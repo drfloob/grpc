@@ -29,6 +29,28 @@ namespace grpc_core {
 extern void EnsureSuitesLinked();
 }
 
+// DO NOT SUBMIT(hork): delete
+void (*prev_handler)(int);
+void sigabrt_handler(int i) {
+#ifdef GPR_WINDOWS
+  // Caught SIGABRT C++ signal
+  HMODULE base_address;
+  if (!GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT |
+                                   GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
+                               NULL,
+                               &base_address) {
+    base_address = NULL;
+  }
+  fprintf(stderr, "\r\nModule base address: 0x%llX\r\n", static_cast<unsigned long long>(
+                            reinterpret_cast<uintptr_t>(base_address)));
+  // Call prev handler and Terminate program
+  prev_handler(i);
+  exit(42);
+#else
+  prev_handler(i);
+#endif
+}
+
 int main(int argc, char** argv) {
   grpc::testing::TestEnvironment env(&argc, argv);
   grpc_core::EnsureSuitesLinked();
@@ -36,7 +58,12 @@ int main(int argc, char** argv) {
   // TODO(ctiller): make this per fixture?
   grpc_core::ConfigVars::Overrides overrides;
   overrides.default_ssl_roots_file_path = CA_CERT_PATH;
-  overrides.trace = "event_engine,event_engine_endpoint,event_engine_endpoint_data,event_engine_poller";
+  // DO NOT SUBMIT(hork): remove
+  overrides.trace =
+      "event_engine,event_engine_endpoint,event_engine_endpoint_data,"
+      "event_engine_poller";
+  prev_handler = signal(SIGABRT, sigabrt_handler);
+  // DO NOT SUBMIT(hork): remove above
   grpc_core::ConfigVars::SetOverrides(overrides);
   const auto all_tests = grpc_core::CoreEnd2endTestRegistry::Get().AllTests();
   for (const auto& test : all_tests) {
