@@ -334,10 +334,6 @@ def grpc_deps():
                 "https://storage.googleapis.com/grpc-bazel-mirror/github.com/abseil/abseil-cpp/archive/20230125.3.tar.gz",
                 "https://github.com/abseil/abseil-cpp/archive/20230125.3.tar.gz",
             ],
-            patches = [
-                "@com_github_grpc_grpc//third_party:abseil.patch",
-            ],
-            patch_args = ["-p1"],
         )
 
     if "bazel_toolchains" not in native.existing_rules():
