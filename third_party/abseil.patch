@@ -1,0 +1,13 @@
+diff --git a/absl/debugging/failure_signal_handler.cc b/absl/debugging/failure_signal_handler.cc
+index ef8ab9e5..3ee1cbab 100644
+--- a/absl/debugging/failure_signal_handler.cc
++++ b/absl/debugging/failure_signal_handler.cc
+@@ -263,7 +263,7 @@ static void WriterFnWrapper(const char* data, void* arg) {
+ ABSL_ATTRIBUTE_NOINLINE static void WriteStackTrace(
+     void* ucontext, bool symbolize_stacktrace,
+     void (*writerfn)(const char*, void*), void* writerfn_arg) {
+-  constexpr int kNumStackFrames = 32;
++  constexpr int kNumStackFrames = 60;
+   void* stack[kNumStackFrames];
+   int frame_sizes[kNumStackFrames];
+   int min_dropped_frames;
