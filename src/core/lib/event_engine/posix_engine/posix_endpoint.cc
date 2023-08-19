@@ -527,6 +527,7 @@ void PosixEndpointImpl::UpdateRcvLowat() {
 }
 
 void PosixEndpointImpl::MaybeMakeReadSlices() {
+  grpc_core::ExecCtx exec_ctx;
   static const int kBigAlloc = 64 * 1024;
   static const int kSmallAlloc = 8 * 1024;
   if (incoming_buffer_->Length() < std::max<size_t>(min_progress_size_, 1)) {
@@ -602,6 +603,7 @@ void PosixEndpointImpl::HandleRead(absl::Status status) {
 bool PosixEndpointImpl::Read(absl::AnyInvocable<void(absl::Status)> on_read,
                              SliceBuffer* buffer,
                              const EventEngine::Endpoint::ReadArgs* args) {
+  grpc_core::ExecCtx exec_ctx;
   grpc_core::ReleasableMutexLock lock(&read_mu_);
   GPR_ASSERT(read_cb_ == nullptr);
   incoming_buffer_ = buffer;
@@ -847,6 +849,7 @@ bool PosixEndpointImpl::WriteWithTimestamps(struct msghdr* msg,
                                             ssize_t* sent_length,
                                             int* saved_errno,
                                             int additional_flags) {
+  grpc_core::ExecCtx exec_ctx;
   if (!socket_ts_enabled_) {
     uint32_t opt = kTimestampingSocketOptions;
     if (setsockopt(fd_, SOL_SOCKET, SO_TIMESTAMPING, static_cast<void*>(&opt),
@@ -1130,6 +1133,7 @@ bool PosixEndpointImpl::TcpFlush(absl::Status& status) {
 }
 
 void PosixEndpointImpl::HandleWrite(absl::Status status) {
+  grpc_core::ExecCtx exec_ctx;
   if (!status.ok()) {
     absl::AnyInvocable<void(absl::Status)> cb_ = std::move(write_cb_);
     write_cb_ = nullptr;
@@ -1159,6 +1163,7 @@ void PosixEndpointImpl::HandleWrite(absl::Status status) {
 bool PosixEndpointImpl::Write(
     absl::AnyInvocable<void(absl::Status)> on_writable, SliceBuffer* data,
     const EventEngine::Endpoint::WriteArgs* args) {
+  grpc_core::ExecCtx exec_ctx;
   absl::Status status = absl::OkStatus();
   TcpZerocopySendRecord* zerocopy_send_record = nullptr;
 
