@@ -94,23 +94,21 @@ constexpr grpc_core::Duration kIdleThreadLimit =
 constexpr size_t kBlockingQuiesceLogRateSeconds = 3;
 // Minumum time between thread creations.
 constexpr grpc_core::Duration kTimeBetweenThrottledThreadStarts =
-    grpc_core::Duration::Milliseconds(500);
+    grpc_core::Duration::Milliseconds(150);
 // Minimum time a worker thread should sleep between checking for new work. Used
 // in backoff calculations to reduce vigilance when the pool is calm.
 constexpr grpc_core::Duration kWorkerThreadMinSleepBetweenChecks{
     grpc_core::Duration::Milliseconds(15)};
 // Maximum time a worker thread should sleep between checking for new work.
 constexpr grpc_core::Duration kWorkerThreadMaxSleepBetweenChecks{
-    grpc_core::Duration::Seconds(3)};
+    grpc_core::Duration::Milliseconds(1000)};
 // Minimum time the lifeguard thread should sleep between checks. Used in
 // backoff calculations to reduce vigilance when the pool is calm.
 constexpr grpc_core::Duration kLifeguardMinSleepBetweenChecks{
-    grpc_core::Duration::Milliseconds(15)};
+    grpc_core::Duration::Milliseconds(33)};
 // Maximum time the lifeguard thread should sleep between checking for new work.
 constexpr grpc_core::Duration kLifeguardMaxSleepBetweenChecks{
     grpc_core::Duration::Seconds(1)};
-constexpr grpc_core::Duration kMinTimeBetweenSteals{
-    grpc_core::Duration::Milliseconds(500)};
 }  // namespace
 
 thread_local WorkQueue* g_local_queue = nullptr;
@@ -426,7 +424,6 @@ bool WorkStealingThreadPool::ThreadState::Step() {
   bool should_run_again = false;
   grpc_core::Timestamp start_time{grpc_core::Timestamp::Now()};
   // Wait until work is available or until shut down.
-  auto last_steal_attempt = start_time;
   while (!pool_->IsForking()) {
     // Pull from the global queue next
     // TODO(hork): consider an empty check for performance wins. Depends on the
@@ -437,21 +434,17 @@ bool WorkStealingThreadPool::ThreadState::Step() {
       should_run_again = true;
       break;
     };
-    auto now = grpc_core::Timestamp::Now();
     // Try stealing if the queue is empty
-    if (now - last_steal_attempt > kMinTimeBetweenSteals) {
-      last_steal_attempt = now;
-      closure = pool_->theft_registry()->StealOne();
-      if (closure != nullptr) {
-        should_run_again = true;
-        break;
-      }
+    closure = pool_->theft_registry()->StealOne();
+    if (closure != nullptr) {
+      should_run_again = true;
+      break;
     }
     // No closures were retrieved from anywhere.
     // Quit the thread if the pool has been shut down.
     if (pool_->IsShutdown()) break;
-    bool timed_out =
-        pool_->work_signal()->WaitWithTimeout(backoff_.NextAttemptTime() - now);
+    bool timed_out = pool_->work_signal()->WaitWithTimeout(
+        backoff_.NextAttemptTime() - grpc_core::Timestamp::Now());
     if (pool_->IsForking() || pool_->IsShutdown()) break;
     // Quit a thread if the pool has more than it requires, and this thread
     // has been idle long enough.
