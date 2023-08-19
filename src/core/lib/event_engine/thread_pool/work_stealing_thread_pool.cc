@@ -94,18 +94,18 @@ constexpr grpc_core::Duration kIdleThreadLimit =
 constexpr size_t kBlockingQuiesceLogRateSeconds = 3;
 // Minumum time between thread creations.
 constexpr grpc_core::Duration kTimeBetweenThrottledThreadStarts =
-    grpc_core::Duration::Milliseconds(150);
+    grpc_core::Duration::Seconds(1);
 // Minimum time a worker thread should sleep between checking for new work. Used
 // in backoff calculations to reduce vigilance when the pool is calm.
 constexpr grpc_core::Duration kWorkerThreadMinSleepBetweenChecks{
     grpc_core::Duration::Milliseconds(15)};
 // Maximum time a worker thread should sleep between checking for new work.
 constexpr grpc_core::Duration kWorkerThreadMaxSleepBetweenChecks{
-    grpc_core::Duration::Milliseconds(1000)};
+    grpc_core::Duration::Seconds(3)};
 // Minimum time the lifeguard thread should sleep between checks. Used in
 // backoff calculations to reduce vigilance when the pool is calm.
 constexpr grpc_core::Duration kLifeguardMinSleepBetweenChecks{
-    grpc_core::Duration::Milliseconds(33)};
+    grpc_core::Duration::Milliseconds(15)};
 // Maximum time the lifeguard thread should sleep between checking for new work.
 constexpr grpc_core::Duration kLifeguardMaxSleepBetweenChecks{
     grpc_core::Duration::Seconds(1)};
