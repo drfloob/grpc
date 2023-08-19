@@ -101,7 +101,8 @@ static void RunSynchronousUnaryPingPong() {
   if (!proto_result.ok()) {
     grpc_core::Crash(proto_result.message());
   }
-  gpr_log(GPR_INFO, "arstarst Running %s", scenarios.scenarios(0).name().c_str());
+  gpr_log(GPR_INFO, "arstarst Running %s",
+          scenarios.scenarios(0).name().c_str());
 
   // ServerConfig server_config;
   // server_config.set_server_type(SYNC_SERVER);
