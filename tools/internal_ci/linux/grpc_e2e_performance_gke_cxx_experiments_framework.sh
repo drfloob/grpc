@@ -17,17 +17,17 @@ set -ex
 # Purpose: Run the C++ "dashboard" benchmarks for a set of gRPC-core experiments.
 #
 # To run the benchmarks, add your experiment to the set below.
-GRPC_EXPERIMENTS=("event_engine_listener" "work_stealing" "event_engine_listener,work_stealing")
+GRPC_EXPERIMENTS=("" "event_engine_listener" "event_engine_listener,work_stealing")
 
 # Enter the gRPC repo root.
 cd "$(dirname "$0")/../../.."
 
-source tools/internal_ci/helper_scripts/prepare_build_linux_rc
+# source tools/internal_ci/helper_scripts/prepare_build_linux_rc
 
 # Environment variables to select repos and branches for various repos.
 # You can edit these lines if you want to run from a fork.
-GRPC_CORE_REPO=grpc/grpc
-GRPC_CORE_GITREF=master
+GRPC_CORE_REPO=drfloob/grpc
+GRPC_CORE_GITREF=tmp-qps-stats
 TEST_INFRA_REPO=grpc/test-infra
 TEST_INFRA_GITREF=master
 
@@ -36,10 +36,10 @@ TEST_INFRA_GITREF=master
 # pre-built images in the optimization.
 gcloud auth configure-docker
 
-# Connect to benchmarks-prod2 cluster.
-gcloud config set project grpc-testing
-gcloud container clusters get-credentials benchmarks-prod2 \
-    --zone us-central1-b --project grpc-testing
+# # Connect to benchmarks-prod2 cluster.
+# gcloud config set project grpc-testing
+# gcloud container clusters get-credentials benchmarks-prod2 \
+#     --zone us-central1-b --project grpc-testing
 
 # Set up environment variables.
 LOAD_TEST_PREFIX="${KOKORO_BUILD_INITIATOR}"
@@ -49,12 +49,12 @@ if [[ "${KOKORO_BUILD_INITIATOR%%-*}" == kokoro ]]; then
 fi
 # Use the "official" BQ tables so that the measurements will show up in the
 # "official" public dashboard.
-BIGQUERY_TABLE_8CORE=e2e_benchmark_cxx_experiments.results_8core
-BIGQUERY_TABLE_32CORE=e2e_benchmark_cxx_experiments.results_32core
+BIGQUERY_TABLE_8CORE=hork_e2e_benchmark.20230818_results_8core
+BIGQUERY_TABLE_32CORE=hork_e2e_benchmark.20230818_results_32core
 # END differentiate experimental configuration from master configuration.
 CLOUD_LOGGING_URL="https://source.cloud.google.com/results/invocations/${KOKORO_BUILD_ID}"
 PREBUILT_IMAGE_PREFIX="gcr.io/grpc-testing/e2etest/prebuilt/cxx_experiment/${LOAD_TEST_PREFIX}"
-UNIQUE_IDENTIFIER="cxx-experiment-$(date +%Y%m%d%H%M%S)"
+UNIQUE_IDENTIFIER="hork-cxx-experiment-$(date +%Y%m%d%H%M%S)"
 ROOT_DIRECTORY_OF_DOCKERFILES="../test-infra/containers/pre_built_workers/"
 # Head of the workspace checked out by Kokoro.
 GRPC_COMMIT="$(git show --format="%H" --no-patch)"
@@ -71,15 +71,15 @@ WORKER_POOL_8CORE=workers-c2-8core-ci
 # c2-standard-30 is the closest machine spec to 32 core there is
 WORKER_POOL_32CORE=workers-c2-30core-ci
 # Prefix for log URLs in cnsviewer.
-LOG_URL_PREFIX="http://cnsviewer/placer/prod/home/kokoro-dedicated/build_artifacts/${KOKORO_BUILD_ARTIFACTS_SUBDIR}/github/grpc/"
+LOG_URL_PREFIX="http://cnsviewer/placer/prod/home/kokoro-dedicated/build_artifacts/prod/grpc/hork"
 
-# Clone test-infra repository and build all tools.
-mkdir ../test-infra
-pushd ../test-infra
-git clone "https://github.com/${TEST_INFRA_REPO}.git" .
-git checkout "${TEST_INFRA_GITREF}"
-make all-tools
-popd
+# # Clone test-infra repository and build all tools.
+# mkdir ../test-infra
+# pushd ../test-infra
+# git clone "https://github.com/${TEST_INFRA_REPO}.git" .
+# git checkout "${TEST_INFRA_GITREF}"
+# make all-tools
+# popd
 
 declare -a loadtest_files=()
 
@@ -92,55 +92,55 @@ buildConfigs() {
     # Multiple experiments are delimited by `__` (two underscores) in BigQuery.
     SANITIZED_EXPERIMENT="${experiment//,/__}"
     OUTFILE="loadtest_with_prebuilt_workers_${pool}_${SANITIZED_EXPERIMENT}.yaml"
-    tools/run_tests/performance/loadtest_config.py "$@" \
-        -t ./tools/run_tests/performance/templates/loadtest_template_prebuilt_cxx_experiments.yaml \
-        -s driver_pool="${DRIVER_POOL}" -s driver_image= \
-        -s client_pool="${pool}" -s server_pool="${pool}" \
-        -s big_query_table="${base_table}_${SANITIZED_EXPERIMENT}" -s timeout_seconds=900 \
-        -s prebuilt_image_prefix="${PREBUILT_IMAGE_PREFIX}" \
-        -s prebuilt_image_tag="${UNIQUE_IDENTIFIER}" \
-        -s grpc_experiment="${experiment}" \
-        -a ci_buildNumber="${KOKORO_BUILD_NUMBER}" \
-        -a ci_buildUrl="${CLOUD_LOGGING_URL}" \
-        -a ci_jobName="${KOKORO_JOB_NAME}" \
-        -a ci_gitCommit="${GRPC_COMMIT}" \
-        -a ci_gitCommit_core="${GRPC_CORE_COMMIT}" \
-        -a ci_gitActualCommit="${KOKORO_GIT_COMMIT}" \
-        --prefix="${LOAD_TEST_PREFIX}" -u "${UNIQUE_IDENTIFIER}" -u "${pool}" \
-        -a pool="${pool}" --category=dashboard \
-        --allow_client_language=c++ --allow_server_language=c++ \
-        --allow_server_language=node \
-        -o "${OUTFILE}"
+    # tools/run_tests/performance/loadtest_config.py "$@" \
+    #     -t ./tools/run_tests/performance/templates/loadtest_template_prebuilt_cxx_experiments.yaml \
+    #     -s driver_pool="${DRIVER_POOL}" -s driver_image= \
+    #     -s client_pool="${pool}" -s server_pool="${pool}" \
+    #     -s big_query_table="${base_table}_${SANITIZED_EXPERIMENT}" -s timeout_seconds=900 \
+    #     -s prebuilt_image_prefix="${PREBUILT_IMAGE_PREFIX}" \
+    #     -s prebuilt_image_tag="${UNIQUE_IDENTIFIER}" \
+    #     -s grpc_experiment="${experiment}" \
+    #     -a ci_buildNumber="${KOKORO_BUILD_NUMBER}" \
+    #     -a ci_buildUrl="${CLOUD_LOGGING_URL}" \
+    #     -a ci_jobName="${KOKORO_JOB_NAME}" \
+    #     -a ci_gitCommit="${GRPC_COMMIT}" \
+    #     -a ci_gitCommit_core="${GRPC_CORE_COMMIT}" \
+    #     -a ci_gitActualCommit="${KOKORO_GIT_COMMIT}" \
+    #     --prefix="${LOAD_TEST_PREFIX}" -u "${UNIQUE_IDENTIFIER}" -u "${pool}" \
+    #     -a pool="${pool}" --category=dashboard \
+    #     --allow_client_language=c++ --allow_server_language=c++ \
+    #     --allow_server_language=node \
+    #     -o "${OUTFILE}"
 
     loadtest_files+=(-i "${OUTFILE}")
 }
 
 for experiment in "${GRPC_EXPERIMENTS[@]}"; do
-    buildConfigs "${WORKER_POOL_8CORE}" "${BIGQUERY_TABLE_8CORE}" "${experiment}" -l c++
+    # buildConfigs "${WORKER_POOL_8CORE}" "${BIGQUERY_TABLE_8CORE}" "${experiment}" -l c++
     buildConfigs "${WORKER_POOL_32CORE}" "${BIGQUERY_TABLE_32CORE}" "${experiment}" -l c++
 done
 
-# Delete prebuilt images on exit.
-deleteImages() {
-    echo "deleting images on exit"
-    ../test-infra/bin/delete_prebuilt_workers \
-        -p "${PREBUILT_IMAGE_PREFIX}" \
-        -t "${UNIQUE_IDENTIFIER}"
-}
-trap deleteImages EXIT
+# # Delete prebuilt images on exit.
+# deleteImages() {
+#     echo "deleting images on exit"
+#     ../test-infra/bin/delete_prebuilt_workers \
+#         -p "${PREBUILT_IMAGE_PREFIX}" \
+#         -t "${UNIQUE_IDENTIFIER}"
+# }
+# # trap deleteImages EXIT
 
 # Build and push prebuilt images for running tests.
 time ../test-infra/bin/prepare_prebuilt_workers \
     -l "cxx:${GRPC_CORE_REPO}:${GRPC_CORE_COMMIT}" \
     -p "${PREBUILT_IMAGE_PREFIX}" \
-    -t "${UNIQUE_IDENTIFIER}" \
+    -t "opt" \
     -r "${ROOT_DIRECTORY_OF_DOCKERFILES}"
 
-# Run tests.
-../test-infra/bin/runner \
-    ${loadtest_files[@]} \
-    -log-url-prefix "${LOG_URL_PREFIX}" \
-    -polling-interval 5s \
-    -delete-successful-tests \
-    -c "${WORKER_POOL_8CORE}:2" -c "${WORKER_POOL_32CORE}:2" \
-    -o "runner/sponge_log.xml"
+# # Run tests.
+# ../test-infra/bin/runner \
+#     ${loadtest_files[@]} \
+#     -log-url-prefix "${LOG_URL_PREFIX}" \
+#     -polling-interval 5s \
+#     -delete-successful-tests \
+#     -c "${WORKER_POOL_8CORE}:2" -c "${WORKER_POOL_32CORE}:2" \
+#     -o "runner/sponge_log.xml"

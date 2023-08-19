@@ -16,16 +16,13 @@
 //
 //
 
-#include <set>
-
 #include <grpc/support/log.h>
 
 #include "src/core/lib/gprpp/crash.h"
+#include "src/proto/grpc/testing/control.pb.h"
 #include "test/core/util/test_config.h"
 #include "test/cpp/qps/benchmark_config.h"
 #include "test/cpp/qps/driver.h"
-#include "test/cpp/qps/report.h"
-#include "test/cpp/qps/server.h"
 #include "test/cpp/util/test_config.h"
 #include "test/cpp/util/test_credentials_provider.h"
 
@@ -36,28 +33,90 @@ static const int WARMUP = 1;
 static const int BENCHMARK = 3;
 
 static void RunSynchronousUnaryPingPong() {
-  gpr_log(GPR_INFO, "Running Synchronous Unary Ping Pong");
+  const char* json_str = R"json({
+      "scenarios": {
+        "name": "cpp_protobuf_async_streaming_qps_unconstrained_secure",
+        "num_servers": 1,
+        "num_clients": 0,
+        "client_config": {
+          "client_type": "ASYNC_CLIENT",
+          "security_params": {
+            "use_test_ca": true,
+            "server_host_override": "foo.test.google.fr"
+          },
+          "outstanding_rpcs_per_channel": 100,
+          "client_channels": 64,
+          "async_client_threads": 0,
+          "client_processes": 0,
+          "threads_per_cq": 2,
+          "rpc_type": "STREAMING",
+          "histogram_params": {
+            "resolution": 0.01,
+            "max_possible": 60000000000.0
+          },
+          "channel_args": [
+            {
+              "name": "grpc.optimization_target",
+              "str_value": "throughput"
+            }
+          ],
+          "payload_config": {
+            "simple_params": {
+              "req_size": 0,
+              "resp_size": 0
+            }
+          },
+          "load_params": {
+            "closed_loop": {}
+          }
+        },
+        "server_config": {
+          "server_type": "ASYNC_SERVER",
+          "security_params": {
+            "use_test_ca": true,
+            "server_host_override": "foo.test.google.fr"
+          },
+          "async_server_threads": 0,
+          "server_processes": 0,
+          "threads_per_cq": 2,
+          "channel_args": [
+            {
+              "name": "grpc.optimization_target",
+              "str_value": "throughput"
+            }
+          ]
+        },
+        "warmup_seconds": 30,
+        "benchmark_seconds": 30
+      }
+    })json";
+  grpc::protobuf::json::JsonParseOptions options;
+  options.case_insensitive_enum_parsing = true;
+  // ClientConfig client_config;
+  // auto proto_result = grpc::protobuf::json::JsonStringToMessage(
+  //     json_str, &client_config, options);
+  Scenarios scenarios;
+  auto proto_result =
+      grpc::protobuf::json::JsonStringToMessage(json_str, &scenarios, options);
+  if (!proto_result.ok()) {
+    grpc_core::Crash(proto_result.message());
+  }
+  gpr_log(GPR_INFO, "arstarst Running %s", scenarios.scenarios(0).name().c_str());
 
-  ClientConfig client_config;
-  client_config.set_client_type(SYNC_CLIENT);
-  client_config.set_outstanding_rpcs_per_channel(1);
-  client_config.set_client_channels(1);
-  client_config.set_rpc_type(UNARY);
-  client_config.mutable_load_params()->mutable_closed_loop();
-
-  ServerConfig server_config;
-  server_config.set_server_type(SYNC_SERVER);
+  // ServerConfig server_config;
+  // server_config.set_server_type(SYNC_SERVER);
 
   // Set up security params
-  SecurityParams security;
-  security.set_use_test_ca(true);
-  security.set_server_host_override("foo.test.google.fr");
-  client_config.mutable_security_params()->CopyFrom(security);
-  server_config.mutable_security_params()->CopyFrom(security);
+  // SecurityParams security;
+  // security.set_use_test_ca(true);
+  // security.set_server_host_override("foo.test.google.fr");
+  // scena client_config.mutable_security_params()->CopyFrom(security);
+  // server_config.mutable_security_params()->CopyFrom(security);
 
   const auto result =
-      RunScenario(client_config, 1, server_config, 1, WARMUP, BENCHMARK, -2, "",
-                  kInsecureCredentialsType, {}, false, 0);
+      RunScenario(scenarios.scenarios(0).client_config(), 1,
+                  scenarios.scenarios(0).server_config(), 1, WARMUP, BENCHMARK,
+                  -2, "", kInsecureCredentialsType, {}, false, 0);
 
   GetReporter()->ReportQPS(*result);
   GetReporter()->ReportLatency(*result);
