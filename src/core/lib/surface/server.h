@@ -38,6 +38,7 @@
 #include <grpc/slice.h>
 #include <grpc/support/time.h>
 
+#include "src/core/lib/channel/call_tracer.h"
 #include "src/core/lib/channel/channel_args.h"
 #include "src/core/lib/channel/channel_fwd.h"
 #include "src/core/lib/channel/channel_stack.h"
@@ -61,8 +62,6 @@
 #include "src/core/lib/transport/metadata_batch.h"
 #include "src/core/lib/transport/transport.h"
 #include "src/core/lib/transport/transport_fwd.h"
-
-struct grpc_server_config_fetcher;
 
 namespace grpc_core {
 
@@ -137,10 +136,12 @@ class Server : public InternallyRefCounted<Server>,
     return config_fetcher_.get();
   }
 
-  void set_config_fetcher(
-      std::unique_ptr<grpc_server_config_fetcher> config_fetcher) {
-    config_fetcher_ = std::move(config_fetcher);
+  ServerCallTracerFactory* server_call_tracer_factory() const {
+    return server_call_tracer_factory_;
   }
+
+  void set_config_fetcher(
+      std::unique_ptr<grpc_server_config_fetcher> config_fetcher);
 
   bool HasOpenConnections() ABSL_LOCKS_EXCLUDED(mu_global_);
 
@@ -230,7 +231,6 @@ class Server : public InternallyRefCounted<Server>,
 
     ChannelRegisteredMethod* GetRegisteredMethod(const grpc_slice& host,
                                                  const grpc_slice& path);
-
     // Filter vtable functions.
     static grpc_error_handle InitChannelElement(
         grpc_channel_element* elem, grpc_channel_element_args* args);
@@ -243,6 +243,8 @@ class Server : public InternallyRefCounted<Server>,
 
     static void AcceptStream(void* arg, grpc_transport* /*transport*/,
                              const void* transport_server_data);
+    static void SetRegisteredMethodOnMetadata(void* arg,
+                                              ServerMetadata* metadata);
 
     void Destroy() ABSL_EXCLUSIVE_LOCKS_REQUIRED(server_->mu_global_);
 
@@ -432,6 +434,7 @@ class Server : public InternallyRefCounted<Server>,
   ChannelArgs const channel_args_;
   RefCountedPtr<channelz::ServerNode> channelz_node_;
   std::unique_ptr<grpc_server_config_fetcher> config_fetcher_;
+  ServerCallTracerFactory* const server_call_tracer_factory_;
 
   std::vector<grpc_completion_queue*> cqs_;
   std::vector<grpc_pollset*> pollsets_;
@@ -509,5 +512,14 @@ struct grpc_server_config_fetcher {
   virtual void CancelWatch(WatcherInterface* watcher) = 0;
   virtual grpc_pollset_set* interested_parties() = 0;
 };
+
+namespace grpc_core {
+
+inline void Server::set_config_fetcher(
+    std::unique_ptr<grpc_server_config_fetcher> config_fetcher) {
+  config_fetcher_ = std::move(config_fetcher);
+}
+
+}  // namespace grpc_core
 
 #endif  // GRPC_SRC_CORE_LIB_SURFACE_SERVER_H

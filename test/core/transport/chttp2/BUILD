@@ -32,6 +32,7 @@ grpc_proto_fuzzer(
         "//:grpc",
         "//test/core/util:fuzz_config_vars",
         "//test/core/util:grpc_test_util",
+        "//test/core/util:proto_bit_gen",
     ],
 )
 
@@ -47,6 +48,7 @@ grpc_proto_fuzzer(
         "//:grpc",
         "//test/core/util:fuzz_config_vars",
         "//test/core/util:grpc_test_util",
+        "//test/core/util:proto_bit_gen",
     ],
 )
 
@@ -75,6 +77,7 @@ grpc_fuzzer(
         "absl/cleanup",
         "absl/status:statusor",
         "absl/status",
+        "absl/random:mocking_bit_gen",
     ],
     tags = ["no_windows"],
     uses_polling = False,
@@ -142,6 +145,19 @@ grpc_cc_test(
         "//:grpc",
         "//src/core:slice",
         "//test/core/util:grpc_test_util",
+    ],
+)
+
+grpc_cc_test(
+    name = "frame_test",
+    srcs = ["frame_test.cc"],
+    external_deps = ["gtest"],
+    language = "C++",
+    uses_event_engine = False,
+    uses_polling = False,
+    deps = [
+        "//:chttp2_frame",
+        "//src/core:http2_errors",
     ],
 )
 
