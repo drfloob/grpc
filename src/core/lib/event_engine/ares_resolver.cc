@@ -22,6 +22,7 @@
 
 #include "src/core/lib/iomgr/port.h"
 
+// IWYU pragma: no_include <ares_version.h>
 // IWYU pragma: no_include <arpa/inet.h>
 // IWYU pragma: no_include <arpa/nameser.h>
 // IWYU pragma: no_include <inttypes.h>
@@ -33,7 +34,15 @@
 
 #if GRPC_ARES == 1
 
+#include <ares.h>
+
+#if ARES_VERSION >= 0x011200
+// c-ares 1.18.0 or later starts to provide ares_nameser.h as a public header.
 #include <ares_nameser.h>
+#else
+#include "src/core/lib/event_engine/nameser.h"  // IWYU pragma: keep
+#endif
+
 #include <string.h>
 
 #include <algorithm>
@@ -159,6 +168,9 @@ AresResolver::CreateAresResolver(
     std::shared_ptr<EventEngine> event_engine) {
   ares_options opts = {};
   opts.flags |= ARES_FLAG_STAYOPEN;
+  if (g_event_engine_grpc_ares_test_only_force_tcp) {
+    opts.flags |= ARES_FLAG_USEVC;
+  }
   ares_channel channel;
   int status = ares_init_options(&channel, &opts, ARES_OPT_FLAGS);
   if (status != ARES_SUCCESS) {
@@ -168,6 +180,7 @@ AresResolver::CreateAresResolver(
         absl::StrCat("Failed to init c-ares channel: ", ares_strerror(status)));
   }
   event_engine_grpc_ares_test_only_inject_config(&channel);
+  polled_fd_factory->ConfigureAresChannelLocked(channel);
   if (!dns_server.empty()) {
     absl::Status status = SetRequestDNSServer(dns_server, &channel);
     if (!status.ok()) {
@@ -194,7 +207,7 @@ void AresResolver::Orphan() {
     }
     for (const auto& fd_node : fd_node_list_) {
       if (!fd_node->already_shutdown) {
-        GRPC_ARES_RESOLVER_TRACE_LOG("request: %p shutdown fd: %s", this,
+        GRPC_ARES_RESOLVER_TRACE_LOG("resolver: %p shutdown fd: %s", this,
                                      fd_node->polled_fd->GetName());
         fd_node->polled_fd->ShutdownLocked(
             absl::CancelledError("AresResolver::Orphan"));
@@ -351,9 +364,10 @@ void AresResolver::CheckSocketsLocked() {
             fd_node_list_.begin(), fd_node_list_.end(),
             [sock = socks[i]](const auto& node) { return node->as == sock; });
         if (iter == fd_node_list_.end()) {
+          GRPC_ARES_RESOLVER_TRACE_LOG("resolver:%p new fd: %d", this,
+                                       socks[i]);
           new_list.push_back(std::make_unique<FdNode>(
               socks[i], polled_fd_factory_->NewGrpcPolledFdLocked(socks[i])));
-          GRPC_ARES_RESOLVER_TRACE_LOG("request:%p new fd: %d", this, socks[i]);
         } else {
           new_list.splice(new_list.end(), fd_node_list_, iter);
         }
@@ -368,7 +382,7 @@ void AresResolver::CheckSocketsLocked() {
             // new data arrives and c-ares hasn't read all the data in the
             // previous ares_process_fd.
             GRPC_ARES_RESOLVER_TRACE_LOG(
-                "request:%p schedule read directly on: %d", this, fd_node->as);
+                "resolver:%p schedule read directly on: %d", this, fd_node->as);
             event_engine_->Run(
                 [self = Ref(DEBUG_LOCATION, "CheckSocketsLocked"),
                  fd_node]() mutable {
@@ -376,7 +390,7 @@ void AresResolver::CheckSocketsLocked() {
                 });
           } else {
             // Otherwise register with the poller for readable event.
-            GRPC_ARES_RESOLVER_TRACE_LOG("request:%p notify read on: %d", this,
+            GRPC_ARES_RESOLVER_TRACE_LOG("resolver:%p notify read on: %d", this,
                                          fd_node->as);
             fd_node->polled_fd->RegisterForOnReadableLocked(
                 [self = Ref(DEBUG_LOCATION, "CheckSocketsLocked"),
@@ -389,7 +403,7 @@ void AresResolver::CheckSocketsLocked() {
         // has not been registered with this socket.
         if (ARES_GETSOCK_WRITABLE(socks_bitmask, i) &&
             !fd_node->writable_registered) {
-          GRPC_ARES_RESOLVER_TRACE_LOG("request:%p notify write on: %d", this,
+          GRPC_ARES_RESOLVER_TRACE_LOG("resolver:%p notify write on: %d", this,
                                        fd_node->as);
           fd_node->writable_registered = true;
           fd_node->polled_fd->RegisterForOnWriteableLocked(
@@ -407,13 +421,13 @@ void AresResolver::CheckSocketsLocked() {
   while (!fd_node_list_.empty()) {
     FdNode* fd_node = fd_node_list_.front().get();
     if (!fd_node->already_shutdown) {
-      GRPC_ARES_RESOLVER_TRACE_LOG("request: %p shutdown fd: %s", this,
+      GRPC_ARES_RESOLVER_TRACE_LOG("resolver: %p shutdown fd: %s", this,
                                    fd_node->polled_fd->GetName());
       fd_node->polled_fd->ShutdownLocked(absl::OkStatus());
       fd_node->already_shutdown = true;
     }
     if (!fd_node->readable_registered && !fd_node->writable_registered) {
-      GRPC_ARES_RESOLVER_TRACE_LOG("request: %p delete fd: %s", this,
+      GRPC_ARES_RESOLVER_TRACE_LOG("resolver: %p delete fd: %s", this,
                                    fd_node->polled_fd->GetName());
       fd_node_list_.pop_front();
     } else {
@@ -701,5 +715,7 @@ void noop_inject_channel_config(ares_channel* /*channel*/) {}
 
 void (*event_engine_grpc_ares_test_only_inject_config)(ares_channel* channel) =
     noop_inject_channel_config;
+
+bool g_event_engine_grpc_ares_test_only_force_tcp = false;
 
 #endif  // GRPC_ARES == 1

@@ -23,8 +23,10 @@ grpc_package(
 )
 
 exports_files([
-    "grpc_run_tests_py_test.sh",
-    "grpc_build_artifact_task.sh",
+    "grpc_run_tests_harness_test.sh",
+    "grpc_run_bazel_distribtest_test.sh",
+    "grpc_run_cpp_distribtest_test.sh",
+    "grpc_run_simple_command_test.sh",
 ])
 
 genrule(
