@@ -93,6 +93,7 @@ void WinSocket::NotifyOnReady(OpState& info, EventEngine::Closure* closure) {
     thread_pool_->Run(closure);
     return;
   };
+  grpc_core::MutexLock lock(&info.ready_mu_);
   if (std::exchange(info.has_pending_iocp_, false)) {
     thread_pool_->Run(closure);
   } else {
@@ -117,6 +118,7 @@ WinSocket::OpState::OpState(WinSocket* win_socket) noexcept
 }
 
 void WinSocket::OpState::SetReady() {
+  grpc_core::MutexLock lock(&ready_mu_);
   GPR_ASSERT(!has_pending_iocp_);
   auto* closure = closure_.exchange(nullptr);
   if (closure) {
