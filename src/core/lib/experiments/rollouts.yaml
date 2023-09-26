@@ -63,7 +63,7 @@
 - name: promise_based_server_call
   default: false
 - name: event_engine_listener
-  default: false
+  default: true
 - name: schedule_cancellation_over_write
   default: false
 - name: trace_record_callops
