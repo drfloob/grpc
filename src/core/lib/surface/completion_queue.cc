@@ -58,6 +58,7 @@
 #include "src/core/lib/surface/event_string.h"
 
 #ifdef GPR_WINDOWS
+#include "src/core/lib/event_engine/trace.h"
 #include "src/core/lib/experiments/experiments.h"
 #endif
 
@@ -889,7 +890,7 @@ void grpc_cq_end_op(grpc_completion_queue* cq, void* tag,
 // TODO(hork): remove when the listener flake is identified
 #ifdef GPR_WINDOWS
   if (grpc_core::IsEventEngineListenerEnabled()) {
-    gpr_log(GPR_ERROR, "cq_end_op called for tag %d (0x%p)", tag, tag);
+    GRPC_EVENT_ENGINE_TRACE("cq_end_op called for tag %d (0x%p)", tag, tag);
   }
 #endif
   cq->vtable->end_op(cq, tag, error, done, done_arg, storage, internal);
