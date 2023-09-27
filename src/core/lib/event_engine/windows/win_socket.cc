@@ -118,14 +118,16 @@ WinSocket::OpState::OpState(WinSocket* win_socket) noexcept
 }
 
 void WinSocket::OpState::SetReady() {
-  grpc_core::MutexLock lock(&ready_mu_);
-  GPR_ASSERT(!has_pending_iocp_);
-  auto* closure = closure_.exchange(nullptr);
-  if (closure) {
-    win_socket_->thread_pool_->Run(closure);
-  } else {
-    has_pending_iocp_ = true;
+  EventEngine::Closure*  closure;
+  {
+    grpc_core::MutexLock lock(&ready_mu_);
+    GPR_ASSERT(!has_pending_iocp_);
+    closure = closure_.exchange(nullptr);
+    if (!closure) {
+      has_pending_iocp_ = true;
+    }
   }
+  if (closure) win_socket_->thread_pool_->Run(closure);
 }
 
 void WinSocket::OpState::SetError(int wsa_error) {
