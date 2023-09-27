@@ -118,7 +118,7 @@ WinSocket::OpState::OpState(WinSocket* win_socket) noexcept
 }
 
 void WinSocket::OpState::SetReady() {
-  EventEngine::Closure*  closure;
+  EventEngine::Closure* closure;
   {
     grpc_core::MutexLock lock(&ready_mu_);
     GPR_ASSERT(!has_pending_iocp_);
