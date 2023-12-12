@@ -534,7 +534,7 @@ class FilterStackCall final : public Call {
 
   grpc_event_engine::experimental::EventEngine* event_engine() override {
     // DO NOT SUBMIT(hork): return an engine. Does it need to be a shared_ptr?
-    grpc_core::Crash("not implemented");
+    Crash("not implemented");
   }
 
   grpc_call_element* call_elem(size_t idx) {
@@ -2044,7 +2044,7 @@ class PromiseBasedCall : public Call,
 
   grpc_event_engine::experimental::EventEngine* event_engine() override {
     // DO NOT SUBMIT(hork): return an engine. Does it need to be a shared_ptr?
-    grpc_core::Crash("not implemented");
+    Crash("not implemented");
   }
 
   void UpdateDeadline(Timestamp deadline) ABSL_LOCKS_EXCLUDED(deadline_mu_);
