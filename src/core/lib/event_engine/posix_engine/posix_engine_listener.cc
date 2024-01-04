@@ -64,7 +64,9 @@ PosixEngineListenerImpl::PosixEngineListenerImpl(
       acceptors_(this),
       on_accept_(std::move(on_accept)),
       on_shutdown_(std::move(on_shutdown)),
-      memory_allocator_factory_(std::move(memory_allocator_factory)) {}
+      memory_allocator_factory_(std::move(memory_allocator_factory)) {
+  gpr_log(GPR_ERROR, "DO NOT SUBMIT: PosixEngineListenerImpl::%p", this);
+}
 
 absl::StatusOr<int> PosixEngineListenerImpl::Bind(
     const EventEngine::ResolvedAddress& addr,
@@ -317,6 +319,7 @@ void PosixEngineListenerImpl::TriggerShutdown() {
 }
 
 PosixEngineListenerImpl::~PosixEngineListenerImpl() {
+  gpr_log(GPR_ERROR, "DO NOT SUBMIT: ~PosixEngineListenerImpl::%p", this);
   // This should get invoked only after all the AsyncConnectionAcceptors have
   // been destroyed. This is because each AsyncConnectionAcceptor has a
   // shared_ptr ref to the parent PosixEngineListenerImpl.

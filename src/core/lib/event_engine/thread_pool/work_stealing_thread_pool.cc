@@ -39,6 +39,7 @@
 #include "src/core/lib/event_engine/trace.h"
 #include "src/core/lib/event_engine/work_queue/basic_work_queue.h"
 #include "src/core/lib/event_engine/work_queue/work_queue.h"
+#include "src/core/lib/gprpp/examine_stack.h"
 #include "src/core/lib/gprpp/thd.h"
 #include "src/core/lib/gprpp/time.h"
 
@@ -135,11 +136,23 @@ WorkStealingThreadPool::~WorkStealingThreadPool() {
 }
 
 void WorkStealingThreadPool::Run(absl::AnyInvocable<void()> callback) {
-  Run(SelfDeletingClosure::Create(std::move(callback)));
+  // Run(SelfDeletingClosure::Create(std::move(callback)));
+  auto stack = grpc_core::GetCurrentStackTrace();
+  pool_->Run(SelfDeletingClosure::Create(
+      [callback = std::move(callback), stack]() mutable {
+        gpr_log(GPR_ERROR, "DO NOT SUBMIT: Running closure from %s",
+                stack.value().c_str());
+        callback();
+      }));
 }
 
 void WorkStealingThreadPool::Run(EventEngine::Closure* closure) {
-  pool_->Run(closure);
+  auto stack = grpc_core::GetCurrentStackTrace();
+  pool_->Run(SelfDeletingClosure::Create([closure, stack]() {
+    gpr_log(GPR_ERROR, "DO NOT SUBMIT: Running closure from %s",
+            stack.value().c_str());
+    closure->Run();
+  }));
 }
 
 // -------- WorkStealingThreadPool::TheftRegistry --------
@@ -425,6 +438,9 @@ bool WorkStealingThreadPool::ThreadState::Step() {
   if (closure != nullptr) {
     auto busy =
         pool_->busy_thread_count()->MakeAutoThreadCounter(busy_count_idx_);
+    gpr_log(GPR_ERROR,
+            "DO NOT SUBMIT: WorkStealingThreadPool::%p running closure %p",
+            this, closure);
     closure->Run();
     return true;
   }
@@ -474,6 +490,9 @@ bool WorkStealingThreadPool::ThreadState::Step() {
   if (closure != nullptr) {
     auto busy =
         pool_->busy_thread_count()->MakeAutoThreadCounter(busy_count_idx_);
+    gpr_log(GPR_ERROR,
+            "DO NOT SUBMIT: WorkStealingThreadPool::%p running closure %p",
+            this, closure);
     closure->Run();
   }
   backoff_.Reset();
@@ -490,6 +509,9 @@ void WorkStealingThreadPool::ThreadState::FinishDraining() {
     if (!g_local_queue->Empty()) {
       auto* closure = g_local_queue->PopMostRecent();
       if (closure != nullptr) {
+        gpr_log(GPR_ERROR,
+                "DO NOT SUBMIT: WorkStealingThreadPool::%p running closure %p",
+                this, closure);
         closure->Run();
       }
       continue;
@@ -497,6 +519,9 @@ void WorkStealingThreadPool::ThreadState::FinishDraining() {
     if (!pool_->queue()->Empty()) {
       auto* closure = pool_->queue()->PopMostRecent();
       if (closure != nullptr) {
+        gpr_log(GPR_ERROR,
+                "DO NOT SUBMIT: WorkStealingThreadPool::%p running closure %p",
+                this, closure);
         closure->Run();
       }
       continue;

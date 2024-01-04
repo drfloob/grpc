@@ -609,7 +609,9 @@ class PosixEndpoint : public PosixEndpointWithFdSupport {
       grpc_event_engine::experimental::MemoryAllocator&& allocator,
       const PosixTcpOptions& options)
       : impl_(new PosixEndpointImpl(handle, on_shutdown, std::move(engine),
-                                    std::move(allocator), options)) {}
+                                    std::move(allocator), options)) {
+    gpr_log(GPR_ERROR, "DO NOT SUBMIT: PosixEndpoint::%p", this);
+  }
 
   bool Read(
       absl::AnyInvocable<void(absl::Status)> on_read,
@@ -649,6 +651,7 @@ class PosixEndpoint : public PosixEndpointWithFdSupport {
   }
 
   ~PosixEndpoint() override {
+    gpr_log(GPR_ERROR, "DO NOT SUBMIT: ~PosixEndpoint::%p", this);
     if (!shutdown_.exchange(true, std::memory_order_acq_rel)) {
       impl_->MaybeShutdown(absl::FailedPreconditionError("Endpoint closing"),
                            nullptr);

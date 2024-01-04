@@ -211,6 +211,7 @@ void LockfreeEvent::SetReady() {
   while (true) {
     switch (curr) {
       case kClosureReady: {
+        gpr_log(GPR_ERROR, "DO NOT SUBMIT: SetReady::%ld already ready", curr);
         // Already ready. We are done here.
         return;
       }
@@ -219,8 +220,10 @@ void LockfreeEvent::SetReady() {
         if (state_.compare_exchange_strong(curr, kClosureReady,
                                            std::memory_order_acq_rel,
                                            std::memory_order_acquire)) {
+          gpr_log(GPR_ERROR, "DO NOT SUBMIT: SetReady::%ld not ready", curr);
           return;  // early out
         }
+        gpr_log(GPR_ERROR, "DO NOT SUBMIT: SetReady::%ld retrying", curr);
         break;  // retry
       }
 
@@ -228,6 +231,9 @@ void LockfreeEvent::SetReady() {
         // 'curr' is either a closure or the fd is shutdown
         if ((curr & kShutdownBit) > 0) {
           // The fd is shutdown. Do nothing.
+          gpr_log(GPR_ERROR,
+                  "DO NOT SUBMIT: SetReady::%ld is shut down, doing nothing",
+                  curr);
           return;
         } else if (state_.compare_exchange_strong(curr, kClosureNotReady,
                                                   std::memory_order_acq_rel,
@@ -235,6 +241,9 @@ void LockfreeEvent::SetReady() {
           // Full cas: acquire pairs with this cas' release in the event of a
           // spurious set_ready; release pairs with this or the acquire in
           // notify_on (or set_shutdown)
+          gpr_log(GPR_ERROR,
+                  "DO NOT SUBMIT: SetReady::%ld executing closure in scheduler",
+                  curr);
           auto closure = reinterpret_cast<PosixEngineClosure*>(curr);
           closure->SetStatus(absl::OkStatus());
           scheduler_->Run(closure);

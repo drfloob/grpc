@@ -1218,6 +1218,7 @@ void PosixEndpointImpl::MaybeShutdown(
 }
 
 PosixEndpointImpl ::~PosixEndpointImpl() {
+  gpr_log(GPR_ERROR, "DO NOT SUBMIT: ~PosixEndpointImpl::%p", this);
   int release_fd = -1;
   handle_->OrphanHandle(on_done_,
                         on_release_fd_ == nullptr ? nullptr : &release_fd, "");
@@ -1241,6 +1242,7 @@ PosixEndpointImpl::PosixEndpointImpl(EventHandle* handle,
       handle_(handle),
       poller_(handle->Poller()),
       engine_(engine) {
+  gpr_log(GPR_ERROR, "DO NOT SUBMIT: PosixEndpointImpl::%p", this);
   PosixSocketWrapper sock(handle->WrappedFd());
   fd_ = handle_->WrappedFd();
   GPR_ASSERT(options.resource_quota != nullptr);
@@ -1314,6 +1316,10 @@ PosixEndpointImpl::PosixEndpointImpl(EventHandle* handle,
   on_error_ = PosixEngineClosure::ToPermanentClosure(
       [this](absl::Status status) { HandleError(std::move(status)); });
 
+  gpr_log(
+      GPR_ERROR,
+      "DO NOT SUBMIT: PosixEndpoint::%p on_read::%p on_write::%p on_error::%p",
+      this, on_read_, on_write_, on_error_);
   // Start being notified on errors if poller can track errors.
   if (poller_->CanTrackErrors()) {
     Ref().release();

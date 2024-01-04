@@ -639,6 +639,7 @@ class CoreEnd2endTest : public ::testing::Test {
     if (client_ != nullptr) ShutdownAndDestroyClient();
     auto& f = fixture();
     client_ = f.MakeClient(args, cq_);
+    gpr_log(GPR_ERROR, "DO NOT SUBMIT: InitClient::%p", client_);
     GPR_ASSERT(client_ != nullptr);
   }
   // Initialize the server.
@@ -649,26 +650,31 @@ class CoreEnd2endTest : public ::testing::Test {
     if (server_ != nullptr) ShutdownAndDestroyServer();
     auto& f = fixture();
     server_ = f.MakeServer(args, cq_, pre_server_start_);
+    gpr_log(GPR_ERROR, "DO NOT SUBMIT: InitServer::%p", server_);
     GPR_ASSERT(server_ != nullptr);
   }
   // Remove the client.
   void ShutdownAndDestroyClient() {
+    gpr_log(GPR_ERROR, "DO NOT SUBMIT: ShutdownAndDestroyClient::%p", client_);
     if (client_ == nullptr) return;
     grpc_channel_destroy(client_);
     client_ = nullptr;
   }
   // Shutdown the server; notify tag on completion.
   void ShutdownServerAndNotify(int tag) {
+    gpr_log(GPR_ERROR, "DO NOT SUBMIT: ShutdownServerAndNotify::%p", server_);
     grpc_server_shutdown_and_notify(server_, cq_, CqVerifier::tag(tag));
   }
   // Destroy the server.
   void DestroyServer() {
+    gpr_log(GPR_ERROR, "DO NOT SUBMIT: DestroyServer::%p", server_);
     if (server_ == nullptr) return;
     grpc_server_destroy(server_);
     server_ = nullptr;
   }
   // Shutdown then destroy the server.
   void ShutdownAndDestroyServer() {
+    gpr_log(GPR_ERROR, "DO NOT SUBMIT: ShutdownAndDestroyServer::%p", server_);
     if (server_ == nullptr) return;
     ShutdownServerAndNotify(-1);
     Expect(-1, AnyStatus{});

@@ -40,6 +40,7 @@ grpc_core::DebugOnlyTraceFlag grpc_event_engine_timer_trace(false, "timer");
 
 void TimerManager::RunSomeTimers(
     std::vector<experimental::EventEngine::Closure*> timers) {
+  gpr_log(GPR_ERROR, "DO NOT SUBMIT: Running some timers");
   for (auto* timer : timers) {
     thread_pool_->Run(timer);
   }
@@ -80,6 +81,9 @@ void TimerManager::MainLoop() {
       main_loop_exit_signal_->Notify();
       return;
     }
+    gpr_log(GPR_ERROR,
+            "DO NOT SUBMIT: re-running main. timers_found=%d (true=%d)",
+            timers_found, true);
     MainLoop();
   });
 }
@@ -128,6 +132,9 @@ void TimerManager::Shutdown() {
     // Wait on the main loop to exit.
     cv_wait_.Signal();
   }
+  gpr_log(GPR_ERROR,
+          "DO NOT SUBMIT: TimerManager::%p waiting for main loop to exit",
+          this);
   main_loop_exit_signal_->WaitForNotification();
   if (grpc_event_engine_timer_trace.enabled()) {
     gpr_log(GPR_DEBUG, "TimerManager::%p shutdown complete", this);

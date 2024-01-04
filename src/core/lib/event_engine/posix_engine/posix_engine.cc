@@ -40,6 +40,7 @@
 #include "src/core/lib/config/config_vars.h"
 #include "src/core/lib/debug/trace.h"
 #include "src/core/lib/event_engine/ares_resolver.h"
+#include "src/core/lib/event_engine/common_closures.h"
 #include "src/core/lib/event_engine/forkable.h"
 #include "src/core/lib/event_engine/grpc_polled_fd.h"
 #include "src/core/lib/event_engine/poller.h"
@@ -53,6 +54,7 @@
 #include "src/core/lib/event_engine/utils.h"
 #include "src/core/lib/gpr/useful.h"
 #include "src/core/lib/gprpp/crash.h"
+#include "src/core/lib/gprpp/examine_stack.h"
 #include "src/core/lib/gprpp/no_destruct.h"
 #include "src/core/lib/gprpp/sync.h"
 
@@ -500,11 +502,22 @@ EventEngine::TaskHandle PosixEventEngine::RunAfter(
 }
 
 void PosixEventEngine::Run(absl::AnyInvocable<void()> closure) {
-  executor_->Run(std::move(closure));
+  auto stack = grpc_core::GetCurrentStackTrace();
+  executor_->Run(SelfDeletingClosure::Create(
+      [closure = std::move(closure), stack]() mutable {
+        gpr_log(GPR_ERROR, "DO NOT SUBMIT: Running closure from %s",
+                stack.value().c_str());
+        closure();
+      }));
 }
 
 void PosixEventEngine::Run(EventEngine::Closure* closure) {
-  executor_->Run(closure);
+  auto stack = grpc_core::GetCurrentStackTrace();
+  executor_->Run(SelfDeletingClosure::Create([closure, stack]() mutable {
+    gpr_log(GPR_ERROR, "DO NOT SUBMIT: Running closure from %s",
+            stack.value().c_str());
+    closure->Run();
+  }));
 }
 
 EventEngine::TaskHandle PosixEventEngine::RunAfterInternal(

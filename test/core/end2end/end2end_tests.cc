@@ -109,7 +109,10 @@ void CoreEnd2endTest::TearDown() {
   // Creating an EventEngine requires gRPC initialization, which the NoOp test
   // does not do. Skip the EventEngine check if unnecessary.
   if (ee != nullptr) {
+    gpr_log(GPR_ERROR, "DO NOT SUBMIT: quiescing an ee with %ld count",
+            ee.use_count());
     quiesce_event_engine_(std::move(ee));
+    gpr_log(GPR_ERROR, "DO NOT SUBMIT: done quiescing ee");
   }
   if (do_shutdown) {
     grpc_shutdown_blocking();

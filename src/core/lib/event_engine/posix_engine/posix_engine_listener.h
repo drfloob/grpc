@@ -94,7 +94,9 @@ class PosixEngineListenerImpl
                   ResolvedAddressToNormalizedString(socket_.addr),
               listener_->poller_->CanTrackErrors())),
           notify_on_accept_(PosixEngineClosure::ToPermanentClosure(
-              [this](absl::Status status) { NotifyOnAccept(status); })){};
+              [this](absl::Status status) { NotifyOnAccept(status); })) {
+      gpr_log(GPR_ERROR, "DO NOT SUBMIT: AsyncConnectionAcceptor::%p", this);
+    };
     // Start listening for incoming connections on the socket.
     void Start();
     // Internal callback invoked when the socket has incoming connections to
@@ -110,6 +112,7 @@ class PosixEngineListenerImpl
     }
     ListenerSocketsContainer::ListenerSocket& Socket() { return socket_; }
     ~AsyncConnectionAcceptor() {
+      gpr_log(GPR_ERROR, "DO NOT SUBMIT: ~AsyncConnectionAcceptor::%p", this);
       // If uds socket, unlink it so that the corresponding file is deleted.
       UnlinkIfUnixDomainSocket(*socket_.sock.LocalAddress());
       handle_->OrphanHandle(nullptr, nullptr, "");

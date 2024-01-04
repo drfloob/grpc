@@ -36,7 +36,12 @@
 class Oauth2Fixture : public SecureFixture {
  public:
   explicit Oauth2Fixture(grpc_tls_version tls_version)
-      : tls_version_(tls_version) {}
+      : tls_version_(tls_version) {
+    gpr_log(GPR_ERROR, "DO NOT SUBMIT: Oauth2Fixture::%p", this);
+  }
+  ~Oauth2Fixture() {
+    gpr_log(GPR_ERROR, "DO NOT SUBMIT: ~Oauth2Fixture::%p", this);
+  }
 
   static const char* CaCertPath() { return "src/core/tsi/test_creds/ca.pem"; }
   static const char* ServerCertPath() {
