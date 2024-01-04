@@ -39,7 +39,7 @@ class Oauth2Fixture : public SecureFixture {
       : tls_version_(tls_version) {
     gpr_log(GPR_ERROR, "DO NOT SUBMIT: Oauth2Fixture::%p", this);
   }
-  ~Oauth2Fixture() {
+  ~Oauth2Fixture() override {
     gpr_log(GPR_ERROR, "DO NOT SUBMIT: ~Oauth2Fixture::%p", this);
   }
 
