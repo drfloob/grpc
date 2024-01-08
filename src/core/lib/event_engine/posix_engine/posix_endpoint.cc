@@ -1316,10 +1316,10 @@ PosixEndpointImpl::PosixEndpointImpl(EventHandle* handle,
   on_error_ = PosixEngineClosure::ToPermanentClosure(
       [this](absl::Status status) { HandleError(std::move(status)); });
 
-  gpr_log(
-      GPR_ERROR,
-      "DO NOT SUBMIT: PosixEndpoint::%p on_read::%p on_write::%p on_error::%p",
-      this, on_read_, on_write_, on_error_);
+  gpr_log(GPR_ERROR,
+          "DO NOT SUBMIT: PosixEndpointImpl::%p on_read::%p on_write::%p "
+          "on_error::%p",
+          this, on_read_, on_write_, on_error_);
   // Start being notified on errors if poller can track errors.
   if (poller_->CanTrackErrors()) {
     Ref().release();

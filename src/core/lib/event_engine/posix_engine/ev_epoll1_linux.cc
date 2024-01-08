@@ -499,17 +499,26 @@ bool Epoll1EventHandle::IsHandleShutdown() {
 }
 
 void Epoll1EventHandle::NotifyOnRead(PosixEngineClosure* on_read) {
-  gpr_log(GPR_ERROR, "DO NOT SUBMIT: NotifyOnRead::%p", on_read);
+  gpr_log(
+      GPR_ERROR,
+      "DO NOT SUBMIT: Epoll1EventHandle::%p configuring NotifyOnRead with %p",
+      this, on_read);
   read_closure_->NotifyOn(on_read);
 }
 
 void Epoll1EventHandle::NotifyOnWrite(PosixEngineClosure* on_write) {
-  gpr_log(GPR_ERROR, "DO NOT SUBMIT: NotifyOnWrite::%p", on_write);
+  gpr_log(
+      GPR_ERROR,
+      "DO NOT SUBMIT: Epoll1EventHandle::%p configuring NotifyOnWrite with %p",
+      this, on_write);
   write_closure_->NotifyOn(on_write);
 }
 
 void Epoll1EventHandle::NotifyOnError(PosixEngineClosure* on_error) {
-  gpr_log(GPR_ERROR, "DO NOT SUBMIT: NotifyOnError::%p", on_error);
+  gpr_log(
+      GPR_ERROR,
+      "DO NOT SUBMIT: Epoll1EventHandle::%p configuring NotifyOnError with %p",
+      this, on_error);
   error_closure_->NotifyOn(on_error);
 }
 

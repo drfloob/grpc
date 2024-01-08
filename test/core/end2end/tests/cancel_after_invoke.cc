@@ -29,7 +29,7 @@
 
 namespace grpc_core {
 namespace {
-const Duration kCancelTimeout = Duration::Seconds(20);
+const Duration kCancelTimeout = Duration::Seconds(5);
 const Duration kDeadlineTimeout = Duration::Seconds(2);
 }  // namespace
 
