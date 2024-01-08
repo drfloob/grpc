@@ -198,16 +198,18 @@ void Chttp2Connector::OnHandshakeDone(void* arg, grpc_error_handle error) {
 
 void Chttp2Connector::OnReceiveSettings(void* arg, grpc_error_handle error) {
   Chttp2Connector* self = static_cast<Chttp2Connector*>(arg);
+  gpr_log(GPR_ERROR, "DO NOT SUBMIT: OnReceiveSettings");
   {
     MutexLock lock(&self->mu_);
     if (!self->notify_error_.has_value()) {
+      gpr_log(GPR_ERROR,
+              "DO NOT SUBMIT: error callback exists. MaybeNotify(error)");
       grpc_endpoint_delete_from_pollset_set(self->endpoint_,
                                             self->args_.interested_parties);
       if (!error.ok()) {
         // Transport got an error while waiting on SETTINGS frame.
         self->result_->Reset();
       }
-      gpr_log(GPR_ERROR, "DO NOT SUBMIT: MoybeNotify");
       self->MaybeNotify(error);
       if (self->timer_handle_.has_value()) {
         if (self->event_engine_->Cancel(*self->timer_handle_)) {
@@ -220,6 +222,8 @@ void Chttp2Connector::OnReceiveSettings(void* arg, grpc_error_handle error) {
     } else {
       // OnTimeout() was already invoked. Call Notify() again so that notify_
       // can be invoked.
+      gpr_log(GPR_ERROR,
+              "DO NOT SUBMIT: error callback does not exist. MaybeNotify(ok)");
       self->MaybeNotify(absl::OkStatus());
     }
   }
