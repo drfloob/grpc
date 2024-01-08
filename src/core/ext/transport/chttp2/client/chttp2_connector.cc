@@ -207,6 +207,7 @@ void Chttp2Connector::OnReceiveSettings(void* arg, grpc_error_handle error) {
         // Transport got an error while waiting on SETTINGS frame.
         self->result_->Reset();
       }
+      gpr_log(GPR_ERROR, "DO NOT SUBMIT: MoybeNotify");
       self->MaybeNotify(error);
       if (self->timer_handle_.has_value()) {
         if (self->event_engine_->Cancel(*self->timer_handle_)) {

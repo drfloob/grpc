@@ -52,6 +52,7 @@
 #include "src/core/lib/gpr/alloc.h"
 #include "src/core/lib/gpr/useful.h"
 #include "src/core/lib/gprpp/debug_location.h"
+#include "src/core/lib/gprpp/examine_stack.h"
 #include "src/core/lib/gprpp/ref_counted_ptr.h"
 #include "src/core/lib/gprpp/status_helper.h"
 #include "src/core/lib/gprpp/sync.h"
@@ -88,7 +89,7 @@ namespace grpc_core {
 using ::grpc_event_engine::experimental::EventEngine;
 
 TraceFlag grpc_trace_subchannel(false, "subchannel");
-DebugOnlyTraceFlag grpc_trace_subchannel_refcount(false, "subchannel_refcount");
+TraceFlag grpc_trace_subchannel_refcount(true, "subchannel_refcount");
 
 //
 // ConnectedSubchannel
@@ -475,6 +476,9 @@ Subchannel::Subchannel(SubchannelKey key,
   // triggering segmentation faults. To prevent this issue, we call a grpc_init
   // here and a grpc_shutdown in the subchannel destructor.
   InitInternally();
+  auto stack = grpc_core::GetCurrentStackTrace();
+  gpr_log(GPR_ERROR, "DO NOT SUBMIT: Subchannel::%p from %s", this,
+          stack.value().c_str());
   global_stats().IncrementClientSubchannelsCreated();
   GRPC_CLOSURE_INIT(&on_connecting_finished_, OnConnectingFinished, this,
                     grpc_schedule_on_exec_ctx);
@@ -503,6 +507,7 @@ Subchannel::Subchannel(SubchannelKey key,
 }
 
 Subchannel::~Subchannel() {
+  gpr_log(GPR_ERROR, "DO NOT SUBMIT: ~Subchannel::%p", this);
   if (channelz_node_ != nullptr) {
     channelz_node_->AddTraceEvent(
         channelz::ChannelTrace::Severity::Info,
@@ -620,6 +625,7 @@ void Subchannel::ResetBackoff() {
 }
 
 void Subchannel::Orphan() {
+  gpr_log(GPR_ERROR, "DO NOT SUBMIT: Subchannel::Orphan::%p", this);
   // The subchannel_pool is only used once here in this subchannel, so the
   // access can be outside of the lock.
   if (subchannel_pool_ != nullptr) {
@@ -719,12 +725,22 @@ void Subchannel::StartConnectingLocked() {
 
 void Subchannel::OnConnectingFinished(void* arg, grpc_error_handle error) {
   WeakRefCountedPtr<Subchannel> c(static_cast<Subchannel*>(arg));
+  gpr_log(GPR_ERROR, "DO NOT SUBMIT: Subchannel::%p OnConnectingFinished",
+          c.get());
   {
     MutexLock lock(&c->mu_);
     c->OnConnectingFinishedLocked(error);
   }
+  gpr_log(GPR_ERROR,
+          "DO NOT SUBMIT: Subchannel::%p OnConnectingFinishedLocked done. "
+          "Draining serializer",
+          c.get());
   // Drain any connectivity state notifications after releasing the mutex.
   c->work_serializer_.DrainQueue();
+  gpr_log(GPR_ERROR,
+          "DO NOT SUBMIT: Subchannel::%p OnConnectingFinishedLocked Draining "
+          "serializer done. Resetting the subchannel",
+          c.get());
   c.reset(DEBUG_LOCATION, "Connect");
 }
 

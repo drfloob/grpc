@@ -140,8 +140,8 @@ void WorkStealingThreadPool::Run(absl::AnyInvocable<void()> callback) {
   auto stack = grpc_core::GetCurrentStackTrace();
   pool_->Run(SelfDeletingClosure::Create(
       [callback = std::move(callback), stack]() mutable {
-        gpr_log(GPR_ERROR, "DO NOT SUBMIT: Running closure from %s",
-                stack.value().c_str());
+        // gpr_log(GPR_ERROR, "DO NOT SUBMIT: executing callback from %s",
+        //         stack.value().c_str());
         callback();
       }));
 }
@@ -149,8 +149,9 @@ void WorkStealingThreadPool::Run(absl::AnyInvocable<void()> callback) {
 void WorkStealingThreadPool::Run(EventEngine::Closure* closure) {
   auto stack = grpc_core::GetCurrentStackTrace();
   pool_->Run(SelfDeletingClosure::Create([closure, stack]() {
-    gpr_log(GPR_ERROR, "DO NOT SUBMIT: Running closure from %s",
-            stack.value().c_str());
+    // gpr_log(GPR_ERROR, "DO NOT SUBMIT: executing closure::%p from %s",
+    // closure,
+    //         stack.value().c_str());
     closure->Run();
   }));
 }
@@ -438,9 +439,9 @@ bool WorkStealingThreadPool::ThreadState::Step() {
   if (closure != nullptr) {
     auto busy =
         pool_->busy_thread_count()->MakeAutoThreadCounter(busy_count_idx_);
-    gpr_log(GPR_ERROR,
-            "DO NOT SUBMIT: WorkStealingThreadPool::%p running closure %p",
-            this, closure);
+    // gpr_log(GPR_ERROR,
+    //         "DO NOT SUBMIT: WorkStealingThreadPool::%p running closure %p",
+    //         this, closure);
     closure->Run();
     return true;
   }

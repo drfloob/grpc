@@ -54,13 +54,13 @@ class RefCount {
   explicit RefCount(
       Value init,
       const char*
-#ifndef NDEBUG
+#if true
           // Leave unnamed if NDEBUG to avoid unused parameter warning
           trace
 #endif
       = nullptr)
       :
-#ifndef NDEBUG
+#if true
         trace_(trace),
 #endif
         value_(init) {
@@ -68,7 +68,7 @@ class RefCount {
 
   // Increases the ref-count by `n`.
   void Ref(Value n = 1) {
-#ifndef NDEBUG
+#if true
     const Value prior = value_.fetch_add(n, std::memory_order_relaxed);
     if (trace_ != nullptr) {
       gpr_log(GPR_INFO, "%s:%p ref %" PRIdPTR " -> %" PRIdPTR, trace_, this,
@@ -79,7 +79,7 @@ class RefCount {
 #endif
   }
   void Ref(const DebugLocation& location, const char* reason, Value n = 1) {
-#ifndef NDEBUG
+#if true
     const Value prior = value_.fetch_add(n, std::memory_order_relaxed);
     if (trace_ != nullptr) {
       gpr_log(GPR_INFO, "%s:%p %s:%d ref %" PRIdPTR " -> %" PRIdPTR " %s",
@@ -96,7 +96,7 @@ class RefCount {
 
   // Similar to Ref() with an assert on the ref-count being non-zero.
   void RefNonZero() {
-#ifndef NDEBUG
+#if true
     const Value prior = value_.fetch_add(1, std::memory_order_relaxed);
     if (trace_ != nullptr) {
       gpr_log(GPR_INFO, "%s:%p ref %" PRIdPTR " -> %" PRIdPTR, trace_, this,
@@ -108,7 +108,7 @@ class RefCount {
 #endif
   }
   void RefNonZero(const DebugLocation& location, const char* reason) {
-#ifndef NDEBUG
+#if true
     const Value prior = value_.fetch_add(1, std::memory_order_relaxed);
     if (trace_ != nullptr) {
       gpr_log(GPR_INFO, "%s:%p %s:%d ref %" PRIdPTR " -> %" PRIdPTR " %s",
@@ -125,7 +125,7 @@ class RefCount {
   }
 
   bool RefIfNonZero() {
-#ifndef NDEBUG
+#if true
     if (trace_ != nullptr) {
       const Value prior = get();
       gpr_log(GPR_INFO, "%s:%p ref_if_non_zero %" PRIdPTR " -> %" PRIdPTR,
@@ -135,7 +135,7 @@ class RefCount {
     return IncrementIfNonzero(&value_);
   }
   bool RefIfNonZero(const DebugLocation& location, const char* reason) {
-#ifndef NDEBUG
+#if true
     if (trace_ != nullptr) {
       const Value prior = get();
       gpr_log(GPR_INFO,
@@ -152,14 +152,14 @@ class RefCount {
 
   // Decrements the ref-count and returns true if the ref-count reaches 0.
   bool Unref() {
-#ifndef NDEBUG
+#if true
     // Grab a copy of the trace flag before the atomic change, since we
     // will no longer be holding a ref afterwards and therefore can't
     // safely access it, since another thread might free us in the interim.
     auto* trace = trace_;
 #endif
     const Value prior = value_.fetch_sub(1, std::memory_order_acq_rel);
-#ifndef NDEBUG
+#if true
     if (trace != nullptr) {
       gpr_log(GPR_INFO, "%s:%p unref %" PRIdPTR " -> %" PRIdPTR, trace, this,
               prior, prior - 1);
@@ -169,14 +169,14 @@ class RefCount {
     return prior == 1;
   }
   bool Unref(const DebugLocation& location, const char* reason) {
-#ifndef NDEBUG
+#if true
     // Grab a copy of the trace flag before the atomic change, since we
     // will no longer be holding a ref afterwards and therefore can't
     // safely access it, since another thread might free us in the interim.
     auto* trace = trace_;
 #endif
     const Value prior = value_.fetch_sub(1, std::memory_order_acq_rel);
-#ifndef NDEBUG
+#if true
     if (trace != nullptr) {
       gpr_log(GPR_INFO, "%s:%p %s:%d unref %" PRIdPTR " -> %" PRIdPTR " %s",
               trace, this, location.file(), location.line(), prior, prior - 1,
@@ -194,7 +194,7 @@ class RefCount {
  private:
   Value get() const { return value_.load(std::memory_order_relaxed); }
 
-#ifndef NDEBUG
+#if true
   const char* trace_;
 #endif
   std::atomic<Value> value_{0};

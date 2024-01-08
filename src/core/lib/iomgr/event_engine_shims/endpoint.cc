@@ -85,9 +85,14 @@ class EventEngineEndpointWrapper {
 
   absl::string_view LocalAddress() { return local_address_; }
 
-  void Ref() { refs_.fetch_add(1, std::memory_order_relaxed); }
+  void Ref() {
+    gpr_log(GPR_ERROR, "DO NOT SUBMIT: shim Ref count = %ld",
+            refs_.fetch_add(1, std::memory_order_relaxed) + 1);
+  }
   void Unref() {
-    if (refs_.fetch_sub(1, std::memory_order_acq_rel) == 1) {
+    auto new_ref = refs_.fetch_sub(1, std::memory_order_acq_rel);
+    gpr_log(GPR_ERROR, "DO NOT SUBMIT: shim Unref count = %ld", new_ref - 1);
+    if (new_ref == 1) {
       delete this;
     }
   }

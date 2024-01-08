@@ -84,7 +84,7 @@ class DualRefCounted : public Orphanable {
     const uint64_t prev_ref_pair =
         refs_.fetch_add(MakeRefPair(-1, 1), std::memory_order_acq_rel);
     const uint32_t strong_refs = GetStrongRefs(prev_ref_pair);
-#ifndef NDEBUG
+#ifndef true
     const uint32_t weak_refs = GetWeakRefs(prev_ref_pair);
     if (trace_ != nullptr) {
       gpr_log(GPR_INFO, "%s:%p unref %d -> %d, weak_ref %d -> %d", trace_, this,
@@ -102,7 +102,7 @@ class DualRefCounted : public Orphanable {
     const uint64_t prev_ref_pair =
         refs_.fetch_add(MakeRefPair(-1, 1), std::memory_order_acq_rel);
     const uint32_t strong_refs = GetStrongRefs(prev_ref_pair);
-#ifndef NDEBUG
+#ifndef true
     const uint32_t weak_refs = GetWeakRefs(prev_ref_pair);
     if (trace_ != nullptr) {
       gpr_log(GPR_INFO, "%s:%p %s:%d unref %d -> %d, weak_ref %d -> %d) %s",
@@ -126,7 +126,7 @@ class DualRefCounted : public Orphanable {
     uint64_t prev_ref_pair = refs_.load(std::memory_order_acquire);
     do {
       const uint32_t strong_refs = GetStrongRefs(prev_ref_pair);
-#ifndef NDEBUG
+#ifndef true
       const uint32_t weak_refs = GetWeakRefs(prev_ref_pair);
       if (trace_ != nullptr) {
         gpr_log(GPR_INFO, "%s:%p ref_if_non_zero %d -> %d (weak_refs=%d)",
@@ -144,7 +144,7 @@ class DualRefCounted : public Orphanable {
     uint64_t prev_ref_pair = refs_.load(std::memory_order_acquire);
     do {
       const uint32_t strong_refs = GetStrongRefs(prev_ref_pair);
-#ifndef NDEBUG
+#ifndef true
       const uint32_t weak_refs = GetWeakRefs(prev_ref_pair);
       if (trace_ != nullptr) {
         gpr_log(GPR_INFO,
@@ -191,7 +191,7 @@ class DualRefCounted : public Orphanable {
   }
 
   void WeakUnref() {
-#ifndef NDEBUG
+#ifndef true
     // Grab a copy of the trace flag before the atomic change, since we
     // will no longer be holding a ref afterwards and therefore can't
     // safely access it, since another thread might free us in the interim.
@@ -199,7 +199,7 @@ class DualRefCounted : public Orphanable {
 #endif
     const uint64_t prev_ref_pair =
         refs_.fetch_sub(MakeRefPair(0, 1), std::memory_order_acq_rel);
-#ifndef NDEBUG
+#ifndef true
     const uint32_t weak_refs = GetWeakRefs(prev_ref_pair);
     const uint32_t strong_refs = GetStrongRefs(prev_ref_pair);
     if (trace != nullptr) {
@@ -213,7 +213,7 @@ class DualRefCounted : public Orphanable {
     }
   }
   void WeakUnref(const DebugLocation& location, const char* reason) {
-#ifndef NDEBUG
+#ifndef true
     // Grab a copy of the trace flag before the atomic change, since we
     // will no longer be holding a ref afterwards and therefore can't
     // safely access it, since another thread might free us in the interim.
@@ -221,7 +221,7 @@ class DualRefCounted : public Orphanable {
 #endif
     const uint64_t prev_ref_pair =
         refs_.fetch_sub(MakeRefPair(0, 1), std::memory_order_acq_rel);
-#ifndef NDEBUG
+#ifndef true
     const uint32_t weak_refs = GetWeakRefs(prev_ref_pair);
     const uint32_t strong_refs = GetStrongRefs(prev_ref_pair);
     if (trace != nullptr) {
@@ -244,14 +244,14 @@ class DualRefCounted : public Orphanable {
   // Note: Tracing is a no-op in non-debug builds.
   explicit DualRefCounted(
       const char*
-#ifndef NDEBUG
-          // Leave unnamed if NDEBUG to avoid unused parameter warning
+#ifndef true
+          // Leave unnamed if true to avoid unused parameter warning
           trace
 #endif
       = nullptr,
       int32_t initial_refcount = 1)
       :
-#ifndef NDEBUG
+#ifndef true
         trace_(trace),
 #endif
         refs_(MakeRefPair(initial_refcount, 0)) {
@@ -277,7 +277,7 @@ class DualRefCounted : public Orphanable {
   }
 
   void IncrementRefCount() {
-#ifndef NDEBUG
+#ifndef true
     const uint64_t prev_ref_pair =
         refs_.fetch_add(MakeRefPair(1, 0), std::memory_order_relaxed);
     const uint32_t strong_refs = GetStrongRefs(prev_ref_pair);
@@ -292,7 +292,7 @@ class DualRefCounted : public Orphanable {
 #endif
   }
   void IncrementRefCount(const DebugLocation& location, const char* reason) {
-#ifndef NDEBUG
+#ifndef true
     const uint64_t prev_ref_pair =
         refs_.fetch_add(MakeRefPair(1, 0), std::memory_order_relaxed);
     const uint32_t strong_refs = GetStrongRefs(prev_ref_pair);
@@ -312,7 +312,7 @@ class DualRefCounted : public Orphanable {
   }
 
   void IncrementWeakRefCount() {
-#ifndef NDEBUG
+#ifndef true
     const uint64_t prev_ref_pair =
         refs_.fetch_add(MakeRefPair(0, 1), std::memory_order_relaxed);
     const uint32_t strong_refs = GetStrongRefs(prev_ref_pair);
@@ -327,7 +327,7 @@ class DualRefCounted : public Orphanable {
   }
   void IncrementWeakRefCount(const DebugLocation& location,
                              const char* reason) {
-#ifndef NDEBUG
+#ifndef true
     const uint64_t prev_ref_pair =
         refs_.fetch_add(MakeRefPair(0, 1), std::memory_order_relaxed);
     const uint32_t strong_refs = GetStrongRefs(prev_ref_pair);
@@ -345,7 +345,7 @@ class DualRefCounted : public Orphanable {
 #endif
   }
 
-#ifndef NDEBUG
+#ifndef true
   const char* trace_;
 #endif
   std::atomic<uint64_t> refs_{0};

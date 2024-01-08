@@ -191,8 +191,9 @@ class Call : public CppImplOf<Call, grpc_call> {
         is_client_(is_client) {
     GPR_DEBUG_ASSERT(arena_ != nullptr);
     GPR_DEBUG_ASSERT(channel_ != nullptr);
+    gpr_log(GPR_ERROR, "DO NOT SUBMIT: Call::%p", this);
   }
-  virtual ~Call() = default;
+  virtual ~Call() { gpr_log(GPR_ERROR, "DO NOT SUBMIT: ~Call::%p", this); }
 
   void DeleteThis();
 

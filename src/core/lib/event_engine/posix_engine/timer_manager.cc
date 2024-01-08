@@ -81,9 +81,9 @@ void TimerManager::MainLoop() {
       main_loop_exit_signal_->Notify();
       return;
     }
-    gpr_log(GPR_ERROR,
-            "DO NOT SUBMIT: re-running main. timers_found=%d (true=%d)",
-            timers_found, true);
+    // gpr_log(GPR_ERROR,
+    //         "DO NOT SUBMIT: re-running main. timers_found=%d (true=%d)",
+    //         timers_found, true);
     MainLoop();
   });
 }

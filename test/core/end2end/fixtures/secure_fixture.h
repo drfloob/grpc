@@ -34,7 +34,7 @@
 class SecureFixture : public grpc_core::CoreTestFixture {
  public:
   explicit SecureFixture(std::string localaddr = grpc_core::JoinHostPort(
-                             "localhost", grpc_pick_unused_port_or_die()))
+                             "127.0.0.1", grpc_pick_unused_port_or_die()))
       : localaddr_(std::move(localaddr)) {}
 
  protected:

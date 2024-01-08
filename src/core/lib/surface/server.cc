@@ -829,9 +829,12 @@ RefCountedPtr<channelz::ServerNode> CreateChannelzNode(
 Server::Server(const ChannelArgs& args)
     : channel_args_(args),
       channelz_node_(CreateChannelzNode(args)),
-      server_call_tracer_factory_(ServerCallTracerFactory::Get(args)) {}
+      server_call_tracer_factory_(ServerCallTracerFactory::Get(args)) {
+  gpr_log(GPR_ERROR, "DO NOT SUBMIT: Server::%p", this);
+}
 
 Server::~Server() {
+  gpr_log(GPR_ERROR, "DO NOT SUBMIT: ~Server::%p", this);
   // Remove the cq pollsets from the config_fetcher.
   if (started_ && config_fetcher_ != nullptr &&
       config_fetcher_->interested_parties() != nullptr) {
