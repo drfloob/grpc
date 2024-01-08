@@ -476,7 +476,7 @@ Subchannel::Subchannel(SubchannelKey key,
   // triggering segmentation faults. To prevent this issue, we call a grpc_init
   // here and a grpc_shutdown in the subchannel destructor.
   InitInternally();
-  auto stack = grpc_core::GetCurrentStackTrace();
+  auto stack = GetCurrentStackTrace();
   gpr_log(GPR_ERROR, "DO NOT SUBMIT: Subchannel::%p from %s", this,
           stack.value().c_str());
   global_stats().IncrementClientSubchannelsCreated();
