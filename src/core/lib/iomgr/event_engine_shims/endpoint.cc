@@ -418,8 +418,8 @@ EventEngineEndpointWrapper::EventEngineEndpointWrapper(
   //             ->GetWrappedFd();
   // } else {
   fd_ = -1;
-    // }
-    GRPC_EVENT_ENGINE_TRACE("EventEngine::Endpoint %p Create", eeep_->wrapper);
+  // }
+  GRPC_EVENT_ENGINE_TRACE("EventEngine::Endpoint %p Create", eeep_->wrapper);
 }
 
 }  // namespace
