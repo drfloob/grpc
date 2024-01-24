@@ -613,8 +613,9 @@ class PosixEndpoint : public PosixEndpointWithFdSupport {
                                     std::move(allocator), options)) {}
 
   void* QueryExtension(absl::string_view id) override {
-    if (id == EndpointSupportsFdExtension::EndpointExtensionName())
+    if (id == EndpointSupportsFdExtension::EndpointExtensionName()) {
       return static_cast<EndpointSupportsFdExtension*>(this);
+    }
     return nullptr;
   }
 
