@@ -313,7 +313,7 @@ class ThreadedFuzzingEventEngine : public FuzzingEventEngine {
   explicit ThreadedFuzzingEventEngine(Duration max_time)
       : FuzzingEventEngine(FuzzingEventEngine::Options(),
                            fuzzing_event_engine::Actions()),
-        main_([this, max_time]() {
+        main_([this]() {
           while (!done_.load()) {
             // absl::SleepFor(absl::Milliseconds(10));
             // TickUntilIdleOrDuration(max_time);
