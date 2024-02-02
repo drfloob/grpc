@@ -210,6 +210,7 @@ then
   # Workaround for https://github.com/Homebrew/homebrew-core/issues/41081
   mkdir -p /usr/local/lib/php/pecl
 
+  time brew install gdb || true
   echo "HERE"
 fi
 
