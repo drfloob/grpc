@@ -59,6 +59,9 @@ grpc_fuzzer(
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("//bazel:grpc_build_system.bzl", "grpc_package")
+load("//test/core/util:grpc_fuzzer.bzl", "grpc_proto_fuzzer")
+
 licenses(["notice"])
 
 grpc_cc_library(
@@ -152,6 +155,36 @@ grpc_cc_test(
         "//:grpc",
         "//src/core:slice",
         "//test/core/end2end:ssl_test_data",
+        "//test/core/util:grpc_test_util",
+        "//test/core/util:grpc_test_util_base",
+    ],
+)
+
+grpc_proto_fuzzer(
+    name = "httpcli_fuzzer",
+    size = "enormous",
+    srcs = ["httpcli_fuzzer.cc"],
+    corpus = "httpcli_fuzzer_corpus",
+    language = "C++",
+    proto = "httpcli_fuzzer.proto",
+    proto_deps = [
+        "//test/core/util:fuzz_config_vars_proto",
+        "//test/core/util:fuzzing_channel_args_proto",
+    ],
+    tags = [
+        "no_mac",
+        "no_windows",
+    ],
+    uses_event_engine = False,
+    uses_polling = False,
+    deps = [
+        "//:gpr",
+        "//:grpc",
+        "//src/core:channel_args",
+        "//test/core/event_engine:aborting_event_engine",
+        "//test/core/event_engine/fuzzing_event_engine",
+        "//test/core/util:fuzz_config_vars",
+        "//test/core/util:fuzzing_channel_args",
         "//test/core/util:grpc_test_util",
         "//test/core/util:grpc_test_util_base",
     ],
