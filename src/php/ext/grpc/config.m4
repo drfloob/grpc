@@ -84,6 +84,16 @@ if test "$PHP_GRPC" != "no"; then
 
   PHP_SUBST(GRPC_SHARED_LIBADD)
 
+  dnl Remove all optimization flags from CFLAGS
+  changequote({,})
+  CFLAGS=`echo "$CFLAGS" | $SED -e 's/-O[0-9s]*//g'`
+  CXXFLAGS=`echo "$CXXFLAGS" | $SED -e 's/-O[0-9s]*//g'`
+  changequote([,])
+
+  dnl Add the special gcc flags
+  CFLAGS="$CFLAGS -O0 -ggdb -fprofile-arcs -ftest-coverage"
+  CXXFLAGS="$CXXFLAGS -ggdb -O0 -fprofile-arcs -ftest-coverage"
+
   PHP_NEW_EXTENSION(grpc, byte_buffer.c call.c call_credentials.c channel.c \
     channel_credentials.c completion_queue.c timeval.c server.c \
     server_credentials.c php_grpc.c, $ext_shared, , -Wall -Werror -std=c11 -DGRPC_POSIX_FORK_ALLOW_PTHREAD_ATFORK=1)
