@@ -91,8 +91,8 @@ if test "$PHP_GRPC" != "no"; then
   changequote([,])
 
   dnl Add the special gcc flags
-  CFLAGS="$CFLAGS -O0 -ggdb -fprofile-arcs -ftest-coverage"
-  CXXFLAGS="$CXXFLAGS -ggdb -O0 -fprofile-arcs -ftest-coverage"
+  CFLAGS="$CFLAGS -O0 -ggdb"
+  CXXFLAGS="$CXXFLAGS -O0 -ggdb"
 
   PHP_NEW_EXTENSION(grpc, byte_buffer.c call.c call_credentials.c channel.c \
     channel_credentials.c completion_queue.c timeval.c server.c \
