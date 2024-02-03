@@ -211,7 +211,6 @@ then
   mkdir -p /usr/local/lib/php/pecl
 
   time brew install gdb || true
-  echo "HERE"
 fi
 
 # TODO(jtattermusch): better debugging of clock skew, remove once not needed
