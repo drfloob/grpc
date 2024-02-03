@@ -20,6 +20,10 @@ CONFIG=${CONFIG:-opt}
 # change to grpc repo root
 cd "$(dirname "$0")/../../.."
 
+export CFLAGS="$CFLAGS -O0 -g"
+export CXXFLAGS="$CXXFLAGS -O0 -g"
+export LDFLAGS="$LDFLAGS -g"
+
 # build C core first
 make -j"${GRPC_RUN_TESTS_JOBS}" EMBED_OPENSSL=true EMBED_ZLIB=true static_c shared_c
 
@@ -29,6 +33,10 @@ export CFLAGS="-Wno-parentheses-equality"
 
 # build php
 cd src/php
+
+export CFLAGS="$CFLAGS -O0 -g"
+export CXXFLAGS="$CXXFLAGS -O0 -g"
+export LDFLAGS="$LDFLAGS -g"
 
 cd ext/grpc
 phpize
