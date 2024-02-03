@@ -211,6 +211,7 @@ then
   mkdir -p /usr/local/lib/php/pecl
 
   time brew install gdb || true
+  time brew install lcov || true
   echo "HERE"
 fi
 
