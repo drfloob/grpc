@@ -24,9 +24,11 @@ if [ ! -e $default_extension_dir/grpc.so ]; then
   fi
   # sym-link in system supplied extensions
   for f in $default_extension_dir/*.so; do
-    ln -s $f $module_dir/$(basename $f) &> /dev/null || true
+    ln -s $f $module_dir/$(basename $f) &>/dev/null || true
   done
   extension_dir="-d extension_dir=${module_dir} -d extension=grpc.so"
+  nm $module_dir/grpc.so --debug-syms --defined --demangle | grep EventEngine
 else
   extension_dir="-d extension=grpc.so"
+  nm $default_extension_dir/grpc.so --debug-syms --defined --demangle | grep EventEngine
 fi
