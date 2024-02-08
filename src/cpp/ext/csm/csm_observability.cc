@@ -107,8 +107,7 @@ CsmObservabilityBuilder::CsmObservabilityBuilder()
 CsmObservabilityBuilder::~CsmObservabilityBuilder() = default;
 
 CsmObservabilityBuilder& CsmObservabilityBuilder::SetMeterProvider(
-    std::shared_ptr<opentelemetry::sdk::metrics::MeterProvider>
-        meter_provider) {
+    std::shared_ptr<opentelemetry::metrics::MeterProvider> meter_provider) {
   builder_->SetMeterProvider(meter_provider);
   return *this;
 }
@@ -130,22 +129,13 @@ CsmObservabilityBuilder::SetGenericMethodAttributeFilter(
 }
 
 absl::StatusOr<CsmObservability> CsmObservabilityBuilder::BuildAndRegister() {
-  builder_->SetServerSelector(internal::CsmServerSelector);
-  builder_->SetTargetSelector(internal::CsmChannelTargetSelector);
-  builder_->SetLabelsInjector(
-      std::make_unique<internal::ServiceMeshLabelsInjector>(
-          google::cloud::otel::MakeResourceDetector()
-              ->Detect()
-              .GetAttributes()));
+  builder_->AddPluginOption(
+      std::make_unique<grpc::internal::CsmOpenTelemetryPluginOption>());
   auto status = builder_->BuildAndRegisterGlobal();
   if (!status.ok()) {
     return status;
   }
   return CsmObservability();
-}
-
-std::unique_ptr<OpenTelemetryPluginOption> MakeCsmOpenTelemetryPluginOption() {
-  return std::make_unique<grpc::internal::CsmOpenTelemetryPluginOption>();
 }
 
 }  // namespace experimental
