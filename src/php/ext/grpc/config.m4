@@ -91,8 +91,8 @@ if test "$PHP_GRPC" != "no"; then
   changequote([,])
 
   dnl Add the special gcc flags
-  CFLAGS="$CFLAGS -O0 -g"
-  CXXFLAGS="$CXXFLAGS -O0 -g"
+  CFLAGS="$CFLAGS -O0 -gmlt"
+  CXXFLAGS="$CXXFLAGS -O0 -gmtl"
 
   PHP_NEW_EXTENSION(grpc, byte_buffer.c call.c call_credentials.c channel.c \
     channel_credentials.c completion_queue.c timeval.c server.c \
@@ -158,6 +158,6 @@ if test "$PHP_COVERAGE" = "yes"; then
   changequote([,])
 
   dnl Add the special gcc flags
-  CFLAGS="$CFLAGS -O0 -ggdb -fprofile-arcs -ftest-coverage"
-  CXXFLAGS="$CXXFLAGS -ggdb -O0 -fprofile-arcs -ftest-coverage"
+  CFLAGS="$CFLAGS -O0 -gmlt -fprofile-arcs -ftest-coverage"
+  CXXFLAGS="$CXXFLAGS -gmtl -O0 -fprofile-arcs -ftest-coverage"
 fi
