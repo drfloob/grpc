@@ -34,5 +34,6 @@ export CXXFLAGS="-O0 -gmlt"
 # build php
 cd src/php/ext/grpc
 phpize
-./configure --enable-grpc="${repo_root}" --enable-coverage --enable-tests
+./configure --enable-grpc="${repo_root}" --enable-tests
 make -j"${GRPC_RUN_TESTS_JOBS}"
+
