@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -ex
+set -x
 
 CONFIG=dbg
 
@@ -25,7 +25,8 @@ export CXXFLAGS="-O0 -gmlt"
 
 # build C core first
 make -j16 EMBED_OPENSSL=true EMBED_ZLIB=true static_c shared_c
-find libs -name 'libgrpc.*' | xargs nm -aU | grep EventEngine || true
+find . -name 'grpc.so' -exec 'nm -aU {} | grep EventEngine' || true
+find . -name 'libgrpc.*' -exec 'nm -aU {} | grep EventEngine' || true
 
 repo_root="$(pwd)"
 export GRPC_LIB_SUBDIR=libs/$CONFIG
@@ -39,3 +40,5 @@ phpize
 export CFLAGS="-Wno-parentheses-equality -O0 -gmlt"
 export CXXFLAGS="-O0 -gmlt"
 make -j16
+find . -name 'grpc.so' -exec 'nm -aU {} | grep EventEngine' || true
+find . -name 'libgrpc.*' -exec 'nm -aU {} | grep EventEngine' || true
