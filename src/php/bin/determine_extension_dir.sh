@@ -27,8 +27,12 @@ if [ ! -e $default_extension_dir/grpc.so ]; then
     ln -s $f $module_dir/$(basename $f) &>/dev/null || true
   done
   extension_dir="-d extension_dir=${module_dir} -d extension=grpc.so"
-  nm -aU $module_dir/grpc.so | grep EventEngine
+  ls $module_dir/
+  find $module_dir -name 'grpc.so' || true
+  nm -aU $module_dir/grpc.so | grep EventEngine || true
 else
   extension_dir="-d extension=grpc.so"
-  nm -aU $default_extension_dir/grpc.so | grep EventEngine
+  ls $extension_dir
+  find $extension_dir -name 'grpc.so' || true
+  nm -aU $default_extension_dir/grpc.so | grep EventEngine || true
 fi
