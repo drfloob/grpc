@@ -39,7 +39,15 @@ phpize
 export CFLAGS="-Wno-parentheses-equality -O0 -gmlt"
 export CXXFLAGS="-O0 -gmlt"
 make -j16
+file grpc.la || true
+nm -aU grpc.la | grep EventEngine || true
+file ./.libs/grpc.lai || true
+nm -aU ./.libs/grpc.lai | grep EventEngine || true
+nm -aU ./.libs/grpc.so | grep EventEngine || true
 find . -name 'grpc.so' -exec sh -c "nm -aU {} | grep EventEngine " \; || true
 find . -name 'libgrpc.*' -exec sh -c "nm -aU {} | grep EventEngine " \; || true
+
+# this is where the file is installed
+nma -aU /Volumes/BuildData/tmpfs/altsrc/github/grpc/workspace_php7_macos_dbg_native/src/php/ext/grpc/modules/grpc.so | grep EventEngine || true
 
 exit 42
