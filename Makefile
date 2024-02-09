@@ -112,7 +112,7 @@ CC_dbg = $(DEFAULT_CC)
 CXX_dbg = $(DEFAULT_CXX)
 LD_dbg = $(DEFAULT_CC)
 LDXX_dbg = $(DEFAULT_CXX)
-CPPFLAGS_dbg = -O0 -gmlt
+CPPFLAGS_dbg = -O0
 DEFINES_dbg = _DEBUG DEBUG
 
 VALID_CONFIG_gcov = 1
@@ -545,7 +545,7 @@ OPENSSL_DEP += $(LIBDIR)/$(CONFIG)/libboringssl.a
 OPENSSL_MERGE_LIBS += $(LIBDIR)/$(CONFIG)/libboringssl.a
 OPENSSL_MERGE_OBJS += $(LIBBORINGSSL_OBJS)
 # need to prefix these to ensure overriding system libraries
-CPPFLAGS := -Ithird_party/boringssl-with-bazel/src/include $(CPPFLAGS)
+CPPFLAGS := -Ithird_party/boringssl-with-bazel/src/include $(CPPFLAGS)  
 ifeq ($(DISABLE_ALPN),true)
 CPPFLAGS += -DTSI_OPENSSL_ALPN_SUPPORT=0
 LIBS_SECURE = $(OPENSSL_LIBS)
@@ -642,7 +642,7 @@ static: static_c static_cxx
 
 static_c: cache.mk  $(LIBDIR)/$(CONFIG)/libaddress_sorting.a $(LIBDIR)/$(CONFIG)/libgpr.a $(LIBDIR)/$(CONFIG)/libgrpc.a $(LIBDIR)/$(CONFIG)/libgrpc_unsecure.a $(LIBDIR)/$(CONFIG)/libre2.a $(LIBDIR)/$(CONFIG)/libupb_base_lib.a $(LIBDIR)/$(CONFIG)/libupb_json_lib.a $(LIBDIR)/$(CONFIG)/libupb_mem_lib.a $(LIBDIR)/$(CONFIG)/libupb_message_lib.a $(LIBDIR)/$(CONFIG)/libupb_textformat_lib.a $(LIBDIR)/$(CONFIG)/libutf8_range_lib.a
 
-static_cxx: cache.mk
+static_cxx: cache.mk 
 
 shared: shared_c shared_cxx
 
@@ -653,9 +653,9 @@ privatelibs: privatelibs_c privatelibs_cxx
 
 privatelibs_c:  $(LIBDIR)/$(CONFIG)/libz.a $(LIBDIR)/$(CONFIG)/libcares.a
 ifeq ($(EMBED_OPENSSL),true)
-privatelibs_cxx:
+privatelibs_cxx: 
 else
-privatelibs_cxx:
+privatelibs_cxx: 
 endif
 
 
@@ -800,7 +800,7 @@ $(LIBDIR)/$(CONFIG)/libaddress_sorting.a: $(LIBADDRESS_SORTING_OBJS)
 	$(E) "[AR]      Creating $@"
 	$(Q) mkdir -p `dirname $@`
 	$(Q) rm -f $(LIBDIR)/$(CONFIG)/libaddress_sorting.a
-	$(Q) $(AR) $(ARFLAGS) $(LIBDIR)/$(CONFIG)/libaddress_sorting.a $(LIBADDRESS_SORTING_OBJS)
+	$(Q) $(AR) $(ARFLAGS) $(LIBDIR)/$(CONFIG)/libaddress_sorting.a $(LIBADDRESS_SORTING_OBJS) 
 ifeq ($(SYSTEM),Darwin)
 	$(Q) $(RANLIB) $(RANLIBFLAGS) $(LIBDIR)/$(CONFIG)/libaddress_sorting.a
 endif
@@ -2449,7 +2449,7 @@ $(LIBDIR)/$(CONFIG)/libre2.a: $(LIBRE2_OBJS)
 	$(E) "[AR]      Creating $@"
 	$(Q) mkdir -p `dirname $@`
 	$(Q) rm -f $(LIBDIR)/$(CONFIG)/libre2.a
-	$(Q) $(AR) $(ARFLAGS) $(LIBDIR)/$(CONFIG)/libre2.a $(LIBRE2_OBJS)
+	$(Q) $(AR) $(ARFLAGS) $(LIBDIR)/$(CONFIG)/libre2.a $(LIBRE2_OBJS) 
 ifeq ($(SYSTEM),Darwin)
 	$(Q) $(RANLIB) $(RANLIBFLAGS) $(LIBDIR)/$(CONFIG)/libre2.a
 endif
@@ -2495,7 +2495,7 @@ $(LIBDIR)/$(CONFIG)/libupb_base_lib.a: $(LIBUPB_BASE_LIB_OBJS)
 	$(E) "[AR]      Creating $@"
 	$(Q) mkdir -p `dirname $@`
 	$(Q) rm -f $(LIBDIR)/$(CONFIG)/libupb_base_lib.a
-	$(Q) $(AR) $(ARFLAGS) $(LIBDIR)/$(CONFIG)/libupb_base_lib.a $(LIBUPB_BASE_LIB_OBJS)
+	$(Q) $(AR) $(ARFLAGS) $(LIBDIR)/$(CONFIG)/libupb_base_lib.a $(LIBUPB_BASE_LIB_OBJS) 
 ifeq ($(SYSTEM),Darwin)
 	$(Q) $(RANLIB) $(RANLIBFLAGS) $(LIBDIR)/$(CONFIG)/libupb_base_lib.a
 endif
@@ -2622,7 +2622,7 @@ $(LIBDIR)/$(CONFIG)/libupb_mem_lib.a: $(LIBUPB_MEM_LIB_OBJS)
 	$(E) "[AR]      Creating $@"
 	$(Q) mkdir -p `dirname $@`
 	$(Q) rm -f $(LIBDIR)/$(CONFIG)/libupb_mem_lib.a
-	$(Q) $(AR) $(ARFLAGS) $(LIBDIR)/$(CONFIG)/libupb_mem_lib.a $(LIBUPB_MEM_LIB_OBJS)
+	$(Q) $(AR) $(ARFLAGS) $(LIBDIR)/$(CONFIG)/libupb_mem_lib.a $(LIBUPB_MEM_LIB_OBJS) 
 ifeq ($(SYSTEM),Darwin)
 	$(Q) $(RANLIB) $(RANLIBFLAGS) $(LIBDIR)/$(CONFIG)/libupb_mem_lib.a
 endif
@@ -2802,7 +2802,7 @@ $(LIBDIR)/$(CONFIG)/libutf8_range_lib.a: $(LIBUTF8_RANGE_LIB_OBJS)
 	$(E) "[AR]      Creating $@"
 	$(Q) mkdir -p `dirname $@`
 	$(Q) rm -f $(LIBDIR)/$(CONFIG)/libutf8_range_lib.a
-	$(Q) $(AR) $(ARFLAGS) $(LIBDIR)/$(CONFIG)/libutf8_range_lib.a $(LIBUTF8_RANGE_LIB_OBJS)
+	$(Q) $(AR) $(ARFLAGS) $(LIBDIR)/$(CONFIG)/libutf8_range_lib.a $(LIBUTF8_RANGE_LIB_OBJS) 
 ifeq ($(SYSTEM),Darwin)
 	$(Q) $(RANLIB) $(RANLIBFLAGS) $(LIBDIR)/$(CONFIG)/libutf8_range_lib.a
 endif
@@ -2860,7 +2860,7 @@ $(LIBDIR)/$(CONFIG)/libz.a: $(ZLIB_MERGE_OBJS)
 	$(E) "[AR]      Creating $@"
 	$(Q) mkdir -p `dirname $@`
 	$(Q) rm -f $(LIBDIR)/$(CONFIG)/libz.a
-	$(Q) $(AR) $(ARFLAGS) $(LIBDIR)/$(CONFIG)/libz.a $(LIBZ_OBJS)
+	$(Q) $(AR) $(ARFLAGS) $(LIBDIR)/$(CONFIG)/libz.a $(LIBZ_OBJS) 
 ifeq ($(SYSTEM),Darwin)
 	$(Q) $(RANLIB) $(RANLIBFLAGS) $(LIBDIR)/$(CONFIG)/libz.a
 endif
@@ -3159,7 +3159,7 @@ $(LIBDIR)/$(CONFIG)/libboringssl.a: $(LIBBORINGSSL_OBJS)
 	$(E) "[AR]      Creating $@"
 	$(Q) mkdir -p `dirname $@`
 	$(Q) rm -f $(LIBDIR)/$(CONFIG)/libboringssl.a
-	$(Q) $(AR) $(ARFLAGS) $(LIBDIR)/$(CONFIG)/libboringssl.a $(LIBBORINGSSL_OBJS)
+	$(Q) $(AR) $(ARFLAGS) $(LIBDIR)/$(CONFIG)/libboringssl.a $(LIBBORINGSSL_OBJS) 
 ifeq ($(SYSTEM),Darwin)
 	$(Q) $(RANLIB) $(RANLIBFLAGS) $(LIBDIR)/$(CONFIG)/libboringssl.a
 endif
@@ -3248,7 +3248,7 @@ $(LIBDIR)/$(CONFIG)/libcares.a: $(LIBCARES_OBJS)
 	$(E) "[AR]      Creating $@"
 	$(Q) mkdir -p `dirname $@`
 	$(Q) rm -f $(LIBDIR)/$(CONFIG)/libcares.a
-	$(Q) $(AR) $(ARFLAGS) $(LIBDIR)/$(CONFIG)/libcares.a $(LIBCARES_OBJS)
+	$(Q) $(AR) $(ARFLAGS) $(LIBDIR)/$(CONFIG)/libcares.a $(LIBCARES_OBJS) 
 ifeq ($(SYSTEM),Darwin)
 	$(Q) $(RANLIB) $(RANLIBFLAGS) $(LIBDIR)/$(CONFIG)/libcares.a
 endif
@@ -3402,7 +3402,7 @@ $(LIBDIR)/$(CONFIG)/libgrpc_abseil.a: $(LIBGRPC_ABSEIL_OBJS)
 	$(E) "[AR]      Creating $@"
 	$(Q) mkdir -p `dirname $@`
 	$(Q) rm -f $(LIBDIR)/$(CONFIG)/libgrpc_abseil.a
-	$(Q) $(AR) $(ARFLAGS) $(LIBDIR)/$(CONFIG)/libgrpc_abseil.a $(LIBGRPC_ABSEIL_OBJS)
+	$(Q) $(AR) $(ARFLAGS) $(LIBDIR)/$(CONFIG)/libgrpc_abseil.a $(LIBGRPC_ABSEIL_OBJS) 
 ifeq ($(SYSTEM),Darwin)
 	$(Q) $(RANLIB) $(RANLIBFLAGS) $(LIBDIR)/$(CONFIG)/libgrpc_abseil.a
 endif
