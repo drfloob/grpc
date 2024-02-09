@@ -36,9 +36,10 @@ export GRPC_LIB_SUBDIR=libs/$CONFIG
 cd src/php/ext/grpc
 phpize
 ./configure --enable-grpc="${repo_root}" --enable-tests
-echo "DO NOT SUBMIT - makefile -----------------------------------
+echo "DO NOT SUBMIT - makefile -----------------------------------"
+ls -l
 cat Makefile
-echo "DO NOT SUBMIT - makefile -----------------------------------
+echo "DO NOT SUBMIT - makefile -----------------------------------"
 export CFLAGS="-Wno-parentheses-equality -O0 -gmlt"
 export CXXFLAGS="-O0 -gmlt"
 make -j16
