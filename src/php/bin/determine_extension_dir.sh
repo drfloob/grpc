@@ -27,8 +27,8 @@ if [ ! -e $default_extension_dir/grpc.so ]; then
     ln -s $f $module_dir/$(basename $f) &>/dev/null || true
   done
   extension_dir="-d extension_dir=${module_dir} -d extension=grpc.so"
-  nm $module_dir/grpc.so --debug-syms --defined --demangle | grep EventEngine
+  nm -aU $module_dir/grpc.so | grep EventEngine
 else
   extension_dir="-d extension=grpc.so"
-  nm $default_extension_dir/grpc.so --debug-syms --defined --demangle | grep EventEngine
+  nm -aU $default_extension_dir/grpc.so | grep EventEngine
 fi
