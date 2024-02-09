@@ -24,16 +24,15 @@ export CFLAGS="-Wno-parentheses-equality -O0 -gmlt"
 export CXXFLAGS="-O0 -gmlt"
 
 # build C core first
-make -j"${GRPC_RUN_TESTS_JOBS}" EMBED_OPENSSL=true EMBED_ZLIB=true static_c shared_c
+make -j16 EMBED_OPENSSL=true EMBED_ZLIB=true static_c shared_c
 
 repo_root="$(pwd)"
 export GRPC_LIB_SUBDIR=libs/$CONFIG
-export CFLAGS="-Wno-parentheses-equality -O0 -gmlt"
-export CXXFLAGS="-O0 -gmlt"
+# export CFLAGS="-Wno-parentheses-equality -O0 -gmlt"
+# export CXXFLAGS="-O0 -gmlt"
 
 # build php
 cd src/php/ext/grpc
 phpize
 ./configure --enable-grpc="${repo_root}" --enable-tests
-make -j"${GRPC_RUN_TESTS_JOBS}"
-
+make -j16
