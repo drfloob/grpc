@@ -36,6 +36,9 @@ export GRPC_LIB_SUBDIR=libs/$CONFIG
 cd src/php/ext/grpc
 phpize
 ./configure --enable-grpc="${repo_root}" --enable-tests
+echo "DO NOT SUBMIT - makefile -----------------------------------
+cat Makefile
+echo "DO NOT SUBMIT - makefile -----------------------------------
 export CFLAGS="-Wno-parentheses-equality -O0 -gmlt"
 export CXXFLAGS="-O0 -gmlt"
 make -j16
@@ -48,6 +51,6 @@ find . -name 'grpc.so' -exec sh -c "nm -aU {} | grep EventEngine " \; || true
 find . -name 'libgrpc.*' -exec sh -c "nm -aU {} | grep EventEngine " \; || true
 
 # this is where the file is installed
-nma -aU /Volumes/BuildData/tmpfs/altsrc/github/grpc/workspace_php7_macos_dbg_native/src/php/ext/grpc/modules/grpc.so | grep EventEngine || true
+nm -aU /Volumes/BuildData/tmpfs/altsrc/github/grpc/workspace_php7_macos_dbg_native/src/php/ext/grpc/modules/grpc.so | grep EventEngine || true
 
 exit 42
