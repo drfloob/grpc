@@ -25,9 +25,8 @@ export CXXFLAGS="-O0 -gmlt"
 
 # build C core first
 make -j16 EMBED_OPENSSL=true EMBED_ZLIB=true static_c shared_c
-find . -name 'grpc.so' -exec 'nm -aU {} | grep EventEngine' || true
-find . -name 'libgrpc.*' -exec 'nm -aU {} | grep EventEngine' || true
-
+find . -name 'grpc.so' -exec sh -c "nm -aU {} | grep EventEngine " \; || true
+find . -name 'libgrpc.*' -exec sh -c "nm -aU {} | grep EventEngine " \; || true
 repo_root="$(pwd)"
 export GRPC_LIB_SUBDIR=libs/$CONFIG
 # export CFLAGS="-Wno-parentheses-equality -O0 -gmlt"
@@ -40,7 +39,7 @@ phpize
 export CFLAGS="-Wno-parentheses-equality -O0 -gmlt"
 export CXXFLAGS="-O0 -gmlt"
 make -j16
-find . -name 'grpc.so' -exec 'nm -aU {} | grep EventEngine' || true
-find . -name 'libgrpc.*' -exec 'nm -aU {} | grep EventEngine' || true
+find . -name 'grpc.so' -exec sh -c "nm -aU {} | grep EventEngine " \; || true
+find . -name 'libgrpc.*' -exec sh -c "nm -aU {} | grep EventEngine " \; || true
 
 exit 42
