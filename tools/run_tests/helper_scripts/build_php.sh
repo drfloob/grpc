@@ -42,3 +42,5 @@ export CXXFLAGS="-O0 -gmlt"
 make -j16
 find . -name 'grpc.so' -exec 'nm -aU {} | grep EventEngine' || true
 find . -name 'libgrpc.*' -exec 'nm -aU {} | grep EventEngine' || true
+
+exit 42
