@@ -35,7 +35,7 @@ export GRPC_LIB_SUBDIR=libs/$CONFIG
 # build php
 cd src/php/ext/grpc
 phpize
-./configure --enable-grpc="${repo_root}" --enable-tests
+./configure --enable-grpc="${repo_root}" --enable-tests --enable-debug
 echo "DO NOT SUBMIT - makefile -----------------------------------"
 ls -l
 cat Makefile
