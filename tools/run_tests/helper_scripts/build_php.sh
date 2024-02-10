@@ -54,4 +54,4 @@ find . -name 'libgrpc.*' -exec sh -c "nm -aU {} | grep EventEngine " \; || true
 # this is where the file is installed
 nm -aU /Volumes/BuildData/tmpfs/altsrc/github/grpc/workspace_php7_macos_dbg_native/src/php/ext/grpc/modules/grpc.so | grep EventEngine || true
 
-exit 42
+# exit 42
