@@ -577,7 +577,7 @@ std::string GetTempDir() {
   std::string temp_dir = "C:/tmp/";
   if (CreateDirectoryA(temp_dir.c_str(), NULL) == 0 &&
       ERROR_ALREADY_EXISTS != GetLastError()) {
-    grpc_core::Crash(absl::StrCat("Could not create temp dir: ", temp_dir));
+    Crash(absl::StrCat("Could not create temp dir: ", temp_dir));
   }
   return temp_dir;
 #else
