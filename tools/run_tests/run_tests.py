@@ -1433,7 +1433,7 @@ def _build_and_run(
 ):
     """Do one pass of building & running tests."""
     # build latest sequentially
-    sys.stdout.write("DO NOT SUBMIT: %s" % repr(build_steps))
+    sys.stdout.write("DO NOT SUBMIT: %s\n" % repr(build_steps))
     num_failures, resultset = jobset.run(
         build_steps,
         maxjobs=1,
