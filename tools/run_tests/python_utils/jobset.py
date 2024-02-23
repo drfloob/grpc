@@ -663,7 +663,6 @@ def run(
     quiet_success=False,
     max_time=-1,
 ):
-    return
     if skip_jobs:
         resultset = {}
         skipped_job_result = JobResult()
