@@ -402,8 +402,8 @@ class CLanguage(object):
                 else:
                     binary = "cmake/build/%s" % target["name"]
 
-                sys.stdout.write("DO NOT SUBMIT: binary: %s\n" % binary)
-                continue
+                # sys.stdout.write("DO NOT SUBMIT: binary: %s\n" % binary)
+                # continue
                 cpu_cost = target["cpu_cost"]
                 if cpu_cost == "capacity":
                     cpu_cost = multiprocessing.cpu_count()
