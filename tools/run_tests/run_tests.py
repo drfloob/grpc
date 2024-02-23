@@ -508,7 +508,7 @@ class CLanguage(object):
         return []
 
     def build_steps(self):
-        return ["echo", "'DO NOT SUBMIT: NOT BUILDING'"]
+        # return ["echo", "'DO NOT SUBMIT: NOT BUILDING'"]
         if self.platform == "windows":
             return [
                 [
