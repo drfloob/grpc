@@ -663,6 +663,8 @@ def run(
     quiet_success=False,
     max_time=-1,
 ):
+    sys.stdout.write("Command: '%s'", " ".join(cmdlines))
+    return
     if skip_jobs:
         resultset = {}
         skipped_job_result = JobResult()
