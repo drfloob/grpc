@@ -663,7 +663,6 @@ def run(
     quiet_success=False,
     max_time=-1,
 ):
-    sys.stdout.write("Command: '%s'", " ".join(cmdlines))
     return
     if skip_jobs:
         resultset = {}
@@ -687,6 +686,8 @@ def run(
         max_time,
     )
     for cmdline, remaining in tag_remaining(cmdlines):
+        sys.stdout.write("Command: '%s'", " ".join(cmdline.cmdline))
+        continue
         if not js.start(cmdline):
             break
         if remaining is not None:
