@@ -685,7 +685,7 @@ def run(
         max_time,
     )
     for cmdline, remaining in tag_remaining(cmdlines):
-        sys.stdout.write("Command: '%s'", " ".join(cmdline.cmdline))
+        sys.stdout.write("Command: '%s'" % " ".join(cmdline.cmdline))
         continue
         if not js.start(cmdline):
             break
