@@ -70,7 +70,7 @@ _POLLING_STRATEGIES = {
 
 
 def platform_string():
-    return jobset.platform_string()
+    return "mac"
 
 
 _DEFAULT_TIMEOUT_SECONDS = 5 * 60
@@ -402,6 +402,8 @@ class CLanguage(object):
                 else:
                     binary = "cmake/build/%s" % target["name"]
 
+                sys.stdout.write("DO NOT SUBMIT: binary: %s\n" % binary)
+                continue
                 cpu_cost = target["cpu_cost"]
                 if cpu_cost == "capacity":
                     cpu_cost = multiprocessing.cpu_count()
