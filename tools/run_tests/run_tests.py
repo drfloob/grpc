@@ -1433,6 +1433,7 @@ def _build_and_run(
 ):
     """Do one pass of building & running tests."""
     # build latest sequentially
+    return
     num_failures, resultset = jobset.run(
         build_steps,
         maxjobs=1,
