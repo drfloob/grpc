@@ -58,10 +58,10 @@ class PassiveListenerImpl final : public grpc::experimental::PassiveListener {
   void Initialize(Server* server, Server::ListenerInterface* listener);
 
  private:
-  friend void ::grpc_server_add_passive_listener(
+  friend void grpc_server_add_passive_listener(
       grpc_server* server, grpc_server_credentials* credentials,
       PassiveListenerImpl& passive_listener);
-  friend void ::grpc_server_accept_connected_endpoint(
+  friend void grpc_server_accept_connected_endpoint(
       PassiveListenerImpl& passive_listener,
       std::unique_ptr<grpc_event_engine::experimental::EventEngine::Endpoint>
           endpoint);
