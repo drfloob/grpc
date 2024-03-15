@@ -31,7 +31,7 @@ void PassiveListenerImpl::AcceptConnectedEndpoint(
     std::unique_ptr<grpc_event_engine::experimental::EventEngine::Endpoint>
         endpoint) {
   GPR_ASSERT(server_ != nullptr);
-  grpc_core::ExecCtx exec_ctx;
+  ExecCtx exec_ctx;
   MutexLock lock(&server_->mu_global_);
   if (server_->ShutdownCalled()) {
     grpc_server_accept_connected_endpoint(*this, std::move(endpoint));
@@ -40,7 +40,7 @@ void PassiveListenerImpl::AcceptConnectedEndpoint(
 
 absl::Status PassiveListenerImpl::AcceptConnectedFd(int fd) {
   GPR_ASSERT(server_ != nullptr);
-  grpc_core::ExecCtx exec_ctx;
+  ExecCtx exec_ctx;
   auto& args = server_->channel_args();
   auto engine =
       args.GetObjectRef<grpc_event_engine::experimental::EventEngine>();
