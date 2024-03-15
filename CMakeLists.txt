@@ -14410,8 +14410,6 @@ endif()
 if(gRPC_BUILD_TESTS)
 
 add_executable(forkable_test
-  src/core/lib/debug/trace.cc
-  src/core/lib/event_engine/forkable.cc
   test/core/event_engine/forkable_test.cc
 )
 if(WIN32 AND MSVC)
@@ -14419,6 +14417,7 @@ if(WIN32 AND MSVC)
     target_compile_definitions(forkable_test
     PRIVATE
       "GPR_DLL_IMPORTS"
+      "GRPC_DLL_IMPORTS"
     )
   endif()
 endif()
@@ -14445,8 +14444,7 @@ target_include_directories(forkable_test
 target_link_libraries(forkable_test
   ${_gRPC_ALLTARGETS_LIBRARIES}
   gtest
-  absl::statusor
-  gpr
+  grpc
 )
 
 

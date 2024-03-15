@@ -10044,17 +10044,12 @@ targets:
   gtest: true
   build: test
   language: c++
-  headers:
-  - src/core/lib/debug/trace.h
-  - src/core/lib/event_engine/forkable.h
+  headers: []
   src:
-  - src/core/lib/debug/trace.cc
-  - src/core/lib/event_engine/forkable.cc
   - test/core/event_engine/forkable_test.cc
   deps:
   - gtest
-  - absl/status:statusor
-  - gpr
+  - grpc
 - name: format_request_test
   gtest: true
   build: test
