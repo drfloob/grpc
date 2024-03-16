@@ -42,6 +42,8 @@ grpc_compression_options_init_type grpc_compression_options_init_import;
 grpc_compression_options_enable_algorithm_type grpc_compression_options_enable_algorithm_import;
 grpc_compression_options_disable_algorithm_type grpc_compression_options_disable_algorithm_import;
 grpc_compression_options_is_algorithm_enabled_type grpc_compression_options_is_algorithm_enabled_import;
+grpc_save_default_engine_type grpc_save_default_engine_import;
+grpc_release_default_engine_type grpc_release_default_engine_import;
 grpc_metadata_array_init_type grpc_metadata_array_init_import;
 grpc_metadata_array_destroy_type grpc_metadata_array_destroy_import;
 grpc_call_details_init_type grpc_call_details_init_import;
@@ -332,6 +334,8 @@ void grpc_rb_load_imports(HMODULE library) {
   grpc_compression_options_enable_algorithm_import = (grpc_compression_options_enable_algorithm_type) GetProcAddress(library, "grpc_compression_options_enable_algorithm");
   grpc_compression_options_disable_algorithm_import = (grpc_compression_options_disable_algorithm_type) GetProcAddress(library, "grpc_compression_options_disable_algorithm");
   grpc_compression_options_is_algorithm_enabled_import = (grpc_compression_options_is_algorithm_enabled_type) GetProcAddress(library, "grpc_compression_options_is_algorithm_enabled");
+  grpc_save_default_engine_import = (grpc_save_default_engine_type) GetProcAddress(library, "grpc_save_default_engine");
+  grpc_release_default_engine_import = (grpc_release_default_engine_type) GetProcAddress(library, "grpc_release_default_engine");
   grpc_metadata_array_init_import = (grpc_metadata_array_init_type) GetProcAddress(library, "grpc_metadata_array_init");
   grpc_metadata_array_destroy_import = (grpc_metadata_array_destroy_type) GetProcAddress(library, "grpc_metadata_array_destroy");
   grpc_call_details_init_import = (grpc_call_details_init_type) GetProcAddress(library, "grpc_call_details_init");

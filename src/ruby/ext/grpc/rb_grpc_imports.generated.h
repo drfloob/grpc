@@ -27,6 +27,7 @@
 
 #include <grpc/byte_buffer.h>
 #include <grpc/compression.h>
+#include <grpc/event_engine/internal/save_default_engine.h>
 #include <grpc/grpc.h>
 #include <grpc/grpc_posix.h>
 #include <grpc/grpc_security.h>
@@ -101,6 +102,12 @@ extern grpc_compression_options_disable_algorithm_type grpc_compression_options_
 typedef int(*grpc_compression_options_is_algorithm_enabled_type)(const grpc_compression_options* opts, grpc_compression_algorithm algorithm);
 extern grpc_compression_options_is_algorithm_enabled_type grpc_compression_options_is_algorithm_enabled_import;
 #define grpc_compression_options_is_algorithm_enabled grpc_compression_options_is_algorithm_enabled_import
+typedef void(*grpc_save_default_engine_type)();
+extern grpc_save_default_engine_type grpc_save_default_engine_import;
+#define grpc_save_default_engine grpc_save_default_engine_import
+typedef void(*grpc_release_default_engine_type)();
+extern grpc_release_default_engine_type grpc_release_default_engine_import;
+#define grpc_release_default_engine grpc_release_default_engine_import
 typedef void(*grpc_metadata_array_init_type)(grpc_metadata_array* array);
 extern grpc_metadata_array_init_type grpc_metadata_array_init_import;
 #define grpc_metadata_array_init grpc_metadata_array_init_import
