@@ -15,7 +15,9 @@
 #ifndef GRPC_EVENT_ENGINE_INTERNAL_SAVE_DEFAULT_ENGINE_H
 #define GRPC_EVENT_ENGINE_INTERNAL_SAVE_DEFAULT_ENGINE_H
 
-void grpc_save_default_engine();
-void grpc_release_default_engine();
+#include <grpc/support/port_platform.h>
+
+GRPCAPI void grpc_save_default_engine();
+GRPCAPI void grpc_release_default_engine();
 
 #endif  // GRPC_EVENT_ENGINE_INTERNAL_SAVE_DEFAULT_ENGINE_H
