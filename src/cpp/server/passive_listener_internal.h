@@ -62,7 +62,8 @@ class PassiveListenerImpl final : public PassiveListener {
   grpc_core::RefCountedPtr<grpc_core::Server> server_;
   // Not safe for this class to use directly -- only used within
   // grpc_server_accept_connected_endpoint().
-  RefCountedPtr<grpc_core::ListenerInterface> listener_;
+  grpc_core::RefCountedPtrfCountedPtrfCountedPtr<grpc_core::ListenerInterface>
+      listener_;
 };
 
 }  // namespace experimental

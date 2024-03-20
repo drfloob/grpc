@@ -183,7 +183,7 @@ class Server : public ServerInterface,
   ///
   /// The server must be started before endpoints can be accepted.
   absl::Status AcceptConnectedEndpoint(
-      grpc_core::ListenerInterface* core_listener,
+      ListenerInterface* core_listener,
       std::unique_ptr<grpc_event_engine::experimental::EventEngine::Endpoint>
           endpoint);
 
