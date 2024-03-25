@@ -62,7 +62,7 @@ class PassiveListenerImpl final : public PassiveListener {
   void ListenerDestroyed() ABSL_LOCKS_EXCLUDED(mu_);
 
  private:
-  friend absl::Status(::grpc_server_add_passive_listener)(
+  friend absl::Status(grpc_server_add_passive_listener)(
       Server* server, grpc_server_credentials* credentials,
       std::shared_ptr<PassiveListenerImpl> passive_listener);
 
