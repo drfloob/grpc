@@ -3908,7 +3908,6 @@ libs:
   - src/cpp/common/resource_quota_cc.cc
   - src/cpp/common/rpc_method.cc
   - src/cpp/common/secure_auth_context.cc
-  - src/cpp/common/secure_channel_arguments.cc
   - src/cpp/common/secure_create_auth_context.cc
   - src/cpp/common/tls_certificate_provider.cc
   - src/cpp/common/tls_certificate_verifier.cc
@@ -4286,7 +4285,6 @@ libs:
   - src/cpp/common/alarm.cc
   - src/cpp/common/channel_arguments.cc
   - src/cpp/common/completion_queue_cc.cc
-  - src/cpp/common/insecure_channel_arguments.cc
   - src/cpp/common/insecure_create_auth_context.cc
   - src/cpp/common/resource_quota_cc.cc
   - src/cpp/common/rpc_method.cc
@@ -6200,7 +6198,6 @@ targets:
   - src/cpp/common/resource_quota_cc.cc
   - src/cpp/common/rpc_method.cc
   - src/cpp/common/secure_auth_context.cc
-  - src/cpp/common/secure_channel_arguments.cc
   - src/cpp/common/secure_create_auth_context.cc
   - src/cpp/common/tls_certificate_provider.cc
   - src/cpp/common/tls_certificate_verifier.cc
@@ -8899,7 +8896,6 @@ targets:
   - src/cpp/common/resource_quota_cc.cc
   - src/cpp/common/rpc_method.cc
   - src/cpp/common/secure_auth_context.cc
-  - src/cpp/common/secure_channel_arguments.cc
   - src/cpp/common/secure_create_auth_context.cc
   - src/cpp/common/tls_certificate_provider.cc
   - src/cpp/common/tls_certificate_verifier.cc
@@ -9398,7 +9394,6 @@ targets:
   - src/cpp/common/resource_quota_cc.cc
   - src/cpp/common/rpc_method.cc
   - src/cpp/common/secure_auth_context.cc
-  - src/cpp/common/secure_channel_arguments.cc
   - src/cpp/common/secure_create_auth_context.cc
   - src/cpp/common/tls_certificate_provider.cc
   - src/cpp/common/tls_certificate_verifier.cc
@@ -19617,7 +19612,6 @@ targets:
   - src/cpp/common/resource_quota_cc.cc
   - src/cpp/common/rpc_method.cc
   - src/cpp/common/secure_auth_context.cc
-  - src/cpp/common/secure_channel_arguments.cc
   - src/cpp/common/secure_create_auth_context.cc
   - src/cpp/common/tls_certificate_provider.cc
   - src/cpp/common/tls_certificate_verifier.cc
@@ -19996,7 +19990,6 @@ targets:
   - src/cpp/common/resource_quota_cc.cc
   - src/cpp/common/rpc_method.cc
   - src/cpp/common/secure_auth_context.cc
-  - src/cpp/common/secure_channel_arguments.cc
   - src/cpp/common/secure_create_auth_context.cc
   - src/cpp/common/tls_certificate_provider.cc
   - src/cpp/common/tls_certificate_verifier.cc
@@ -20107,7 +20100,6 @@ targets:
   - src/cpp/common/resource_quota_cc.cc
   - src/cpp/common/rpc_method.cc
   - src/cpp/common/secure_auth_context.cc
-  - src/cpp/common/secure_channel_arguments.cc
   - src/cpp/common/secure_create_auth_context.cc
   - src/cpp/common/tls_certificate_provider.cc
   - src/cpp/common/tls_certificate_verifier.cc
