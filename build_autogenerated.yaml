@@ -3660,7 +3660,6 @@ libs:
   - include/grpc++/impl/codegen/create_auth_context.h
   - include/grpc++/impl/codegen/metadata_map.h
   - include/grpc++/impl/codegen/method_handler_impl.h
-  - include/grpc++/impl/codegen/proto_utils.h
   - include/grpc++/impl/codegen/rpc_method.h
   - include/grpc++/impl/codegen/rpc_service_method.h
   - include/grpc++/impl/codegen/security/auth_context.h
@@ -3753,9 +3752,6 @@ libs:
   - include/grpcpp/impl/codegen/metadata_map.h
   - include/grpcpp/impl/codegen/method_handler.h
   - include/grpcpp/impl/codegen/method_handler_impl.h
-  - include/grpcpp/impl/codegen/proto_buffer_reader.h
-  - include/grpcpp/impl/codegen/proto_buffer_writer.h
-  - include/grpcpp/impl/codegen/proto_utils.h
   - include/grpcpp/impl/codegen/rpc_method.h
   - include/grpcpp/impl/codegen/rpc_service_method.h
   - include/grpcpp/impl/codegen/security/auth_context.h
@@ -3782,7 +3778,6 @@ libs:
   - include/grpcpp/impl/interceptor_common.h
   - include/grpcpp/impl/metadata_map.h
   - include/grpcpp/impl/method_handler_impl.h
-  - include/grpcpp/impl/proto_utils.h
   - include/grpcpp/impl/rpc_method.h
   - include/grpcpp/impl/rpc_service_method.h
   - include/grpcpp/impl/serialization_traits.h
@@ -3970,7 +3965,12 @@ libs:
   language: c++
   public_headers:
   - include/grpc++/ext/proto_server_reflection_plugin.h
+  - include/grpc++/impl/codegen/proto_utils.h
   - include/grpcpp/ext/proto_server_reflection_plugin.h
+  - include/grpcpp/impl/codegen/proto_buffer_reader.h
+  - include/grpcpp/impl/codegen/proto_buffer_writer.h
+  - include/grpcpp/impl/codegen/proto_utils.h
+  - include/grpcpp/impl/proto_utils.h
   headers:
   - src/cpp/ext/proto_server_reflection.h
   src:
@@ -4265,10 +4265,8 @@ libs:
   - src/cpp/client/client_stats_interceptor.h
   - src/cpp/client/create_channel_internal.h
   - src/cpp/server/backend_metric_recorder.h
-  - src/cpp/server/dynamic_thread_pool.h
   - src/cpp/server/external_connection_acceptor_impl.h
   - src/cpp/server/health/default_health_check_service.h
-  - src/cpp/server/thread_pool_interface.h
   - src/cpp/thread_manager/thread_manager.h
   src:
   - src/cpp/client/call_credentials.cc
@@ -4293,7 +4291,6 @@ libs:
   - src/cpp/server/async_generic_service.cc
   - src/cpp/server/backend_metric_recorder.cc
   - src/cpp/server/channel_argument_option.cc
-  - src/cpp/server/create_default_thread_pool.cc
   - src/cpp/server/external_connection_acceptor_impl.cc
   - src/cpp/server/health/default_health_check_service.cc
   - src/cpp/server/health/health_check_service.cc
@@ -4311,6 +4308,7 @@ libs:
   - src/cpp/util/string_ref.cc
   - src/cpp/util/time_cc.cc
   deps:
+  - grpc
   - grpc_unsecure
   - protobuf
   baselib: true
@@ -5082,7 +5080,12 @@ libs:
   build: all
   language: c++
   public_headers:
+  - include/grpc++/impl/codegen/proto_utils.h
   - include/grpcpp/ext/channelz_service_plugin.h
+  - include/grpcpp/impl/codegen/proto_buffer_reader.h
+  - include/grpcpp/impl/codegen/proto_buffer_writer.h
+  - include/grpcpp/impl/codegen/proto_utils.h
+  - include/grpcpp/impl/proto_utils.h
   headers:
   - src/cpp/server/channelz/channelz_service.h
   src:
@@ -6145,14 +6148,9 @@ targets:
   - src/core/ext/transport/binder/wire_format/wire_writer.h
   - src/cpp/client/client_stats_interceptor.h
   - src/cpp/client/create_channel_internal.h
-  - src/cpp/client/secure_credentials.h
-  - src/cpp/common/secure_auth_context.h
   - src/cpp/server/backend_metric_recorder.h
-  - src/cpp/server/dynamic_thread_pool.h
   - src/cpp/server/external_connection_acceptor_impl.h
   - src/cpp/server/health/default_health_check_service.h
-  - src/cpp/server/secure_server_credentials.h
-  - src/cpp/server/thread_pool_interface.h
   - src/cpp/thread_manager/thread_manager.h
   - test/core/transport/binder/mock_objects.h
   src:
@@ -6184,31 +6182,20 @@ targets:
   - src/cpp/client/create_channel.cc
   - src/cpp/client/create_channel_internal.cc
   - src/cpp/client/create_channel_posix.cc
-  - src/cpp/client/insecure_credentials.cc
-  - src/cpp/client/secure_credentials.cc
   - src/cpp/common/alarm.cc
-  - src/cpp/common/auth_property_iterator.cc
   - src/cpp/common/channel_arguments.cc
   - src/cpp/common/completion_queue_cc.cc
   - src/cpp/common/resource_quota_cc.cc
   - src/cpp/common/rpc_method.cc
-  - src/cpp/common/secure_auth_context.cc
-  - src/cpp/common/secure_create_auth_context.cc
-  - src/cpp/common/tls_certificate_provider.cc
-  - src/cpp/common/tls_certificate_verifier.cc
-  - src/cpp/common/tls_credentials_options.cc
   - src/cpp/common/validate_service_config.cc
   - src/cpp/common/version_cc.cc
   - src/cpp/server/async_generic_service.cc
   - src/cpp/server/backend_metric_recorder.cc
   - src/cpp/server/channel_argument_option.cc
-  - src/cpp/server/create_default_thread_pool.cc
   - src/cpp/server/external_connection_acceptor_impl.cc
   - src/cpp/server/health/default_health_check_service.cc
   - src/cpp/server/health/health_check_service.cc
   - src/cpp/server/health/health_check_service_server_builder_option.cc
-  - src/cpp/server/insecure_server_credentials.cc
-  - src/cpp/server/secure_server_credentials.cc
   - src/cpp/server/server_builder.cc
   - src/cpp/server/server_callback.cc
   - src/cpp/server/server_cc.cc
@@ -8832,14 +8819,9 @@ targets:
   - src/core/ext/transport/binder/wire_format/wire_writer.h
   - src/cpp/client/client_stats_interceptor.h
   - src/cpp/client/create_channel_internal.h
-  - src/cpp/client/secure_credentials.h
-  - src/cpp/common/secure_auth_context.h
   - src/cpp/server/backend_metric_recorder.h
-  - src/cpp/server/dynamic_thread_pool.h
   - src/cpp/server/external_connection_acceptor_impl.h
   - src/cpp/server/health/default_health_check_service.h
-  - src/cpp/server/secure_server_credentials.h
-  - src/cpp/server/thread_pool_interface.h
   - src/cpp/thread_manager/thread_manager.h
   - test/core/transport/binder/mock_objects.h
   src:
@@ -8871,31 +8853,20 @@ targets:
   - src/cpp/client/create_channel.cc
   - src/cpp/client/create_channel_internal.cc
   - src/cpp/client/create_channel_posix.cc
-  - src/cpp/client/insecure_credentials.cc
-  - src/cpp/client/secure_credentials.cc
   - src/cpp/common/alarm.cc
-  - src/cpp/common/auth_property_iterator.cc
   - src/cpp/common/channel_arguments.cc
   - src/cpp/common/completion_queue_cc.cc
   - src/cpp/common/resource_quota_cc.cc
   - src/cpp/common/rpc_method.cc
-  - src/cpp/common/secure_auth_context.cc
-  - src/cpp/common/secure_create_auth_context.cc
-  - src/cpp/common/tls_certificate_provider.cc
-  - src/cpp/common/tls_certificate_verifier.cc
-  - src/cpp/common/tls_credentials_options.cc
   - src/cpp/common/validate_service_config.cc
   - src/cpp/common/version_cc.cc
   - src/cpp/server/async_generic_service.cc
   - src/cpp/server/backend_metric_recorder.cc
   - src/cpp/server/channel_argument_option.cc
-  - src/cpp/server/create_default_thread_pool.cc
   - src/cpp/server/external_connection_acceptor_impl.cc
   - src/cpp/server/health/default_health_check_service.cc
   - src/cpp/server/health/health_check_service.cc
   - src/cpp/server/health/health_check_service_server_builder_option.cc
-  - src/cpp/server/insecure_server_credentials.cc
-  - src/cpp/server/secure_server_credentials.cc
   - src/cpp/server/server_builder.cc
   - src/cpp/server/server_callback.cc
   - src/cpp/server/server_cc.cc
@@ -9324,14 +9295,9 @@ targets:
   - src/core/ext/transport/binder/wire_format/wire_writer.h
   - src/cpp/client/client_stats_interceptor.h
   - src/cpp/client/create_channel_internal.h
-  - src/cpp/client/secure_credentials.h
-  - src/cpp/common/secure_auth_context.h
   - src/cpp/server/backend_metric_recorder.h
-  - src/cpp/server/dynamic_thread_pool.h
   - src/cpp/server/external_connection_acceptor_impl.h
   - src/cpp/server/health/default_health_check_service.h
-  - src/cpp/server/secure_server_credentials.h
-  - src/cpp/server/thread_pool_interface.h
   - src/cpp/thread_manager/thread_manager.h
   - test/core/transport/binder/end2end/fake_binder.h
   src:
@@ -9363,31 +9329,20 @@ targets:
   - src/cpp/client/create_channel.cc
   - src/cpp/client/create_channel_internal.cc
   - src/cpp/client/create_channel_posix.cc
-  - src/cpp/client/insecure_credentials.cc
-  - src/cpp/client/secure_credentials.cc
   - src/cpp/common/alarm.cc
-  - src/cpp/common/auth_property_iterator.cc
   - src/cpp/common/channel_arguments.cc
   - src/cpp/common/completion_queue_cc.cc
   - src/cpp/common/resource_quota_cc.cc
   - src/cpp/common/rpc_method.cc
-  - src/cpp/common/secure_auth_context.cc
-  - src/cpp/common/secure_create_auth_context.cc
-  - src/cpp/common/tls_certificate_provider.cc
-  - src/cpp/common/tls_certificate_verifier.cc
-  - src/cpp/common/tls_credentials_options.cc
   - src/cpp/common/validate_service_config.cc
   - src/cpp/common/version_cc.cc
   - src/cpp/server/async_generic_service.cc
   - src/cpp/server/backend_metric_recorder.cc
   - src/cpp/server/channel_argument_option.cc
-  - src/cpp/server/create_default_thread_pool.cc
   - src/cpp/server/external_connection_acceptor_impl.cc
   - src/cpp/server/health/default_health_check_service.cc
   - src/cpp/server/health/health_check_service.cc
   - src/cpp/server/health/health_check_service_server_builder_option.cc
-  - src/cpp/server/insecure_server_credentials.cc
-  - src/cpp/server/secure_server_credentials.cc
   - src/cpp/server/server_builder.cc
   - src/cpp/server/server_callback.cc
   - src/cpp/server/server_cc.cc
@@ -19029,7 +18984,7 @@ targets:
   - test/cpp/ext/chaotic_good_test.cc
   deps:
   - gtest
-  - grpc++
+  - grpc++_unsecure
   - grpc_test_util
 - name: test_cpp_server_credentials_test
   gtest: true
@@ -19517,14 +19472,9 @@ targets:
   - src/core/ext/transport/binder/wire_format/wire_writer.h
   - src/cpp/client/client_stats_interceptor.h
   - src/cpp/client/create_channel_internal.h
-  - src/cpp/client/secure_credentials.h
-  - src/cpp/common/secure_auth_context.h
   - src/cpp/server/backend_metric_recorder.h
-  - src/cpp/server/dynamic_thread_pool.h
   - src/cpp/server/external_connection_acceptor_impl.h
   - src/cpp/server/health/default_health_check_service.h
-  - src/cpp/server/secure_server_credentials.h
-  - src/cpp/server/thread_pool_interface.h
   - src/cpp/thread_manager/thread_manager.h
   src:
   - src/core/ext/transport/binder/client/binder_connector.cc
@@ -19555,31 +19505,20 @@ targets:
   - src/cpp/client/create_channel.cc
   - src/cpp/client/create_channel_internal.cc
   - src/cpp/client/create_channel_posix.cc
-  - src/cpp/client/insecure_credentials.cc
-  - src/cpp/client/secure_credentials.cc
   - src/cpp/common/alarm.cc
-  - src/cpp/common/auth_property_iterator.cc
   - src/cpp/common/channel_arguments.cc
   - src/cpp/common/completion_queue_cc.cc
   - src/cpp/common/resource_quota_cc.cc
   - src/cpp/common/rpc_method.cc
-  - src/cpp/common/secure_auth_context.cc
-  - src/cpp/common/secure_create_auth_context.cc
-  - src/cpp/common/tls_certificate_provider.cc
-  - src/cpp/common/tls_certificate_verifier.cc
-  - src/cpp/common/tls_credentials_options.cc
   - src/cpp/common/validate_service_config.cc
   - src/cpp/common/version_cc.cc
   - src/cpp/server/async_generic_service.cc
   - src/cpp/server/backend_metric_recorder.cc
   - src/cpp/server/channel_argument_option.cc
-  - src/cpp/server/create_default_thread_pool.cc
   - src/cpp/server/external_connection_acceptor_impl.cc
   - src/cpp/server/health/default_health_check_service.cc
   - src/cpp/server/health/health_check_service.cc
   - src/cpp/server/health/health_check_service_server_builder_option.cc
-  - src/cpp/server/insecure_server_credentials.cc
-  - src/cpp/server/secure_server_credentials.cc
   - src/cpp/server/server_builder.cc
   - src/cpp/server/server_callback.cc
   - src/cpp/server/server_cc.cc
@@ -19893,14 +19832,9 @@ targets:
   - src/core/ext/transport/binder/wire_format/wire_writer.h
   - src/cpp/client/client_stats_interceptor.h
   - src/cpp/client/create_channel_internal.h
-  - src/cpp/client/secure_credentials.h
-  - src/cpp/common/secure_auth_context.h
   - src/cpp/server/backend_metric_recorder.h
-  - src/cpp/server/dynamic_thread_pool.h
   - src/cpp/server/external_connection_acceptor_impl.h
   - src/cpp/server/health/default_health_check_service.h
-  - src/cpp/server/secure_server_credentials.h
-  - src/cpp/server/thread_pool_interface.h
   - src/cpp/thread_manager/thread_manager.h
   - test/core/transport/binder/mock_objects.h
   src:
@@ -19932,31 +19866,20 @@ targets:
   - src/cpp/client/create_channel.cc
   - src/cpp/client/create_channel_internal.cc
   - src/cpp/client/create_channel_posix.cc
-  - src/cpp/client/insecure_credentials.cc
-  - src/cpp/client/secure_credentials.cc
   - src/cpp/common/alarm.cc
-  - src/cpp/common/auth_property_iterator.cc
   - src/cpp/common/channel_arguments.cc
   - src/cpp/common/completion_queue_cc.cc
   - src/cpp/common/resource_quota_cc.cc
   - src/cpp/common/rpc_method.cc
-  - src/cpp/common/secure_auth_context.cc
-  - src/cpp/common/secure_create_auth_context.cc
-  - src/cpp/common/tls_certificate_provider.cc
-  - src/cpp/common/tls_certificate_verifier.cc
-  - src/cpp/common/tls_credentials_options.cc
   - src/cpp/common/validate_service_config.cc
   - src/cpp/common/version_cc.cc
   - src/cpp/server/async_generic_service.cc
   - src/cpp/server/backend_metric_recorder.cc
   - src/cpp/server/channel_argument_option.cc
-  - src/cpp/server/create_default_thread_pool.cc
   - src/cpp/server/external_connection_acceptor_impl.cc
   - src/cpp/server/health/default_health_check_service.cc
   - src/cpp/server/health/health_check_service.cc
   - src/cpp/server/health/health_check_service_server_builder_option.cc
-  - src/cpp/server/insecure_server_credentials.cc
-  - src/cpp/server/secure_server_credentials.cc
   - src/cpp/server/server_builder.cc
   - src/cpp/server/server_callback.cc
   - src/cpp/server/server_cc.cc
@@ -20002,14 +19925,9 @@ targets:
   - src/core/ext/transport/binder/wire_format/wire_writer.h
   - src/cpp/client/client_stats_interceptor.h
   - src/cpp/client/create_channel_internal.h
-  - src/cpp/client/secure_credentials.h
-  - src/cpp/common/secure_auth_context.h
   - src/cpp/server/backend_metric_recorder.h
-  - src/cpp/server/dynamic_thread_pool.h
   - src/cpp/server/external_connection_acceptor_impl.h
   - src/cpp/server/health/default_health_check_service.h
-  - src/cpp/server/secure_server_credentials.h
-  - src/cpp/server/thread_pool_interface.h
   - src/cpp/thread_manager/thread_manager.h
   - test/core/transport/binder/mock_objects.h
   src:
@@ -20041,31 +19959,20 @@ targets:
   - src/cpp/client/create_channel.cc
   - src/cpp/client/create_channel_internal.cc
   - src/cpp/client/create_channel_posix.cc
-  - src/cpp/client/insecure_credentials.cc
-  - src/cpp/client/secure_credentials.cc
   - src/cpp/common/alarm.cc
-  - src/cpp/common/auth_property_iterator.cc
   - src/cpp/common/channel_arguments.cc
   - src/cpp/common/completion_queue_cc.cc
   - src/cpp/common/resource_quota_cc.cc
   - src/cpp/common/rpc_method.cc
-  - src/cpp/common/secure_auth_context.cc
-  - src/cpp/common/secure_create_auth_context.cc
-  - src/cpp/common/tls_certificate_provider.cc
-  - src/cpp/common/tls_certificate_verifier.cc
-  - src/cpp/common/tls_credentials_options.cc
   - src/cpp/common/validate_service_config.cc
   - src/cpp/common/version_cc.cc
   - src/cpp/server/async_generic_service.cc
   - src/cpp/server/backend_metric_recorder.cc
   - src/cpp/server/channel_argument_option.cc
-  - src/cpp/server/create_default_thread_pool.cc
   - src/cpp/server/external_connection_acceptor_impl.cc
   - src/cpp/server/health/default_health_check_service.cc
   - src/cpp/server/health/health_check_service.cc
   - src/cpp/server/health/health_check_service_server_builder_option.cc
-  - src/cpp/server/insecure_server_credentials.cc
-  - src/cpp/server/secure_server_credentials.cc
   - src/cpp/server/server_builder.cc
   - src/cpp/server/server_callback.cc
   - src/cpp/server/server_cc.cc
