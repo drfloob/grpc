@@ -30139,7 +30139,41 @@ add_executable(test_cpp_ext_chaotic_good_test
   src/core/ext/transport/chaotic_good/server_transport.cc
   src/core/ext/transport/chaotic_good/settings_metadata.cc
   src/core/lib/transport/promise_endpoint.cc
+  src/cpp/client/call_credentials.cc
+  src/cpp/client/channel_cc.cc
+  src/cpp/client/channel_credentials.cc
+  src/cpp/client/client_callback.cc
+  src/cpp/client/client_context.cc
+  src/cpp/client/client_interceptor.cc
+  src/cpp/client/client_stats_interceptor.cc
+  src/cpp/client/create_channel.cc
+  src/cpp/client/create_channel_internal.cc
+  src/cpp/client/create_channel_posix.cc
+  src/cpp/common/alarm.cc
+  src/cpp/common/channel_arguments.cc
+  src/cpp/common/completion_queue_cc.cc
+  src/cpp/common/resource_quota_cc.cc
+  src/cpp/common/rpc_method.cc
+  src/cpp/common/validate_service_config.cc
+  src/cpp/common/version_cc.cc
   src/cpp/ext/chaotic_good.cc
+  src/cpp/server/async_generic_service.cc
+  src/cpp/server/channel_argument_option.cc
+  src/cpp/server/create_default_thread_pool.cc
+  src/cpp/server/external_connection_acceptor_impl.cc
+  src/cpp/server/health/default_health_check_service.cc
+  src/cpp/server/health/health_check_service.cc
+  src/cpp/server/health/health_check_service_server_builder_option.cc
+  src/cpp/server/server_builder.cc
+  src/cpp/server/server_callback.cc
+  src/cpp/server/server_cc.cc
+  src/cpp/server/server_context.cc
+  src/cpp/server/server_credentials.cc
+  src/cpp/server/server_posix.cc
+  src/cpp/thread_manager/thread_manager.cc
+  src/cpp/util/byte_buffer_cc.cc
+  src/cpp/util/string_ref.cc
+  src/cpp/util/time_cc.cc
   test/cpp/ext/chaotic_good_test.cc
 )
 if(WIN32 AND MSVC)
@@ -30176,6 +30210,7 @@ target_link_libraries(test_cpp_ext_chaotic_good_test
   ${_gRPC_ALLTARGETS_LIBRARIES}
   gtest
   grpc++
+  grpc_unsecure
   grpc_test_util
 )
 
