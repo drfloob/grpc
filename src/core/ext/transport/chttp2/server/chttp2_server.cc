@@ -30,6 +30,7 @@
 
 #include "absl/base/thread_annotations.h"
 #include "absl/log/check.h"
+#include "absl/log/log.h"
 #include "absl/status/status.h"
 #include "absl/status/statusor.h"
 #include "absl/strings/str_cat.h"
@@ -45,7 +46,6 @@
 #include <grpc/passive_listener.h>
 #include <grpc/slice_buffer.h>
 #include <grpc/support/alloc.h>
-#include <grpc/support/log.h>
 #include <grpc/support/port_platform.h>
 
 #include "src/core/channelz/channelz.h"
@@ -326,8 +326,7 @@ void Chttp2ServerListener::ConfigFetcherWatcher::UpdateConnectionManager(
   grpc_error_handle error = grpc_tcp_server_add_port(
       listener_->tcp_server_, &listener_->resolved_address_, &port_temp);
   if (!error.ok()) {
-    gpr_log(GPR_ERROR, "Error adding port to server: %s",
-            StatusToString(error).c_str());
+    LOG(ERROR) << "Error adding port to server: " << StatusToString(error);
     // TODO(yashykt): We wouldn't need to assert here if we bound to the
     // port earlier during AddPort.
     CHECK(0);
@@ -475,23 +474,18 @@ void Chttp2ServerListener::ActiveConnection::HandshakingState::OnHandshakeDone(
       // handshaker may have handed off the connection to some external
       // code, so we can just clean up here without creating a transport.
       if (args->endpoint != nullptr) {
-        Transport* transport =
-            grpc_create_chttp2_transport(args->args, args->endpoint, false);
+        RefCountedPtr<Transport> transport =
+            grpc_create_chttp2_transport(args->args, args->endpoint, false)
+                ->Ref();
         grpc_error_handle channel_init_err =
             self->connection_->listener_->server_->SetupTransport(
-                transport, self->accepting_pollset_, args->args,
-                grpc_chttp2_transport_get_socket_node(transport));
+                transport.get(), self->accepting_pollset_, args->args,
+                grpc_chttp2_transport_get_socket_node(transport.get()));
         if (channel_init_err.ok()) {
           // Use notify_on_receive_settings callback to enforce the
           // handshake deadline.
-          // Note: The reinterpret_cast<>s here are safe, because
-          // grpc_chttp2_transport is a C-style extension of
-          // Transport, so this is morally equivalent of a
-          // static_cast<> to a derived class.
-          // TODO(roth): Change to static_cast<> when we C++-ify the
-          // transport API.
           self->connection_->transport_ =
-              reinterpret_cast<grpc_chttp2_transport*>(transport)->Ref();
+              DownCast<grpc_chttp2_transport*>(transport.get())->Ref();
           self->Ref().release();  // Held by OnReceiveSettings().
           GRPC_CLOSURE_INIT(&self->on_receive_settings_, OnReceiveSettings,
                             self, grpc_schedule_on_exec_ctx);
@@ -521,9 +515,9 @@ void Chttp2ServerListener::ActiveConnection::HandshakingState::OnHandshakeDone(
                                            grpc_schedule_on_exec_ctx_);
             cleanup_connection = true;
           }
-          grpc_chttp2_transport_start_reading(transport, args->read_buffer,
-                                              &self->on_receive_settings_,
-                                              on_close);
+          grpc_chttp2_transport_start_reading(
+              transport.get(), args->read_buffer, &self->on_receive_settings_,
+              on_close);
           self->timer_handle_ = self->connection_->event_engine_->RunAfter(
               self->deadline_ - Timestamp::Now(),
               [self = self->Ref()]() mutable {
@@ -535,8 +529,8 @@ void Chttp2ServerListener::ActiveConnection::HandshakingState::OnHandshakeDone(
               });
         } else {
           // Failed to create channel from transport. Clean up.
-          gpr_log(GPR_ERROR, "Failed to create channel: %s",
-                  StatusToString(channel_init_err).c_str());
+          LOG(ERROR) << "Failed to create channel: "
+                     << StatusToString(channel_init_err);
           transport->Orphan();
           grpc_slice_buffer_destroy(args->read_buffer);
           gpr_free(args->read_buffer);
@@ -1038,7 +1032,7 @@ grpc_error_handle Chttp2ServerAddPort(Server* server, const char* addr,
           resolved_or->size() - error_list.size(), resolved_or->size());
       error = GRPC_ERROR_CREATE_REFERENCING(msg.c_str(), error_list.data(),
                                             error_list.size());
-      gpr_log(GPR_INFO, "WARNING: %s", StatusToString(error).c_str());
+      LOG(INFO) << "WARNING: " << StatusToString(error);
       // we managed to bind some addresses: continue without error
     }
     return absl::OkStatus();
@@ -1158,7 +1152,7 @@ int grpc_server_add_http2_port(grpc_server* server, const char* addr,
 done:
   sc.reset(DEBUG_LOCATION, "server");
   if (!err.ok()) {
-    gpr_log(GPR_ERROR, "%s", grpc_core::StatusToString(err).c_str());
+    LOG(ERROR) << grpc_core::StatusToString(err);
   }
   return port_num;
 }
@@ -1169,7 +1163,7 @@ void grpc_server_add_channel_from_fd(grpc_server* server, int fd,
   // For now, we only support insecure server credentials
   if (creds == nullptr ||
       creds->type() != grpc_core::InsecureServerCredentials::Type()) {
-    gpr_log(GPR_ERROR, "Failed to create channel due to invalid creds");
+    LOG(ERROR) << "Failed to create channel due to invalid creds";
     return;
   }
   grpc_core::ExecCtx exec_ctx;
@@ -1194,8 +1188,8 @@ void grpc_server_add_channel_from_fd(grpc_server* server, int fd,
     }
     grpc_chttp2_transport_start_reading(transport, nullptr, nullptr, nullptr);
   } else {
-    gpr_log(GPR_ERROR, "Failed to create channel: %s",
-            grpc_core::StatusToString(error).c_str());
+    LOG(ERROR) << "Failed to create channel: "
+               << grpc_core::StatusToString(error);
     transport->Orphan();
   }
 }
