@@ -520,4 +520,8 @@ void AbslStringify(Sink& out, const EventEngine::TaskHandle& handle) {
 }  // namespace experimental
 }  // namespace grpc_event_engine
 
+#ifdef GRPC_EVENT_ENGINE_DEBUG_SHARED_PTR
+#include <grpc/event_engine/internal/debug_shared_ptr.h>
+#endif
+
 #endif  // GRPC_EVENT_ENGINE_EVENT_ENGINE_H

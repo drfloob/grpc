@@ -16,7 +16,6 @@
 
 #include <memory>
 #include <string>
-#include <type_traits>
 #include <vector>
 
 #include <grpc/support/port_platform.h>

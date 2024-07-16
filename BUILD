@@ -309,6 +309,7 @@ GRPC_PUBLIC_EVENT_ENGINE_HDRS = [
     "include/grpc/event_engine/port.h",
     "include/grpc/event_engine/memory_allocator.h",
     "include/grpc/event_engine/memory_request.h",
+    "include/grpc/event_engine/internal/debug_shared_ptr.h",
     "include/grpc/event_engine/internal/memory_allocator_impl.h",
     "include/grpc/event_engine/slice.h",
     "include/grpc/event_engine/slice_buffer.h",
@@ -1351,6 +1352,7 @@ grpc_cc_library(
 
 grpc_cc_library(
     name = "event_engine_base_hdrs",
+    srcs = ["//src/core:lib/event_engine/debug_shared_ptr.cc"],
     hdrs = GRPC_PUBLIC_EVENT_ENGINE_HDRS + GRPC_PUBLIC_HDRS,
     external_deps = [
         "absl/status",
@@ -1358,6 +1360,9 @@ grpc_cc_library(
         "absl/time",
         "absl/types:optional",
         "absl/functional:any_invocable",
+        "absl/log",
+        "absl/strings",
+        "absl/utility",
     ],
     tags = [
         "nofixdeps",
@@ -1366,6 +1371,7 @@ grpc_cc_library(
     deps = [
         "channel_arg_names",
         "gpr",
+        "//src/core:examine_stack",
     ],
 )
 
@@ -2083,6 +2089,7 @@ grpc_cc_library(
         "//src/core:error_utils",
         "//src/core:event_engine_common",
         "//src/core:event_engine_context",
+        "//src/core:examine_stack",
         "//src/core:experiments",
         "//src/core:for_each",
         "//src/core:gpr_atm",

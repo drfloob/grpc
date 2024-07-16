@@ -80,7 +80,7 @@ std::string GetNextSendMessage() {
 }
 
 void WaitForSingleOwner(std::shared_ptr<EventEngine> engine) {
-  WaitForSingleOwnerWithTimeout(std::move(engine), std::chrono::hours{24});
+  WaitForSingleOwnerWithTimeout(std::move(engine), std::chrono::seconds{20});
 }
 
 void WaitForSingleOwnerWithTimeout(std::shared_ptr<EventEngine> engine,
@@ -95,6 +95,11 @@ void WaitForSingleOwnerWithTimeout(std::shared_ptr<EventEngine> engine,
     }
     auto remaining = timeout - (std::chrono::system_clock::now() - start);
     if (remaining < std::chrono::seconds{0}) {
+#ifdef GRPC_EVENT_ENGINE_DEBUG_SHARED_PTR
+      LOG(ERROR)
+          << "\n!!!!!! EventEngines are still owned somewhere !!!!!!!!\n";
+      engine.PrintLivingEngines();
+#endif
       grpc_core::Crash("Timed out waiting for a single EventEngine owner");
     }
     LOG_EVERY_N_SEC(INFO, 2)
