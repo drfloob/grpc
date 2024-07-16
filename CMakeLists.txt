@@ -2298,6 +2298,7 @@ add_library(grpc
   src/core/lib/event_engine/cf_engine/cfstream_endpoint.cc
   src/core/lib/event_engine/cf_engine/dns_service_resolver.cc
   src/core/lib/event_engine/channel_args_endpoint_config.cc
+  src/core/lib/event_engine/debug_shared_ptr.cc
   src/core/lib/event_engine/default_event_engine.cc
   src/core/lib/event_engine/default_event_engine_factory.cc
   src/core/lib/event_engine/event_engine.cc
@@ -2760,6 +2761,7 @@ foreach(_hdr
   include/grpc/event_engine/endpoint_config.h
   include/grpc/event_engine/event_engine.h
   include/grpc/event_engine/extensible.h
+  include/grpc/event_engine/internal/debug_shared_ptr.h
   include/grpc/event_engine/internal/memory_allocator_impl.h
   include/grpc/event_engine/internal/slice_cast.h
   include/grpc/event_engine/memory_allocator.h
@@ -3097,6 +3099,7 @@ add_library(grpc_unsecure
   src/core/lib/event_engine/cf_engine/cfstream_endpoint.cc
   src/core/lib/event_engine/cf_engine/dns_service_resolver.cc
   src/core/lib/event_engine/channel_args_endpoint_config.cc
+  src/core/lib/event_engine/debug_shared_ptr.cc
   src/core/lib/event_engine/default_event_engine.cc
   src/core/lib/event_engine/default_event_engine_factory.cc
   src/core/lib/event_engine/event_engine.cc
@@ -3452,6 +3455,7 @@ foreach(_hdr
   include/grpc/event_engine/endpoint_config.h
   include/grpc/event_engine/event_engine.h
   include/grpc/event_engine/extensible.h
+  include/grpc/event_engine/internal/debug_shared_ptr.h
   include/grpc/event_engine/internal/memory_allocator_impl.h
   include/grpc/event_engine/internal/slice_cast.h
   include/grpc/event_engine/memory_allocator.h
@@ -5313,6 +5317,7 @@ add_library(grpc_authorization_provider
   src/core/lib/event_engine/cf_engine/cfstream_endpoint.cc
   src/core/lib/event_engine/cf_engine/dns_service_resolver.cc
   src/core/lib/event_engine/channel_args_endpoint_config.cc
+  src/core/lib/event_engine/debug_shared_ptr.cc
   src/core/lib/event_engine/default_event_engine.cc
   src/core/lib/event_engine/default_event_engine_factory.cc
   src/core/lib/event_engine/event_engine.cc
@@ -5612,6 +5617,7 @@ foreach(_hdr
   include/grpc/event_engine/endpoint_config.h
   include/grpc/event_engine/event_engine.h
   include/grpc/event_engine/extensible.h
+  include/grpc/event_engine/internal/debug_shared_ptr.h
   include/grpc/event_engine/internal/memory_allocator_impl.h
   include/grpc/event_engine/internal/slice_cast.h
   include/grpc/event_engine/memory_allocator.h
@@ -9028,6 +9034,7 @@ add_executable(call_filters_test
   src/core/lib/compression/compression_internal.cc
   src/core/lib/debug/trace.cc
   src/core/lib/debug/trace_flags.cc
+  src/core/lib/event_engine/debug_shared_ptr.cc
   src/core/lib/experiments/config.cc
   src/core/lib/experiments/experiments.cc
   src/core/lib/gprpp/dump_args.cc
@@ -9405,6 +9412,7 @@ add_executable(call_utils_test
   src/core/lib/event_engine/cf_engine/cfstream_endpoint.cc
   src/core/lib/event_engine/cf_engine/dns_service_resolver.cc
   src/core/lib/event_engine/channel_args_endpoint_config.cc
+  src/core/lib/event_engine/debug_shared_ptr.cc
   src/core/lib/event_engine/default_event_engine.cc
   src/core/lib/event_engine/default_event_engine_factory.cc
   src/core/lib/event_engine/event_engine.cc
@@ -10029,6 +10037,7 @@ add_executable(cancel_callback_test
   src/core/ext/upb-gen/google/rpc/status.upb_minitable.c
   src/core/lib/debug/trace.cc
   src/core/lib/debug/trace_flags.cc
+  src/core/lib/event_engine/debug_shared_ptr.cc
   src/core/lib/experiments/config.cc
   src/core/lib/experiments/experiments.cc
   src/core/lib/gprpp/dump_args.cc
@@ -10094,6 +10103,7 @@ target_link_libraries(cancel_callback_test
   absl::hash
   absl::type_traits
   absl::statusor
+  absl::utility
   gpr
 )
 
@@ -11129,6 +11139,7 @@ add_executable(chunked_vector_test
   src/core/ext/upb-gen/google/rpc/status.upb_minitable.c
   src/core/lib/debug/trace.cc
   src/core/lib/debug/trace_flags.cc
+  src/core/lib/event_engine/debug_shared_ptr.cc
   src/core/lib/experiments/config.cc
   src/core/lib/experiments/experiments.cc
   src/core/lib/gprpp/dump_args.cc
@@ -11194,6 +11205,7 @@ target_link_libraries(chunked_vector_test
   absl::hash
   absl::type_traits
   absl::statusor
+  absl::utility
   gpr
 )
 
@@ -12124,6 +12136,7 @@ endif()
 if(gRPC_BUILD_TESTS)
 
 add_executable(common_closures_test
+  src/core/lib/event_engine/debug_shared_ptr.cc
   test/core/event_engine/common_closures_test.cc
 )
 if(WIN32 AND MSVC)
@@ -12158,6 +12171,7 @@ target_link_libraries(common_closures_test
   ${_gRPC_ALLTARGETS_LIBRARIES}
   gtest
   absl::statusor
+  absl::utility
   gpr
 )
 
@@ -13885,6 +13899,7 @@ if(gRPC_BUILD_TESTS)
 add_executable(endpoint_config_test
   src/core/lib/channel/channel_args.cc
   src/core/lib/event_engine/channel_args_endpoint_config.cc
+  src/core/lib/event_engine/debug_shared_ptr.cc
   src/core/lib/gprpp/ref_counted_string.cc
   src/core/lib/gprpp/time.cc
   src/core/lib/surface/channel_stack_type.cc
@@ -13925,6 +13940,7 @@ target_link_libraries(endpoint_config_test
   absl::hash
   absl::type_traits
   absl::statusor
+  absl::utility
   gpr
 )
 
@@ -14431,6 +14447,7 @@ add_executable(exec_ctx_wakeup_scheduler_test
   src/core/ext/upb-gen/google/rpc/status.upb_minitable.c
   src/core/lib/debug/trace.cc
   src/core/lib/debug/trace_flags.cc
+  src/core/lib/event_engine/debug_shared_ptr.cc
   src/core/lib/experiments/config.cc
   src/core/lib/experiments/experiments.cc
   src/core/lib/gprpp/dump_args.cc
@@ -14489,6 +14506,7 @@ target_link_libraries(exec_ctx_wakeup_scheduler_test
   absl::hash
   absl::type_traits
   absl::statusor
+  absl::utility
   gpr
 )
 
@@ -15224,6 +15242,7 @@ add_executable(flow_control_test
   src/core/ext/upb-gen/google/rpc/status.upb_minitable.c
   src/core/lib/debug/trace.cc
   src/core/lib/debug/trace_flags.cc
+  src/core/lib/event_engine/debug_shared_ptr.cc
   src/core/lib/experiments/config.cc
   src/core/lib/experiments/experiments.cc
   src/core/lib/gprpp/dump_args.cc
@@ -15291,6 +15310,7 @@ target_link_libraries(flow_control_test
   absl::type_traits
   absl::statusor
   absl::span
+  absl::utility
   gpr
 )
 
@@ -15303,6 +15323,7 @@ add_executable(for_each_test
   src/core/ext/upb-gen/google/rpc/status.upb_minitable.c
   src/core/lib/debug/trace.cc
   src/core/lib/debug/trace_flags.cc
+  src/core/lib/event_engine/debug_shared_ptr.cc
   src/core/lib/experiments/config.cc
   src/core/lib/experiments/experiments.cc
   src/core/lib/gprpp/dump_args.cc
@@ -15368,6 +15389,7 @@ target_link_libraries(for_each_test
   absl::hash
   absl::type_traits
   absl::statusor
+  absl::utility
   gpr
 )
 
@@ -15568,6 +15590,7 @@ add_executable(frame_test
   src/core/ext/transport/chttp2/transport/frame.cc
   src/core/lib/debug/trace.cc
   src/core/lib/debug/trace_flags.cc
+  src/core/lib/event_engine/debug_shared_ptr.cc
   src/core/lib/gprpp/glob.cc
   src/core/lib/slice/slice.cc
   src/core/lib/slice/slice_buffer.cc
@@ -15609,6 +15632,7 @@ target_link_libraries(frame_test
   absl::hash
   absl::statusor
   absl::span
+  absl::utility
   gpr
 )
 
@@ -18842,6 +18866,7 @@ add_executable(interceptor_list_test
   src/core/ext/upb-gen/google/rpc/status.upb_minitable.c
   src/core/lib/debug/trace.cc
   src/core/lib/debug/trace_flags.cc
+  src/core/lib/event_engine/debug_shared_ptr.cc
   src/core/lib/experiments/config.cc
   src/core/lib/experiments/experiments.cc
   src/core/lib/gprpp/dump_args.cc
@@ -18907,6 +18932,7 @@ target_link_libraries(interceptor_list_test
   absl::hash
   absl::type_traits
   absl::statusor
+  absl::utility
   gpr
 )
 
@@ -20090,6 +20116,7 @@ add_executable(map_pipe_test
   src/core/ext/upb-gen/google/rpc/status.upb_minitable.c
   src/core/lib/debug/trace.cc
   src/core/lib/debug/trace_flags.cc
+  src/core/lib/event_engine/debug_shared_ptr.cc
   src/core/lib/experiments/config.cc
   src/core/lib/experiments/experiments.cc
   src/core/lib/gprpp/dump_args.cc
@@ -20155,6 +20182,7 @@ target_link_libraries(map_pipe_test
   absl::hash
   absl::type_traits
   absl::statusor
+  absl::utility
   gpr
 )
 
@@ -22369,6 +22397,7 @@ add_executable(periodic_update_test
   src/core/ext/upb-gen/google/rpc/status.upb_minitable.c
   src/core/lib/debug/trace.cc
   src/core/lib/debug/trace_flags.cc
+  src/core/lib/event_engine/debug_shared_ptr.cc
   src/core/lib/experiments/config.cc
   src/core/lib/experiments/experiments.cc
   src/core/lib/gprpp/glob.cc
@@ -22423,6 +22452,7 @@ target_link_libraries(periodic_update_test
   absl::function_ref
   absl::hash
   absl::statusor
+  absl::utility
   gpr
 )
 
@@ -23953,6 +23983,7 @@ endif()
 if(gRPC_BUILD_TESTS)
 
 add_executable(query_extensions_test
+  src/core/lib/event_engine/debug_shared_ptr.cc
   test/core/event_engine/query_extensions_test.cc
 )
 if(WIN32 AND MSVC)
@@ -23987,6 +24018,7 @@ target_link_libraries(query_extensions_test
   ${_gRPC_ALLTARGETS_LIBRARIES}
   gtest
   absl::statusor
+  absl::utility
   gpr
 )
 
@@ -29182,6 +29214,7 @@ if(gRPC_BUILD_TESTS)
 add_executable(slice_string_helpers_test
   src/core/lib/debug/trace.cc
   src/core/lib/debug/trace_flags.cc
+  src/core/lib/event_engine/debug_shared_ptr.cc
   src/core/lib/gprpp/glob.cc
   src/core/lib/slice/slice.cc
   src/core/lib/slice/slice_string_helpers.cc
@@ -29221,6 +29254,7 @@ target_link_libraries(slice_string_helpers_test
   absl::flat_hash_map
   absl::hash
   absl::statusor
+  absl::utility
   gpr
 )
 
@@ -30801,6 +30835,7 @@ endif()
 if(gRPC_BUILD_TESTS)
 
 add_executable(test_core_event_engine_posix_timer_heap_test
+  src/core/lib/event_engine/debug_shared_ptr.cc
   src/core/lib/event_engine/posix_engine/timer.cc
   src/core/lib/event_engine/posix_engine/timer_heap.cc
   src/core/lib/gprpp/time.cc
@@ -30839,6 +30874,7 @@ target_link_libraries(test_core_event_engine_posix_timer_heap_test
   ${_gRPC_ALLTARGETS_LIBRARIES}
   gtest
   absl::statusor
+  absl::utility
   gpr
 )
 
@@ -30847,6 +30883,7 @@ endif()
 if(gRPC_BUILD_TESTS)
 
 add_executable(test_core_event_engine_posix_timer_list_test
+  src/core/lib/event_engine/debug_shared_ptr.cc
   src/core/lib/event_engine/posix_engine/timer.cc
   src/core/lib/event_engine/posix_engine/timer_heap.cc
   src/core/lib/gprpp/time.cc
@@ -30885,6 +30922,7 @@ target_link_libraries(test_core_event_engine_posix_timer_list_test
   ${_gRPC_ALLTARGETS_LIBRARIES}
   gtest
   absl::statusor
+  absl::utility
   gpr
 )
 
@@ -30895,6 +30933,7 @@ if(gRPC_BUILD_TESTS)
 add_executable(test_core_event_engine_slice_buffer_test
   src/core/lib/debug/trace.cc
   src/core/lib/debug/trace_flags.cc
+  src/core/lib/event_engine/debug_shared_ptr.cc
   src/core/lib/event_engine/event_engine.cc
   src/core/lib/event_engine/resolved_address.cc
   src/core/lib/event_engine/slice.cc
@@ -30948,6 +30987,7 @@ endif()
 if(gRPC_BUILD_TESTS)
 
 add_executable(test_core_gprpp_time_test
+  src/core/lib/event_engine/debug_shared_ptr.cc
   src/core/lib/gprpp/time.cc
   test/core/gprpp/time_test.cc
 )
@@ -30983,6 +31023,7 @@ target_link_libraries(test_core_gprpp_time_test
   ${_gRPC_ALLTARGETS_LIBRARIES}
   gtest
   absl::statusor
+  absl::utility
   gpr
 )
 
@@ -33936,6 +33977,7 @@ if(gRPC_BUILD_TESTS)
 
 add_executable(write_size_policy_test
   src/core/ext/transport/chttp2/transport/write_size_policy.cc
+  src/core/lib/event_engine/debug_shared_ptr.cc
   src/core/lib/gprpp/time.cc
   test/core/transport/chttp2/write_size_policy_test.cc
 )
@@ -33971,6 +34013,7 @@ target_link_libraries(write_size_policy_test
   ${_gRPC_ALLTARGETS_LIBRARIES}
   gtest
   absl::statusor
+  absl::utility
   gpr
 )
 

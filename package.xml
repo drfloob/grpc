@@ -37,6 +37,7 @@
     <file baseinstalldir="/" name="include/grpc/event_engine/endpoint_config.h" role="src" />
     <file baseinstalldir="/" name="include/grpc/event_engine/event_engine.h" role="src" />
     <file baseinstalldir="/" name="include/grpc/event_engine/extensible.h" role="src" />
+    <file baseinstalldir="/" name="include/grpc/event_engine/internal/debug_shared_ptr.h" role="src" />
     <file baseinstalldir="/" name="include/grpc/event_engine/internal/memory_allocator_impl.h" role="src" />
     <file baseinstalldir="/" name="include/grpc/event_engine/internal/slice_cast.h" role="src" />
     <file baseinstalldir="/" name="include/grpc/event_engine/memory_allocator.h" role="src" />
@@ -1128,6 +1129,7 @@
     <file baseinstalldir="/" name="src/core/lib/event_engine/channel_args_endpoint_config.cc" role="src" />
     <file baseinstalldir="/" name="src/core/lib/event_engine/channel_args_endpoint_config.h" role="src" />
     <file baseinstalldir="/" name="src/core/lib/event_engine/common_closures.h" role="src" />
+    <file baseinstalldir="/" name="src/core/lib/event_engine/debug_shared_ptr.cc" role="src" />
     <file baseinstalldir="/" name="src/core/lib/event_engine/default_event_engine.cc" role="src" />
     <file baseinstalldir="/" name="src/core/lib/event_engine/default_event_engine.h" role="src" />
     <file baseinstalldir="/" name="src/core/lib/event_engine/default_event_engine_factory.cc" role="src" />
