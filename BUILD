@@ -580,7 +580,6 @@ grpc_cc_library(
     ],
     visibility = ["@grpc:public"],
     deps = [
-        "api_trace",
         "channel_arg_names",
         "channel_stack_builder",
         "config",
@@ -660,7 +659,6 @@ grpc_cc_library(
         "@grpc:public",
     ],
     deps = [
-        "api_trace",
         "channel_arg_names",
         "channel_stack_builder",
         "config",
@@ -1152,7 +1150,6 @@ grpc_cc_library(
     ],
     tags = ["nofixdeps"],
     deps = [
-        "api_trace",
         "channel",
         "channel_create",
         "config",
@@ -1330,7 +1327,6 @@ grpc_cc_library(
     ],
     visibility = ["@grpc:public"],
     deps = [
-        "api_trace",
         "gpr",
         "grpc_base",
         "grpc_public_hdrs",
@@ -1480,21 +1476,6 @@ grpc_cc_library(
         "//src/core:memory_quota",
         "//src/core:resource_quota",
         "//src/core:thread_quota",
-    ],
-)
-
-grpc_cc_library(
-    name = "api_trace",
-    hdrs = [
-        "//src/core:lib/surface/api_trace.h",
-    ],
-    external_deps = [
-        "absl/log:log",
-    ],
-    language = "c++",
-    deps = [
-        "gpr",
-        "grpc_trace",
     ],
 )
 
@@ -1769,7 +1750,6 @@ grpc_cc_library(
     language = "c++",
     visibility = ["@grpc:alt_grpc_base_legacy"],
     deps = [
-        "api_trace",
         "channel_arg_names",
         "channelz",
         "cpp_impl_of",
@@ -1815,7 +1795,6 @@ grpc_cc_library(
     language = "c++",
     visibility = ["@grpc:alt_grpc_base_legacy"],
     deps = [
-        "api_trace",
         "channel",
         "channelz",
         "config",
@@ -1911,7 +1890,6 @@ grpc_cc_library(
     language = "c++",
     visibility = ["@grpc:alt_grpc_base_legacy"],
     deps = [
-        "api_trace",
         "call_combiner",
         "call_tracer",
         "channel",
@@ -2041,7 +2019,6 @@ grpc_cc_library(
     public_hdrs = GRPC_PUBLIC_HDRS + GRPC_PUBLIC_EVENT_ENGINE_HDRS,
     visibility = ["@grpc:alt_grpc_base_legacy"],
     deps = [
-        "api_trace",
         "call_combiner",
         "call_tracer",
         "channel",
@@ -2306,7 +2283,6 @@ grpc_cc_library(
     public_hdrs = GRPC_PUBLIC_HDRS,
     visibility = ["@grpc:public"],
     deps = [
-        "api_trace",
         "channel_arg_names",
         "channelz",
         "config",
@@ -4097,7 +4073,6 @@ grpc_cc_library(
     language = "c++",
     visibility = ["@grpc:public"],
     deps = [
-        "api_trace",
         "exec_ctx",
         "gpr",
         "grpc_base",
