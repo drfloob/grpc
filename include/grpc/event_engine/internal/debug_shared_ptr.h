@@ -45,8 +45,9 @@ class shared_ptr<grpc_event_engine::experimental::EventEngine>
     LOG(ERROR) << "[DO NOT SUBMIT] nullptr EE";
   }
 
-  template <class convertible_cls,
-            enable_if_t<is_convertible<convertible_cls, EE_>::value, int> = 0>
+  template <typename convertible_cls,
+            typename = typename enable_if<
+                is_convertible<convertible_cls*, EE_*>::value>::type>
   explicit shared_ptr(convertible_cls* ee) : id_(GetId(ee)) {
     LOG(ERROR) << "[DO NOT SUBMIT] convertible ptr";
     ee_ = ee;
@@ -58,8 +59,9 @@ class shared_ptr<grpc_event_engine::experimental::EventEngine>
     }
   }
 
-  template <class convertible_cls, class _Dx,
-            enable_if<is_convertible<convertible_cls, EE_>::value, int> = 0>
+  template <typename convertible_cls, typename _Dx,
+            typename = typename enable_if<
+                is_convertible<convertible_cls*, EE_*>::value>::type>
   shared_ptr(convertible_cls* ee, _Dx _Dt) : shared_ptr(ee) {
     LOG(ERROR) << "Ignoring custom deleter for EE::" << ee;
   }
@@ -68,50 +70,131 @@ class shared_ptr<grpc_event_engine::experimental::EventEngine>
   // TODO(hork): No need for a constructor with a custom allocator
 
   // Aliasing
-  template <typename cls>
-  shared_ptr(const shared_ptr<cls>& right, element_type* ee) noexcept
+  template <typename convertible_cls,
+            typename = typename enable_if<
+                is_convertible<convertible_cls*, EE_*>::value>::type>
+  shared_ptr(const shared_ptr<convertible_cls>& right,
+             element_type* ee) noexcept
       : id_(GetId(ee)), ee_(ee) {
     LOG(ERROR) << "[DO NOT SUBMIT] aliasing1";
     refcounts_[ee_]++;
   }
 
   // Aliasing
-  template <typename cls>
-  shared_ptr(shared_ptr<cls>&& right, element_type* ee) noexcept
+  template <typename convertible_cls,
+            typename = typename enable_if<
+                is_convertible<convertible_cls*, EE_*>::value>::type>
+  shared_ptr(shared_ptr<convertible_cls>&& right, element_type* ee) noexcept
       : id_(GetId(ee)), ee_(ee) {
     LOG(FATAL) << "Trying to call aliasing move constructor of "
                   "shared_ptr<EE>";
     refcounts_[ee_]++;
   }
 
-  EE_* get() const { return ee_; }
+  template <typename convertible_cls,
+            typename = typename enable_if<
+                is_convertible<convertible_cls*, EE_*>::value>::type>
+  explicit shared_ptr(const weak_ptr<convertible_cls>& _Other) {
+    auto stack = grpc_core::GetCurrentStackTrace().value();
+    LOG(ERROR) << "[DO NOT SUBMIT] weakptr stack: " << stack;
+    {
+      // bail if the stack looks like an infinite loop.
+      int occurrences = 0;
+      std::string::size_type pos = 0;
+      std::string target = "weak_ptr<>";
+      while ((pos = stack.find(target, pos)) != std::string::npos) {
+        ++occurrences;
+        pos += target.length();
+      }
+      if (occurrences > 3) {
+        LOG(FATAL) << "Looping on weak_ptr";
+      }
+    }
+    std::shared_ptr<EE_> eesp = _Other.lock();
+    assert(eesp != nullptr);
+    eesp.swap(*this);
+    // DO NOT SUBMIT(hork): this should be done automatically on construction
+    // refcounts_[ee_]++;
+    LOG(ERROR) << "[DO NOT SUBMIT] refcounts: " << refcounts_[ee_].load();
+  }
 
-  template <class convertible_cls,
-            enable_if<is_convertible<convertible_cls, EE_>::value, int> = 0>
+  // // template <class convertible_cls, class _Dx,
+  // //           enable_if<is_convertible<convertible_cls, EE_>::value, int> =
+  // 0>
+  // // template <class convertible_cls, class _Dx>
+  // template <typename convertible_cls, typename _Dx,
+  //           typename = typename enable_if<
+  //               is_convertible<convertible_cls*, EE_*>::value>::type>
+  // explicit shared_ptr(const weak_ptr<convertible_cls>& _Other, _Dx _Dt)
+  //     : shared_ptr(_Other) {
+  //   LOG(ERROR) << "Converting from weak_ptr, ignoring custom deleter for "
+  //                 "shared_ptr<EventEngine>";
+  // }
+
+  // template <class convertible_cls, class _Dx,
+  //           enable_if_t<is_convertible<
+  //                           typename unique_ptr<convertible_cls,
+  //                           _Dx>::pointer, EE_*>::value,
+  //                       int> = 0>
+  template <typename convertible_cls, typename _Dx,
+            typename = typename enable_if<is_convertible<
+                typename unique_ptr<convertible_cls, _Dx>::pointer,
+                EE_*>::value>::type>
+  explicit shared_ptr(unique_ptr<convertible_cls, _Dx>&& _Other)
+      : id_(GetId(_Other.get())) {
+    LOG(ERROR) << "Converting from unique_ptr, ignoring custom deleter for "
+                  "shared_ptr<EventEngine>::"
+               << _Other.get();
+    ee_ = _Other.release();
+  }
+
+  template <typename convertible_cls,
+            typename = typename enable_if<
+                is_convertible<convertible_cls*, EE_*>::value>::type>
   explicit shared_ptr(const shared_ptr<convertible_cls>& _Other) noexcept
       : id_(GetId(_Other.get())) {
+    LOG(ERROR) << "[DO NOT SUBMIT] copy ctor";
     // construct shared_ptr object that owns same resource as _Other
     ee_ = _Other.get();
     refcounts_[ee_]++;
   }
 
-  template <class convertible_cls, class _Dx,
-            enable_if<is_convertible<convertible_cls, EE_>::value, int> = 0>
+  template <typename convertible_cls, typename _Dx,
+            typename = typename enable_if<
+                is_convertible<convertible_cls*, EE_*>::value>::type>
   shared_ptr(const shared_ptr<convertible_cls>& _Other, _Dx _Dt) noexcept
       : shared_ptr(_Other) {
     LOG(ERROR) << "Ignoring custom deleter for EE::" << _Other.get();
   }
 
-  template <class convertible_cls,
-            enable_if<is_convertible<convertible_cls, EE_>::value, int> = 0>
+  template <typename convertible_cls,
+            typename = typename enable_if<
+                is_convertible<convertible_cls*, EE_*>::value>::type>
   explicit shared_ptr(shared_ptr<convertible_cls>&& _Other) noexcept {
     // construct shared_ptr object that takes resource from _Right
+    LOG(ERROR) << "[DO NOT SUBMIT] move ctor";
     id_ = _Other.id_;
     _Other.id_ = 0;
     ee_ = _Other.ee_;
     _Other.ee_ = nullptr;
     refcounts_[ee_]--;
   }
+
+  // This constructor is non-standard, it is used by weak_ptr::lock().
+  shared_ptr(const weak_ptr<EE_>& __r, std::nothrow_t) noexcept
+      : __shared_ptr<EE_>(__r, std::nothrow), id_(-1), ee_(nullptr) {
+    LOG(ERROR) << "[DO NOT SUBMIT] weak nothrow from "
+               << grpc_core::GetCurrentStackTrace().value();
+  }
+
+  ~shared_ptr() noexcept {  // release resource
+    LOG(ERROR) << "Destroying: shared_ptr<EventEngine>::" << this
+               << " id::" << id_;
+    living_engines_.erase(id_);
+    refcounts_[ee_]--;
+  }
+
+  EE_* get() const { return ee_; }
 
   void swap(shared_ptr& _Other) noexcept {
     std::swap(id_, _Other.id_);
@@ -124,54 +207,16 @@ class shared_ptr<grpc_event_engine::experimental::EventEngine>
     // DO NOT SUBMIT(hork): does this need refcount changes?
   }
 
-  // template <class convertible_cls,
-  //           enable_if<is_convertible<convertible_cls, EE_>::type, int> = 0>
-  template <class convertible_cls>
-  explicit shared_ptr(const weak_ptr<convertible_cls>& _Other) {
-    LOG(ERROR) << "[DO NOT SUBMIT] weakptr1";
-    std::shared_ptr<EE_> eesp = _Other.lock();
-    assert(eesp != nullptr);
-    eesp.swap(*this);
-    // DO NOT SUBMIT(hork): this should be done automatically on construction
-    // refcounts_[ee_]++;
+  template <typename convertible_cls,
+            typename = typename enable_if<
+                is_convertible<convertible_cls*, EE_*>::value>::type>
+  void reset(convertible_cls* ee) noexcept {
+    shared_ptr(ee).swap(*this);
   }
 
-  // template <class convertible_cls, class _Dx,
-  //           enable_if<is_convertible<convertible_cls, EE_>::value, int> = 0>
-  template <class convertible_cls, class _Dx>
-  explicit shared_ptr(const weak_ptr<convertible_cls>& _Other, _Dx _Dt)
-      : shared_ptr(_Other) {
-    LOG(ERROR) << "Converting from weak_ptr, ignoring custom deleter for "
-                  "shared_ptr<EventEngine>";
-  }
-
-  template <class convertible_cls, class _Dx,
-            enable_if_t<is_convertible<
-                            typename unique_ptr<convertible_cls, _Dx>::pointer,
-                            EE_*>::value,
-                        int> = 0>
-  explicit shared_ptr(unique_ptr<convertible_cls, _Dx>&& _Other)
-      : id_(GetId(_Other.get())) {
-    LOG(ERROR) << "Converting from unique_ptr, ignoring custom deleter for "
-                  "shared_ptr<EventEngine>::"
-               << _Other.get();
-    ee_ = _Other.release();
-  }
-
-  ~shared_ptr() noexcept {  // release resource
-    LOG(ERROR) << "Destroying: shared_ptr<EventEngine>::" << this
-               << " id::" << id_;
-    living_engines_.erase(id_);
-    refcounts_[ee_]--;
-  }
-
-  // shared_ptr& operator=(const shared_ptr& _Right) noexcept {
-  //   shared_ptr(_Right).swap(*this);
-  //   return *this;
-  // }
-
-  template <class convertible_cls,
-            enable_if_t<is_convertible<convertible_cls, EE_>::value, int> = 0>
+  template <typename convertible_cls,
+            typename = typename enable_if<
+                is_convertible<convertible_cls*, EE_*>::value>::type>
   shared_ptr& operator=(const shared_ptr<convertible_cls>& _Right) noexcept {
     shared_ptr(_Right).swap(*this);
     return *this;
@@ -182,15 +227,17 @@ class shared_ptr<grpc_event_engine::experimental::EventEngine>
   //   return *this;
   // }
 
-  template <class convertible_cls,
-            enable_if_t<is_convertible<convertible_cls, EE_>::value, int> = 0>
+  template <typename convertible_cls,
+            typename = typename enable_if<
+                is_convertible<convertible_cls*, EE_*>::value>::type>
   shared_ptr& operator=(shared_ptr<convertible_cls>&& _Right) noexcept {
     shared_ptr(std::move(_Right)).swap(*this);
     return *this;
   }
 
-  template <class convertible_cls, class _Dx,
-            enable_if_t<is_convertible<convertible_cls, EE_>::value, int> = 0>
+  template <typename convertible_cls, typename _Dx,
+            typename = typename enable_if<
+                is_convertible<convertible_cls*, EE_*>::value>::type>
   shared_ptr& operator=(unique_ptr<convertible_cls, _Dx>&& _Right) {
     // move from unique_ptr
     shared_ptr(std::move(_Right)).swap(*this);
@@ -201,18 +248,19 @@ class shared_ptr<grpc_event_engine::experimental::EventEngine>
 
   // template <class _Ux, class _Dx,
   //           enable_if_t<conjunction_v<is_move_constructible<_Dx>,
-  //                                     _Can_call_function_object<_Dx&, _Ux*&>,
-  //                                     _SP_convertible<_Ux, _Ty>>,
+  //                                     _Can_call_function_object<_Dx&,
+  //                                     _Ux*&>, _SP_convertible<_Ux, _Ty>>,
   //                       int> = 0>
   // void reset(_Ux* _Px,
-  //            _Dx _Dt) {  // release, take ownership of _Px, with deleter _Dt
+  //            _Dx _Dt) {  // release, take ownership of _Px, with deleter
+  //            _Dt
   //   shared_ptr(_Px, _Dt).swap(*this);
   // }
 
   // template <class _Ux, class _Dx, class _Alloc,
   //           enable_if_t<conjunction_v<is_move_constructible<_Dx>,
-  //                                     _Can_call_function_object<_Dx&, _Ux*&>,
-  //                                     _SP_convertible<_Ux, _Ty>>,
+  //                                     _Can_call_function_object<_Dx&,
+  //                                     _Ux*&>, _SP_convertible<_Ux, _Ty>>,
   //                       int> = 0>
   // void reset(_Ux* _Px, _Dx _Dt,
   //            _Alloc _Ax) {  // release, take ownership of _Px, with deleter
@@ -222,15 +270,16 @@ class shared_ptr<grpc_event_engine::experimental::EventEngine>
   // }
 
   template <
-      class _Ty2 = EE_,
-      enable_if_t<!absl::disjunction<is_array<_Ty2>, is_void<_Ty2>>::value,
-                  int> = 0>
-  ABSL_MUST_USE_RESULT _Ty2& operator*() const noexcept {
+      typename convertible_cls = EE_,
+      typename = typename enable_if<!absl::disjunction<
+          is_array<convertible_cls>, is_void<convertible_cls>>::value>::type>
+  ABSL_MUST_USE_RESULT convertible_cls& operator*() const noexcept {
     return *get();
   }
 
-  template <class _Ty2 = EE_, enable_if_t<!is_array<_Ty2>::value, int> = 0>
-  ABSL_MUST_USE_RESULT _Ty2* operator->() const noexcept {
+  template <class convertible_cls = EE_,
+            enable_if_t<!is_array<convertible_cls>::value, int> = 0>
+  ABSL_MUST_USE_RESULT convertible_cls* operator->() const noexcept {
     return get();
   }
 
@@ -250,6 +299,8 @@ class shared_ptr<grpc_event_engine::experimental::EventEngine>
   template <class _Alloc, class... _Types>
   friend shared_ptr<EE_> allocate_shared(const _Alloc& _Al_arg,
                                          _Types&&... _Args);
+
+  friend class weak_ptr<EE_>;
 
   static int GetId(void* _Px) {
     auto id = counter_.fetch_add(1);

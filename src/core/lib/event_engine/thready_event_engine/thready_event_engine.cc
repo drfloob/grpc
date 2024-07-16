@@ -110,9 +110,10 @@ bool ThreadyEventEngine::IsWorkerThread() {
 absl::StatusOr<std::unique_ptr<EventEngine::DNSResolver>>
 ThreadyEventEngine::GetDNSResolver(
     const DNSResolver::ResolverOptions& options) {
-  return std::make_unique<ThreadyDNSResolver>(
-      *impl_->GetDNSResolver(options),
-      std::static_pointer_cast<ThreadyEventEngine>(shared_from_this()));
+  std::shared_ptr<ThreadyEventEngine> thready_ee;
+  thready_ee.reset(static_cast<ThreadyEventEngine*>(shared_from_this().get()));
+  return std::make_unique<ThreadyDNSResolver>(*impl_->GetDNSResolver(options),
+                                              std::move(thready_ee));
 }
 
 void ThreadyEventEngine::Run(Closure* closure) {
