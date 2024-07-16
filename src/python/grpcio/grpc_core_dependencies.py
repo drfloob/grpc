@@ -439,6 +439,7 @@ CORE_SOURCE_FILES = [
     'src/core/lib/event_engine/cf_engine/cfstream_endpoint.cc',
     'src/core/lib/event_engine/cf_engine/dns_service_resolver.cc',
     'src/core/lib/event_engine/channel_args_endpoint_config.cc',
+    'src/core/lib/event_engine/debug_shared_ptr.cc',
     'src/core/lib/event_engine/default_event_engine.cc',
     'src/core/lib/event_engine/default_event_engine_factory.cc',
     'src/core/lib/event_engine/event_engine.cc',

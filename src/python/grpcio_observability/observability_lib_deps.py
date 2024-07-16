@@ -20,6 +20,7 @@ CC_FILES=[
     'grpc_root/src/core/lib/config/load_config.cc',
     'grpc_root/src/core/lib/debug/trace.cc',
     'grpc_root/src/core/lib/debug/trace_flags.cc',
+    'grpc_root/src/core/lib/event_engine/debug_shared_ptr.cc',
     'grpc_root/src/core/lib/event_engine/thread_local.cc',
     'grpc_root/src/core/lib/experiments/config.cc',
     'grpc_root/src/core/lib/experiments/experiments.cc',
