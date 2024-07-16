@@ -155,6 +155,7 @@ libs:
   - include/grpc/event_engine/endpoint_config.h
   - include/grpc/event_engine/event_engine.h
   - include/grpc/event_engine/extensible.h
+  - include/grpc/event_engine/internal/debug_shared_ptr.h
   - include/grpc/event_engine/internal/memory_allocator_impl.h
   - include/grpc/event_engine/internal/slice_cast.h
   - include/grpc/event_engine/memory_allocator.h
@@ -1680,6 +1681,7 @@ libs:
   - src/core/lib/event_engine/cf_engine/cfstream_endpoint.cc
   - src/core/lib/event_engine/cf_engine/dns_service_resolver.cc
   - src/core/lib/event_engine/channel_args_endpoint_config.cc
+  - src/core/lib/event_engine/debug_shared_ptr.cc
   - src/core/lib/event_engine/default_event_engine.cc
   - src/core/lib/event_engine/default_event_engine_factory.cc
   - src/core/lib/event_engine/event_engine.cc
@@ -2159,6 +2161,7 @@ libs:
   - include/grpc/event_engine/endpoint_config.h
   - include/grpc/event_engine/event_engine.h
   - include/grpc/event_engine/extensible.h
+  - include/grpc/event_engine/internal/debug_shared_ptr.h
   - include/grpc/event_engine/internal/memory_allocator_impl.h
   - include/grpc/event_engine/internal/slice_cast.h
   - include/grpc/event_engine/memory_allocator.h
@@ -2827,6 +2830,7 @@ libs:
   - src/core/lib/event_engine/cf_engine/cfstream_endpoint.cc
   - src/core/lib/event_engine/cf_engine/dns_service_resolver.cc
   - src/core/lib/event_engine/channel_args_endpoint_config.cc
+  - src/core/lib/event_engine/debug_shared_ptr.cc
   - src/core/lib/event_engine/default_event_engine.cc
   - src/core/lib/event_engine/default_event_engine_factory.cc
   - src/core/lib/event_engine/event_engine.cc
@@ -4349,6 +4353,7 @@ libs:
   - include/grpc/event_engine/endpoint_config.h
   - include/grpc/event_engine/event_engine.h
   - include/grpc/event_engine/extensible.h
+  - include/grpc/event_engine/internal/debug_shared_ptr.h
   - include/grpc/event_engine/internal/memory_allocator_impl.h
   - include/grpc/event_engine/internal/slice_cast.h
   - include/grpc/event_engine/memory_allocator.h
@@ -4795,6 +4800,7 @@ libs:
   - src/core/lib/event_engine/cf_engine/cfstream_endpoint.cc
   - src/core/lib/event_engine/cf_engine/dns_service_resolver.cc
   - src/core/lib/event_engine/channel_args_endpoint_config.cc
+  - src/core/lib/event_engine/debug_shared_ptr.cc
   - src/core/lib/event_engine/default_event_engine.cc
   - src/core/lib/event_engine/default_event_engine_factory.cc
   - src/core/lib/event_engine/event_engine.cc
@@ -6688,6 +6694,7 @@ targets:
   - src/core/lib/compression/compression_internal.cc
   - src/core/lib/debug/trace.cc
   - src/core/lib/debug/trace_flags.cc
+  - src/core/lib/event_engine/debug_shared_ptr.cc
   - src/core/lib/experiments/config.cc
   - src/core/lib/experiments/experiments.cc
   - src/core/lib/gprpp/dump_args.cc
@@ -7244,6 +7251,7 @@ targets:
   - src/core/lib/event_engine/cf_engine/cfstream_endpoint.cc
   - src/core/lib/event_engine/cf_engine/dns_service_resolver.cc
   - src/core/lib/event_engine/channel_args_endpoint_config.cc
+  - src/core/lib/event_engine/debug_shared_ptr.cc
   - src/core/lib/event_engine/default_event_engine.cc
   - src/core/lib/event_engine/default_event_engine_factory.cc
   - src/core/lib/event_engine/event_engine.cc
@@ -7868,6 +7876,7 @@ targets:
   - src/core/ext/upb-gen/google/rpc/status.upb_minitable.c
   - src/core/lib/debug/trace.cc
   - src/core/lib/debug/trace_flags.cc
+  - src/core/lib/event_engine/debug_shared_ptr.cc
   - src/core/lib/experiments/config.cc
   - src/core/lib/experiments/experiments.cc
   - src/core/lib/gprpp/dump_args.cc
@@ -7903,6 +7912,7 @@ targets:
   - absl/hash:hash
   - absl/meta:type_traits
   - absl/status:statusor
+  - absl/utility:utility
   - gpr
   uses_polling: false
 - name: cancel_in_a_vacuum_test
@@ -8663,6 +8673,7 @@ targets:
   - src/core/ext/upb-gen/google/rpc/status.upb_minitable.c
   - src/core/lib/debug/trace.cc
   - src/core/lib/debug/trace_flags.cc
+  - src/core/lib/event_engine/debug_shared_ptr.cc
   - src/core/lib/experiments/config.cc
   - src/core/lib/experiments/experiments.cc
   - src/core/lib/gprpp/dump_args.cc
@@ -8698,6 +8709,7 @@ targets:
   - absl/hash:hash
   - absl/meta:type_traits
   - absl/status:statusor
+  - absl/utility:utility
   - gpr
   uses_polling: false
 - name: cli_call_test
@@ -9093,10 +9105,12 @@ targets:
   - src/core/lib/event_engine/common_closures.h
   - src/core/lib/gprpp/notification.h
   src:
+  - src/core/lib/event_engine/debug_shared_ptr.cc
   - test/core/event_engine/common_closures_test.cc
   deps:
   - gtest
   - absl/status:statusor
+  - absl/utility:utility
   - gpr
 - name: completion_queue_threading_test
   gtest: true
@@ -9944,6 +9958,7 @@ targets:
   src:
   - src/core/lib/channel/channel_args.cc
   - src/core/lib/event_engine/channel_args_endpoint_config.cc
+  - src/core/lib/event_engine/debug_shared_ptr.cc
   - src/core/lib/gprpp/ref_counted_string.cc
   - src/core/lib/gprpp/time.cc
   - src/core/lib/surface/channel_stack_type.cc
@@ -9954,6 +9969,7 @@ targets:
   - absl/hash:hash
   - absl/meta:type_traits
   - absl/status:statusor
+  - absl/utility:utility
   - gpr
   uses_polling: false
 - name: endpoint_pair_test
@@ -10211,6 +10227,7 @@ targets:
   - src/core/ext/upb-gen/google/rpc/status.upb_minitable.c
   - src/core/lib/debug/trace.cc
   - src/core/lib/debug/trace_flags.cc
+  - src/core/lib/event_engine/debug_shared_ptr.cc
   - src/core/lib/experiments/config.cc
   - src/core/lib/experiments/experiments.cc
   - src/core/lib/gprpp/dump_args.cc
@@ -10239,6 +10256,7 @@ targets:
   - absl/hash:hash
   - absl/meta:type_traits
   - absl/status:statusor
+  - absl/utility:utility
   - gpr
   uses_polling: false
 - name: experiments_tag_test
@@ -10764,6 +10782,7 @@ targets:
   - src/core/ext/upb-gen/google/rpc/status.upb_minitable.c
   - src/core/lib/debug/trace.cc
   - src/core/lib/debug/trace_flags.cc
+  - src/core/lib/event_engine/debug_shared_ptr.cc
   - src/core/lib/experiments/config.cc
   - src/core/lib/experiments/experiments.cc
   - src/core/lib/gprpp/dump_args.cc
@@ -10801,6 +10820,7 @@ targets:
   - absl/meta:type_traits
   - absl/status:statusor
   - absl/types:span
+  - absl/utility:utility
   - gpr
   uses_polling: false
 - name: for_each_test
@@ -10878,6 +10898,7 @@ targets:
   - src/core/ext/upb-gen/google/rpc/status.upb_minitable.c
   - src/core/lib/debug/trace.cc
   - src/core/lib/debug/trace_flags.cc
+  - src/core/lib/event_engine/debug_shared_ptr.cc
   - src/core/lib/experiments/config.cc
   - src/core/lib/experiments/experiments.cc
   - src/core/lib/gprpp/dump_args.cc
@@ -10913,6 +10934,7 @@ targets:
   - absl/hash:hash
   - absl/meta:type_traits
   - absl/status:statusor
+  - absl/utility:utility
   - gpr
   uses_polling: false
 - name: fork_test
@@ -11017,6 +11039,7 @@ targets:
   - src/core/ext/transport/chttp2/transport/frame.cc
   - src/core/lib/debug/trace.cc
   - src/core/lib/debug/trace_flags.cc
+  - src/core/lib/event_engine/debug_shared_ptr.cc
   - src/core/lib/gprpp/glob.cc
   - src/core/lib/slice/slice.cc
   - src/core/lib/slice/slice_buffer.cc
@@ -11028,6 +11051,7 @@ targets:
   - absl/hash:hash
   - absl/status:statusor
   - absl/types:span
+  - absl/utility:utility
   - gpr
   uses_polling: false
 - name: fuzzing_event_engine_test
@@ -12552,6 +12576,7 @@ targets:
   - src/core/ext/upb-gen/google/rpc/status.upb_minitable.c
   - src/core/lib/debug/trace.cc
   - src/core/lib/debug/trace_flags.cc
+  - src/core/lib/event_engine/debug_shared_ptr.cc
   - src/core/lib/experiments/config.cc
   - src/core/lib/experiments/experiments.cc
   - src/core/lib/gprpp/dump_args.cc
@@ -12587,6 +12612,7 @@ targets:
   - absl/hash:hash
   - absl/meta:type_traits
   - absl/status:statusor
+  - absl/utility:utility
   - gpr
   uses_polling: false
 - name: interop_client
@@ -13257,6 +13283,7 @@ targets:
   - src/core/ext/upb-gen/google/rpc/status.upb_minitable.c
   - src/core/lib/debug/trace.cc
   - src/core/lib/debug/trace_flags.cc
+  - src/core/lib/event_engine/debug_shared_ptr.cc
   - src/core/lib/experiments/config.cc
   - src/core/lib/experiments/experiments.cc
   - src/core/lib/gprpp/dump_args.cc
@@ -13292,6 +13319,7 @@ targets:
   - absl/hash:hash
   - absl/meta:type_traits
   - absl/status:statusor
+  - absl/utility:utility
   - gpr
   uses_polling: false
 - name: match_test
@@ -14475,6 +14503,7 @@ targets:
   - src/core/ext/upb-gen/google/rpc/status.upb_minitable.c
   - src/core/lib/debug/trace.cc
   - src/core/lib/debug/trace_flags.cc
+  - src/core/lib/event_engine/debug_shared_ptr.cc
   - src/core/lib/experiments/config.cc
   - src/core/lib/experiments/experiments.cc
   - src/core/lib/gprpp/glob.cc
@@ -14499,6 +14528,7 @@ targets:
   - absl/functional:function_ref
   - absl/hash:hash
   - absl/status:statusor
+  - absl/utility:utility
   - gpr
   uses_polling: false
 - name: pick_first_test
@@ -15264,10 +15294,12 @@ targets:
   headers:
   - src/core/lib/event_engine/query_extensions.h
   src:
+  - src/core/lib/event_engine/debug_shared_ptr.cc
   - test/core/event_engine/query_extensions_test.cc
   deps:
   - gtest
   - absl/status:statusor
+  - absl/utility:utility
   - gpr
   uses_polling: false
 - name: race_test
@@ -19045,6 +19077,7 @@ targets:
   src:
   - src/core/lib/debug/trace.cc
   - src/core/lib/debug/trace_flags.cc
+  - src/core/lib/event_engine/debug_shared_ptr.cc
   - src/core/lib/gprpp/glob.cc
   - src/core/lib/slice/slice.cc
   - src/core/lib/slice/slice_string_helpers.cc
@@ -19054,6 +19087,7 @@ targets:
   - absl/container:flat_hash_map
   - absl/hash:hash
   - absl/status:statusor
+  - absl/utility:utility
   - gpr
   uses_polling: false
 - name: smoke_test
@@ -19741,6 +19775,7 @@ targets:
   - src/core/lib/gprpp/time.h
   - src/core/lib/gprpp/time_averaged_stats.h
   src:
+  - src/core/lib/event_engine/debug_shared_ptr.cc
   - src/core/lib/event_engine/posix_engine/timer.cc
   - src/core/lib/event_engine/posix_engine/timer_heap.cc
   - src/core/lib/gprpp/time.cc
@@ -19749,6 +19784,7 @@ targets:
   deps:
   - gtest
   - absl/status:statusor
+  - absl/utility:utility
   - gpr
   uses_polling: false
 - name: test_core_event_engine_posix_timer_list_test
@@ -19761,6 +19797,7 @@ targets:
   - src/core/lib/gprpp/time.h
   - src/core/lib/gprpp/time_averaged_stats.h
   src:
+  - src/core/lib/event_engine/debug_shared_ptr.cc
   - src/core/lib/event_engine/posix_engine/timer.cc
   - src/core/lib/event_engine/posix_engine/timer_heap.cc
   - src/core/lib/gprpp/time.cc
@@ -19769,6 +19806,7 @@ targets:
   deps:
   - gtest
   - absl/status:statusor
+  - absl/utility:utility
   - gpr
   uses_polling: false
 - name: test_core_event_engine_slice_buffer_test
@@ -19793,6 +19831,7 @@ targets:
   src:
   - src/core/lib/debug/trace.cc
   - src/core/lib/debug/trace_flags.cc
+  - src/core/lib/event_engine/debug_shared_ptr.cc
   - src/core/lib/event_engine/event_engine.cc
   - src/core/lib/event_engine/resolved_address.cc
   - src/core/lib/event_engine/slice.cc
@@ -19816,11 +19855,13 @@ targets:
   headers:
   - src/core/lib/gprpp/time.h
   src:
+  - src/core/lib/event_engine/debug_shared_ptr.cc
   - src/core/lib/gprpp/time.cc
   - test/core/gprpp/time_test.cc
   deps:
   - gtest
   - absl/status:statusor
+  - absl/utility:utility
   - gpr
   uses_polling: false
 - name: test_core_iomgr_timer_heap_test
@@ -21310,11 +21351,13 @@ targets:
   - src/core/lib/gprpp/time.h
   src:
   - src/core/ext/transport/chttp2/transport/write_size_policy.cc
+  - src/core/lib/event_engine/debug_shared_ptr.cc
   - src/core/lib/gprpp/time.cc
   - test/core/transport/chttp2/write_size_policy_test.cc
   deps:
   - gtest
   - absl/status:statusor
+  - absl/utility:utility
   - gpr
   uses_polling: false
 - name: writes_per_rpc_test

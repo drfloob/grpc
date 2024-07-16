@@ -1090,6 +1090,7 @@ LIBGRPC_SRC = \
     src/core/lib/event_engine/cf_engine/cfstream_endpoint.cc \
     src/core/lib/event_engine/cf_engine/dns_service_resolver.cc \
     src/core/lib/event_engine/channel_args_endpoint_config.cc \
+    src/core/lib/event_engine/debug_shared_ptr.cc \
     src/core/lib/event_engine/default_event_engine.cc \
     src/core/lib/event_engine/default_event_engine_factory.cc \
     src/core/lib/event_engine/event_engine.cc \
@@ -1738,6 +1739,7 @@ PUBLIC_HEADERS_C += \
     include/grpc/event_engine/endpoint_config.h \
     include/grpc/event_engine/event_engine.h \
     include/grpc/event_engine/extensible.h \
+    include/grpc/event_engine/internal/debug_shared_ptr.h \
     include/grpc/event_engine/internal/memory_allocator_impl.h \
     include/grpc/event_engine/internal/slice_cast.h \
     include/grpc/event_engine/memory_allocator.h \
