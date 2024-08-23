@@ -1683,6 +1683,7 @@ libs:
   - src/core/lib/event_engine/channel_args_endpoint_config.cc
   - src/core/lib/event_engine/default_event_engine.cc
   - src/core/lib/event_engine/default_event_engine_factory.cc
+  - src/core/lib/event_engine/default_event_engine_registry.cc
   - src/core/lib/event_engine/event_engine.cc
   - src/core/lib/event_engine/forkable.cc
   - src/core/lib/event_engine/posix_engine/ev_epoll1_linux.cc
@@ -2831,6 +2832,7 @@ libs:
   - src/core/lib/event_engine/channel_args_endpoint_config.cc
   - src/core/lib/event_engine/default_event_engine.cc
   - src/core/lib/event_engine/default_event_engine_factory.cc
+  - src/core/lib/event_engine/default_event_engine_registry.cc
   - src/core/lib/event_engine/event_engine.cc
   - src/core/lib/event_engine/forkable.cc
   - src/core/lib/event_engine/posix_engine/ev_epoll1_linux.cc
@@ -7605,30 +7607,108 @@ targets:
   - src/core/ext/upb-gen/google/protobuf/any.upb_minitable.h
   - src/core/ext/upb-gen/google/rpc/status.upb.h
   - src/core/ext/upb-gen/google/rpc/status.upb_minitable.h
+  - src/core/lib/address_utils/parse_address.h
+  - src/core/lib/address_utils/sockaddr_utils.h
+  - src/core/lib/avl/avl.h
+  - src/core/lib/backoff/backoff.h
+  - src/core/lib/channel/channel_args.h
   - src/core/lib/debug/trace.h
   - src/core/lib/debug/trace_flags.h
   - src/core/lib/debug/trace_impl.h
+  - src/core/lib/event_engine/ares_resolver.h
+  - src/core/lib/event_engine/cf_engine/cf_engine.h
+  - src/core/lib/event_engine/cf_engine/cfstream_endpoint.h
+  - src/core/lib/event_engine/cf_engine/cftype_unique_ref.h
+  - src/core/lib/event_engine/cf_engine/dns_service_resolver.h
+  - src/core/lib/event_engine/channel_args_endpoint_config.h
+  - src/core/lib/event_engine/common_closures.h
+  - src/core/lib/event_engine/default_event_engine.h
+  - src/core/lib/event_engine/default_event_engine_factory.h
+  - src/core/lib/event_engine/extensions/can_track_errors.h
+  - src/core/lib/event_engine/extensions/chaotic_good_extension.h
+  - src/core/lib/event_engine/extensions/supports_fd.h
+  - src/core/lib/event_engine/extensions/tcp_trace.h
+  - src/core/lib/event_engine/forkable.h
+  - src/core/lib/event_engine/grpc_polled_fd.h
+  - src/core/lib/event_engine/handle_containers.h
+  - src/core/lib/event_engine/nameser.h
+  - src/core/lib/event_engine/poller.h
+  - src/core/lib/event_engine/posix.h
+  - src/core/lib/event_engine/posix_engine/ev_epoll1_linux.h
+  - src/core/lib/event_engine/posix_engine/ev_poll_posix.h
+  - src/core/lib/event_engine/posix_engine/event_poller.h
+  - src/core/lib/event_engine/posix_engine/event_poller_posix_default.h
+  - src/core/lib/event_engine/posix_engine/grpc_polled_fd_posix.h
+  - src/core/lib/event_engine/posix_engine/internal_errqueue.h
+  - src/core/lib/event_engine/posix_engine/lockfree_event.h
+  - src/core/lib/event_engine/posix_engine/native_posix_dns_resolver.h
+  - src/core/lib/event_engine/posix_engine/posix_endpoint.h
+  - src/core/lib/event_engine/posix_engine/posix_engine.h
+  - src/core/lib/event_engine/posix_engine/posix_engine_closure.h
+  - src/core/lib/event_engine/posix_engine/posix_engine_listener.h
+  - src/core/lib/event_engine/posix_engine/posix_engine_listener_utils.h
+  - src/core/lib/event_engine/posix_engine/tcp_socket_utils.h
+  - src/core/lib/event_engine/posix_engine/timer.h
+  - src/core/lib/event_engine/posix_engine/timer_heap.h
+  - src/core/lib/event_engine/posix_engine/timer_manager.h
+  - src/core/lib/event_engine/posix_engine/traced_buffer_list.h
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_eventfd.h
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_pipe.h
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_posix.h
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_posix_default.h
+  - src/core/lib/event_engine/query_extensions.h
+  - src/core/lib/event_engine/ref_counted_dns_resolver_interface.h
+  - src/core/lib/event_engine/resolved_address_internal.h
+  - src/core/lib/event_engine/tcp_socket_utils.h
+  - src/core/lib/event_engine/thread_pool/thread_count.h
+  - src/core/lib/event_engine/thread_pool/thread_pool.h
+  - src/core/lib/event_engine/thread_pool/work_stealing_thread_pool.h
+  - src/core/lib/event_engine/thready_event_engine/thready_event_engine.h
+  - src/core/lib/event_engine/time_util.h
+  - src/core/lib/event_engine/utils.h
+  - src/core/lib/event_engine/windows/grpc_polled_fd_windows.h
+  - src/core/lib/event_engine/windows/iocp.h
+  - src/core/lib/event_engine/windows/native_windows_dns_resolver.h
+  - src/core/lib/event_engine/windows/win_socket.h
+  - src/core/lib/event_engine/windows/windows_endpoint.h
+  - src/core/lib/event_engine/windows/windows_engine.h
+  - src/core/lib/event_engine/windows/windows_listener.h
+  - src/core/lib/event_engine/work_queue/basic_work_queue.h
+  - src/core/lib/event_engine/work_queue/work_queue.h
   - src/core/lib/experiments/config.h
   - src/core/lib/experiments/experiments.h
   - src/core/lib/gprpp/atomic_utils.h
   - src/core/lib/gprpp/bitset.h
   - src/core/lib/gprpp/cpp_impl_of.h
   - src/core/lib/gprpp/down_cast.h
+  - src/core/lib/gprpp/dual_ref_counted.h
   - src/core/lib/gprpp/dump_args.h
   - src/core/lib/gprpp/glob.h
+  - src/core/lib/gprpp/load_file.h
   - src/core/lib/gprpp/manual_constructor.h
+  - src/core/lib/gprpp/notification.h
   - src/core/lib/gprpp/orphanable.h
   - src/core/lib/gprpp/per_cpu.h
   - src/core/lib/gprpp/ref_counted.h
   - src/core/lib/gprpp/ref_counted_ptr.h
+  - src/core/lib/gprpp/ref_counted_string.h
   - src/core/lib/gprpp/status_helper.h
   - src/core/lib/gprpp/time.h
+  - src/core/lib/gprpp/time_averaged_stats.h
   - src/core/lib/iomgr/closure.h
   - src/core/lib/iomgr/combiner.h
   - src/core/lib/iomgr/error.h
   - src/core/lib/iomgr/exec_ctx.h
   - src/core/lib/iomgr/executor.h
+  - src/core/lib/iomgr/grpc_if_nametoindex.h
   - src/core/lib/iomgr/iomgr_internal.h
+  - src/core/lib/iomgr/port.h
+  - src/core/lib/iomgr/resolved_address.h
+  - src/core/lib/iomgr/sockaddr.h
+  - src/core/lib/iomgr/sockaddr_posix.h
+  - src/core/lib/iomgr/sockaddr_windows.h
+  - src/core/lib/iomgr/socket_mutator.h
+  - src/core/lib/iomgr/socket_utils.h
   - src/core/lib/promise/activity.h
   - src/core/lib/promise/cancel_callback.h
   - src/core/lib/promise/context.h
@@ -7651,9 +7731,14 @@ targets:
   - src/core/lib/resource_quota/thread_quota.h
   - src/core/lib/slice/percent_encoding.h
   - src/core/lib/slice/slice.h
+  - src/core/lib/slice/slice_buffer.h
   - src/core/lib/slice/slice_internal.h
   - src/core/lib/slice/slice_refcount.h
   - src/core/lib/slice/slice_string_helpers.h
+  - src/core/lib/surface/channel_stack_type.h
+  - src/core/lib/surface/init_internally.h
+  - src/core/lib/uri/uri_parser.h
+  - src/core/telemetry/tcp_tracer.h
   - src/core/util/latent_see.h
   - src/core/util/ring_buffer.h
   - src/core/util/spinlock.h
@@ -7661,21 +7746,78 @@ targets:
   src:
   - src/core/ext/upb-gen/google/protobuf/any.upb_minitable.c
   - src/core/ext/upb-gen/google/rpc/status.upb_minitable.c
+  - src/core/lib/address_utils/parse_address.cc
+  - src/core/lib/address_utils/sockaddr_utils.cc
+  - src/core/lib/backoff/backoff.cc
+  - src/core/lib/channel/channel_args.cc
   - src/core/lib/debug/trace.cc
   - src/core/lib/debug/trace_flags.cc
+  - src/core/lib/event_engine/ares_resolver.cc
+  - src/core/lib/event_engine/cf_engine/cf_engine.cc
+  - src/core/lib/event_engine/cf_engine/cfstream_endpoint.cc
+  - src/core/lib/event_engine/cf_engine/dns_service_resolver.cc
+  - src/core/lib/event_engine/channel_args_endpoint_config.cc
+  - src/core/lib/event_engine/default_event_engine.cc
+  - src/core/lib/event_engine/default_event_engine_factory.cc
+  - src/core/lib/event_engine/event_engine.cc
+  - src/core/lib/event_engine/forkable.cc
+  - src/core/lib/event_engine/posix_engine/ev_epoll1_linux.cc
+  - src/core/lib/event_engine/posix_engine/ev_poll_posix.cc
+  - src/core/lib/event_engine/posix_engine/event_poller_posix_default.cc
+  - src/core/lib/event_engine/posix_engine/internal_errqueue.cc
+  - src/core/lib/event_engine/posix_engine/lockfree_event.cc
+  - src/core/lib/event_engine/posix_engine/native_posix_dns_resolver.cc
+  - src/core/lib/event_engine/posix_engine/posix_endpoint.cc
+  - src/core/lib/event_engine/posix_engine/posix_engine.cc
+  - src/core/lib/event_engine/posix_engine/posix_engine_listener.cc
+  - src/core/lib/event_engine/posix_engine/posix_engine_listener_utils.cc
+  - src/core/lib/event_engine/posix_engine/tcp_socket_utils.cc
+  - src/core/lib/event_engine/posix_engine/timer.cc
+  - src/core/lib/event_engine/posix_engine/timer_heap.cc
+  - src/core/lib/event_engine/posix_engine/timer_manager.cc
+  - src/core/lib/event_engine/posix_engine/traced_buffer_list.cc
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_eventfd.cc
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_pipe.cc
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_posix_default.cc
+  - src/core/lib/event_engine/resolved_address.cc
+  - src/core/lib/event_engine/slice.cc
+  - src/core/lib/event_engine/slice_buffer.cc
+  - src/core/lib/event_engine/tcp_socket_utils.cc
+  - src/core/lib/event_engine/thread_pool/thread_count.cc
+  - src/core/lib/event_engine/thread_pool/thread_pool_factory.cc
+  - src/core/lib/event_engine/thread_pool/work_stealing_thread_pool.cc
+  - src/core/lib/event_engine/thready_event_engine/thready_event_engine.cc
+  - src/core/lib/event_engine/time_util.cc
+  - src/core/lib/event_engine/utils.cc
+  - src/core/lib/event_engine/windows/grpc_polled_fd_windows.cc
+  - src/core/lib/event_engine/windows/iocp.cc
+  - src/core/lib/event_engine/windows/native_windows_dns_resolver.cc
+  - src/core/lib/event_engine/windows/win_socket.cc
+  - src/core/lib/event_engine/windows/windows_endpoint.cc
+  - src/core/lib/event_engine/windows/windows_engine.cc
+  - src/core/lib/event_engine/windows/windows_listener.cc
+  - src/core/lib/event_engine/work_queue/basic_work_queue.cc
   - src/core/lib/experiments/config.cc
   - src/core/lib/experiments/experiments.cc
   - src/core/lib/gprpp/dump_args.cc
   - src/core/lib/gprpp/glob.cc
+  - src/core/lib/gprpp/load_file.cc
   - src/core/lib/gprpp/per_cpu.cc
+  - src/core/lib/gprpp/ref_counted_string.cc
   - src/core/lib/gprpp/status_helper.cc
   - src/core/lib/gprpp/time.cc
+  - src/core/lib/gprpp/time_averaged_stats.cc
   - src/core/lib/iomgr/closure.cc
   - src/core/lib/iomgr/combiner.cc
   - src/core/lib/iomgr/error.cc
   - src/core/lib/iomgr/exec_ctx.cc
   - src/core/lib/iomgr/executor.cc
+  - src/core/lib/iomgr/grpc_if_nametoindex_posix.cc
+  - src/core/lib/iomgr/grpc_if_nametoindex_unsupported.cc
   - src/core/lib/iomgr/iomgr_internal.cc
+  - src/core/lib/iomgr/sockaddr_utils_posix.cc
+  - src/core/lib/iomgr/socket_mutator.cc
+  - src/core/lib/iomgr/socket_utils_windows.cc
   - src/core/lib/promise/activity.cc
   - src/core/lib/resource_quota/arena.cc
   - src/core/lib/resource_quota/connection_quota.cc
@@ -7685,7 +7827,11 @@ targets:
   - src/core/lib/resource_quota/thread_quota.cc
   - src/core/lib/slice/percent_encoding.cc
   - src/core/lib/slice/slice.cc
+  - src/core/lib/slice/slice_buffer.cc
   - src/core/lib/slice/slice_string_helpers.cc
+  - src/core/lib/surface/channel_stack_type.cc
+  - src/core/lib/surface/init_internally.cc
+  - src/core/lib/uri/uri_parser.cc
   - src/core/util/latent_see.cc
   - test/core/promise/cancel_callback_test.cc
   deps:
@@ -7693,12 +7839,17 @@ targets:
   - upb_mini_descriptor_lib
   - upb_wire_lib
   - absl/base:config
+  - absl/cleanup:cleanup
   - absl/container:flat_hash_map
+  - absl/container:inlined_vector
   - absl/functional:function_ref
   - absl/hash:hash
   - absl/meta:type_traits
   - absl/status:statusor
+  - absl/utility:utility
+  - cares
   - gpr
+  - address_sorting
   uses_polling: false
 - name: cancel_in_a_vacuum_test
   gtest: true
@@ -9965,41 +10116,136 @@ targets:
   - src/core/ext/upb-gen/google/protobuf/any.upb_minitable.h
   - src/core/ext/upb-gen/google/rpc/status.upb.h
   - src/core/ext/upb-gen/google/rpc/status.upb_minitable.h
+  - src/core/lib/address_utils/parse_address.h
+  - src/core/lib/address_utils/sockaddr_utils.h
+  - src/core/lib/avl/avl.h
+  - src/core/lib/backoff/backoff.h
+  - src/core/lib/channel/channel_args.h
   - src/core/lib/debug/trace.h
   - src/core/lib/debug/trace_flags.h
   - src/core/lib/debug/trace_impl.h
+  - src/core/lib/event_engine/ares_resolver.h
+  - src/core/lib/event_engine/cf_engine/cf_engine.h
+  - src/core/lib/event_engine/cf_engine/cfstream_endpoint.h
+  - src/core/lib/event_engine/cf_engine/cftype_unique_ref.h
+  - src/core/lib/event_engine/cf_engine/dns_service_resolver.h
+  - src/core/lib/event_engine/channel_args_endpoint_config.h
+  - src/core/lib/event_engine/common_closures.h
+  - src/core/lib/event_engine/default_event_engine.h
+  - src/core/lib/event_engine/default_event_engine_factory.h
+  - src/core/lib/event_engine/extensions/can_track_errors.h
+  - src/core/lib/event_engine/extensions/chaotic_good_extension.h
+  - src/core/lib/event_engine/extensions/supports_fd.h
+  - src/core/lib/event_engine/extensions/tcp_trace.h
+  - src/core/lib/event_engine/forkable.h
+  - src/core/lib/event_engine/grpc_polled_fd.h
+  - src/core/lib/event_engine/handle_containers.h
+  - src/core/lib/event_engine/nameser.h
+  - src/core/lib/event_engine/poller.h
+  - src/core/lib/event_engine/posix.h
+  - src/core/lib/event_engine/posix_engine/ev_epoll1_linux.h
+  - src/core/lib/event_engine/posix_engine/ev_poll_posix.h
+  - src/core/lib/event_engine/posix_engine/event_poller.h
+  - src/core/lib/event_engine/posix_engine/event_poller_posix_default.h
+  - src/core/lib/event_engine/posix_engine/grpc_polled_fd_posix.h
+  - src/core/lib/event_engine/posix_engine/internal_errqueue.h
+  - src/core/lib/event_engine/posix_engine/lockfree_event.h
+  - src/core/lib/event_engine/posix_engine/native_posix_dns_resolver.h
+  - src/core/lib/event_engine/posix_engine/posix_endpoint.h
+  - src/core/lib/event_engine/posix_engine/posix_engine.h
+  - src/core/lib/event_engine/posix_engine/posix_engine_closure.h
+  - src/core/lib/event_engine/posix_engine/posix_engine_listener.h
+  - src/core/lib/event_engine/posix_engine/posix_engine_listener_utils.h
+  - src/core/lib/event_engine/posix_engine/tcp_socket_utils.h
+  - src/core/lib/event_engine/posix_engine/timer.h
+  - src/core/lib/event_engine/posix_engine/timer_heap.h
+  - src/core/lib/event_engine/posix_engine/timer_manager.h
+  - src/core/lib/event_engine/posix_engine/traced_buffer_list.h
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_eventfd.h
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_pipe.h
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_posix.h
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_posix_default.h
+  - src/core/lib/event_engine/query_extensions.h
+  - src/core/lib/event_engine/ref_counted_dns_resolver_interface.h
+  - src/core/lib/event_engine/resolved_address_internal.h
+  - src/core/lib/event_engine/tcp_socket_utils.h
+  - src/core/lib/event_engine/thread_pool/thread_count.h
+  - src/core/lib/event_engine/thread_pool/thread_pool.h
+  - src/core/lib/event_engine/thread_pool/work_stealing_thread_pool.h
+  - src/core/lib/event_engine/thready_event_engine/thready_event_engine.h
+  - src/core/lib/event_engine/time_util.h
+  - src/core/lib/event_engine/utils.h
+  - src/core/lib/event_engine/windows/grpc_polled_fd_windows.h
+  - src/core/lib/event_engine/windows/iocp.h
+  - src/core/lib/event_engine/windows/native_windows_dns_resolver.h
+  - src/core/lib/event_engine/windows/win_socket.h
+  - src/core/lib/event_engine/windows/windows_endpoint.h
+  - src/core/lib/event_engine/windows/windows_engine.h
+  - src/core/lib/event_engine/windows/windows_listener.h
+  - src/core/lib/event_engine/work_queue/basic_work_queue.h
+  - src/core/lib/event_engine/work_queue/work_queue.h
   - src/core/lib/experiments/config.h
   - src/core/lib/experiments/experiments.h
   - src/core/lib/gprpp/atomic_utils.h
   - src/core/lib/gprpp/bitset.h
+  - src/core/lib/gprpp/cpp_impl_of.h
   - src/core/lib/gprpp/down_cast.h
+  - src/core/lib/gprpp/dual_ref_counted.h
   - src/core/lib/gprpp/dump_args.h
   - src/core/lib/gprpp/glob.h
+  - src/core/lib/gprpp/load_file.h
   - src/core/lib/gprpp/manual_constructor.h
+  - src/core/lib/gprpp/notification.h
   - src/core/lib/gprpp/orphanable.h
   - src/core/lib/gprpp/per_cpu.h
   - src/core/lib/gprpp/ref_counted.h
   - src/core/lib/gprpp/ref_counted_ptr.h
+  - src/core/lib/gprpp/ref_counted_string.h
   - src/core/lib/gprpp/status_helper.h
   - src/core/lib/gprpp/time.h
+  - src/core/lib/gprpp/time_averaged_stats.h
   - src/core/lib/iomgr/closure.h
   - src/core/lib/iomgr/combiner.h
   - src/core/lib/iomgr/error.h
   - src/core/lib/iomgr/exec_ctx.h
   - src/core/lib/iomgr/executor.h
+  - src/core/lib/iomgr/grpc_if_nametoindex.h
   - src/core/lib/iomgr/iomgr_internal.h
+  - src/core/lib/iomgr/port.h
+  - src/core/lib/iomgr/resolved_address.h
+  - src/core/lib/iomgr/sockaddr.h
+  - src/core/lib/iomgr/sockaddr_posix.h
+  - src/core/lib/iomgr/sockaddr_windows.h
+  - src/core/lib/iomgr/socket_mutator.h
+  - src/core/lib/iomgr/socket_utils.h
   - src/core/lib/promise/activity.h
   - src/core/lib/promise/context.h
+  - src/core/lib/promise/detail/basic_seq.h
   - src/core/lib/promise/detail/promise_factory.h
   - src/core/lib/promise/detail/promise_like.h
+  - src/core/lib/promise/detail/seq_state.h
   - src/core/lib/promise/detail/status.h
   - src/core/lib/promise/exec_ctx_wakeup_scheduler.h
+  - src/core/lib/promise/loop.h
+  - src/core/lib/promise/map.h
   - src/core/lib/promise/poll.h
+  - src/core/lib/promise/race.h
+  - src/core/lib/promise/seq.h
+  - src/core/lib/resource_quota/connection_quota.h
+  - src/core/lib/resource_quota/memory_quota.h
+  - src/core/lib/resource_quota/periodic_update.h
+  - src/core/lib/resource_quota/resource_quota.h
+  - src/core/lib/resource_quota/thread_quota.h
   - src/core/lib/slice/percent_encoding.h
   - src/core/lib/slice/slice.h
+  - src/core/lib/slice/slice_buffer.h
   - src/core/lib/slice/slice_internal.h
   - src/core/lib/slice/slice_refcount.h
   - src/core/lib/slice/slice_string_helpers.h
+  - src/core/lib/surface/channel_stack_type.h
+  - src/core/lib/surface/init_internally.h
+  - src/core/lib/uri/uri_parser.h
+  - src/core/telemetry/tcp_tracer.h
   - src/core/util/latent_see.h
   - src/core/util/ring_buffer.h
   - src/core/util/spinlock.h
@@ -10007,25 +10253,91 @@ targets:
   src:
   - src/core/ext/upb-gen/google/protobuf/any.upb_minitable.c
   - src/core/ext/upb-gen/google/rpc/status.upb_minitable.c
+  - src/core/lib/address_utils/parse_address.cc
+  - src/core/lib/address_utils/sockaddr_utils.cc
+  - src/core/lib/backoff/backoff.cc
+  - src/core/lib/channel/channel_args.cc
   - src/core/lib/debug/trace.cc
   - src/core/lib/debug/trace_flags.cc
+  - src/core/lib/event_engine/ares_resolver.cc
+  - src/core/lib/event_engine/cf_engine/cf_engine.cc
+  - src/core/lib/event_engine/cf_engine/cfstream_endpoint.cc
+  - src/core/lib/event_engine/cf_engine/dns_service_resolver.cc
+  - src/core/lib/event_engine/channel_args_endpoint_config.cc
+  - src/core/lib/event_engine/default_event_engine.cc
+  - src/core/lib/event_engine/default_event_engine_factory.cc
+  - src/core/lib/event_engine/event_engine.cc
+  - src/core/lib/event_engine/forkable.cc
+  - src/core/lib/event_engine/posix_engine/ev_epoll1_linux.cc
+  - src/core/lib/event_engine/posix_engine/ev_poll_posix.cc
+  - src/core/lib/event_engine/posix_engine/event_poller_posix_default.cc
+  - src/core/lib/event_engine/posix_engine/internal_errqueue.cc
+  - src/core/lib/event_engine/posix_engine/lockfree_event.cc
+  - src/core/lib/event_engine/posix_engine/native_posix_dns_resolver.cc
+  - src/core/lib/event_engine/posix_engine/posix_endpoint.cc
+  - src/core/lib/event_engine/posix_engine/posix_engine.cc
+  - src/core/lib/event_engine/posix_engine/posix_engine_listener.cc
+  - src/core/lib/event_engine/posix_engine/posix_engine_listener_utils.cc
+  - src/core/lib/event_engine/posix_engine/tcp_socket_utils.cc
+  - src/core/lib/event_engine/posix_engine/timer.cc
+  - src/core/lib/event_engine/posix_engine/timer_heap.cc
+  - src/core/lib/event_engine/posix_engine/timer_manager.cc
+  - src/core/lib/event_engine/posix_engine/traced_buffer_list.cc
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_eventfd.cc
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_pipe.cc
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_posix_default.cc
+  - src/core/lib/event_engine/resolved_address.cc
+  - src/core/lib/event_engine/slice.cc
+  - src/core/lib/event_engine/slice_buffer.cc
+  - src/core/lib/event_engine/tcp_socket_utils.cc
+  - src/core/lib/event_engine/thread_pool/thread_count.cc
+  - src/core/lib/event_engine/thread_pool/thread_pool_factory.cc
+  - src/core/lib/event_engine/thread_pool/work_stealing_thread_pool.cc
+  - src/core/lib/event_engine/thready_event_engine/thready_event_engine.cc
+  - src/core/lib/event_engine/time_util.cc
+  - src/core/lib/event_engine/utils.cc
+  - src/core/lib/event_engine/windows/grpc_polled_fd_windows.cc
+  - src/core/lib/event_engine/windows/iocp.cc
+  - src/core/lib/event_engine/windows/native_windows_dns_resolver.cc
+  - src/core/lib/event_engine/windows/win_socket.cc
+  - src/core/lib/event_engine/windows/windows_endpoint.cc
+  - src/core/lib/event_engine/windows/windows_engine.cc
+  - src/core/lib/event_engine/windows/windows_listener.cc
+  - src/core/lib/event_engine/work_queue/basic_work_queue.cc
   - src/core/lib/experiments/config.cc
   - src/core/lib/experiments/experiments.cc
   - src/core/lib/gprpp/dump_args.cc
   - src/core/lib/gprpp/glob.cc
+  - src/core/lib/gprpp/load_file.cc
   - src/core/lib/gprpp/per_cpu.cc
+  - src/core/lib/gprpp/ref_counted_string.cc
   - src/core/lib/gprpp/status_helper.cc
   - src/core/lib/gprpp/time.cc
+  - src/core/lib/gprpp/time_averaged_stats.cc
   - src/core/lib/iomgr/closure.cc
   - src/core/lib/iomgr/combiner.cc
   - src/core/lib/iomgr/error.cc
   - src/core/lib/iomgr/exec_ctx.cc
   - src/core/lib/iomgr/executor.cc
+  - src/core/lib/iomgr/grpc_if_nametoindex_posix.cc
+  - src/core/lib/iomgr/grpc_if_nametoindex_unsupported.cc
   - src/core/lib/iomgr/iomgr_internal.cc
+  - src/core/lib/iomgr/sockaddr_utils_posix.cc
+  - src/core/lib/iomgr/socket_mutator.cc
+  - src/core/lib/iomgr/socket_utils_windows.cc
   - src/core/lib/promise/activity.cc
+  - src/core/lib/resource_quota/connection_quota.cc
+  - src/core/lib/resource_quota/memory_quota.cc
+  - src/core/lib/resource_quota/periodic_update.cc
+  - src/core/lib/resource_quota/resource_quota.cc
+  - src/core/lib/resource_quota/thread_quota.cc
   - src/core/lib/slice/percent_encoding.cc
   - src/core/lib/slice/slice.cc
+  - src/core/lib/slice/slice_buffer.cc
   - src/core/lib/slice/slice_string_helpers.cc
+  - src/core/lib/surface/channel_stack_type.cc
+  - src/core/lib/surface/init_internally.cc
+  - src/core/lib/uri/uri_parser.cc
   - src/core/util/latent_see.cc
   - test/core/promise/exec_ctx_wakeup_scheduler_test.cc
   deps:
@@ -10033,11 +10345,17 @@ targets:
   - upb_mini_descriptor_lib
   - upb_wire_lib
   - absl/base:config
+  - absl/cleanup:cleanup
   - absl/container:flat_hash_map
+  - absl/container:inlined_vector
+  - absl/functional:function_ref
   - absl/hash:hash
   - absl/meta:type_traits
   - absl/status:statusor
+  - absl/utility:utility
+  - cares
   - gpr
+  - address_sorting
   uses_polling: false
 - name: experiments_tag_test
   gtest: true
@@ -10612,30 +10930,108 @@ targets:
   - src/core/ext/upb-gen/google/protobuf/any.upb_minitable.h
   - src/core/ext/upb-gen/google/rpc/status.upb.h
   - src/core/ext/upb-gen/google/rpc/status.upb_minitable.h
+  - src/core/lib/address_utils/parse_address.h
+  - src/core/lib/address_utils/sockaddr_utils.h
+  - src/core/lib/avl/avl.h
+  - src/core/lib/backoff/backoff.h
+  - src/core/lib/channel/channel_args.h
   - src/core/lib/debug/trace.h
   - src/core/lib/debug/trace_flags.h
   - src/core/lib/debug/trace_impl.h
+  - src/core/lib/event_engine/ares_resolver.h
+  - src/core/lib/event_engine/cf_engine/cf_engine.h
+  - src/core/lib/event_engine/cf_engine/cfstream_endpoint.h
+  - src/core/lib/event_engine/cf_engine/cftype_unique_ref.h
+  - src/core/lib/event_engine/cf_engine/dns_service_resolver.h
+  - src/core/lib/event_engine/channel_args_endpoint_config.h
+  - src/core/lib/event_engine/common_closures.h
+  - src/core/lib/event_engine/default_event_engine.h
+  - src/core/lib/event_engine/default_event_engine_factory.h
+  - src/core/lib/event_engine/extensions/can_track_errors.h
+  - src/core/lib/event_engine/extensions/chaotic_good_extension.h
+  - src/core/lib/event_engine/extensions/supports_fd.h
+  - src/core/lib/event_engine/extensions/tcp_trace.h
+  - src/core/lib/event_engine/forkable.h
+  - src/core/lib/event_engine/grpc_polled_fd.h
+  - src/core/lib/event_engine/handle_containers.h
+  - src/core/lib/event_engine/nameser.h
+  - src/core/lib/event_engine/poller.h
+  - src/core/lib/event_engine/posix.h
+  - src/core/lib/event_engine/posix_engine/ev_epoll1_linux.h
+  - src/core/lib/event_engine/posix_engine/ev_poll_posix.h
+  - src/core/lib/event_engine/posix_engine/event_poller.h
+  - src/core/lib/event_engine/posix_engine/event_poller_posix_default.h
+  - src/core/lib/event_engine/posix_engine/grpc_polled_fd_posix.h
+  - src/core/lib/event_engine/posix_engine/internal_errqueue.h
+  - src/core/lib/event_engine/posix_engine/lockfree_event.h
+  - src/core/lib/event_engine/posix_engine/native_posix_dns_resolver.h
+  - src/core/lib/event_engine/posix_engine/posix_endpoint.h
+  - src/core/lib/event_engine/posix_engine/posix_engine.h
+  - src/core/lib/event_engine/posix_engine/posix_engine_closure.h
+  - src/core/lib/event_engine/posix_engine/posix_engine_listener.h
+  - src/core/lib/event_engine/posix_engine/posix_engine_listener_utils.h
+  - src/core/lib/event_engine/posix_engine/tcp_socket_utils.h
+  - src/core/lib/event_engine/posix_engine/timer.h
+  - src/core/lib/event_engine/posix_engine/timer_heap.h
+  - src/core/lib/event_engine/posix_engine/timer_manager.h
+  - src/core/lib/event_engine/posix_engine/traced_buffer_list.h
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_eventfd.h
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_pipe.h
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_posix.h
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_posix_default.h
+  - src/core/lib/event_engine/query_extensions.h
+  - src/core/lib/event_engine/ref_counted_dns_resolver_interface.h
+  - src/core/lib/event_engine/resolved_address_internal.h
+  - src/core/lib/event_engine/tcp_socket_utils.h
+  - src/core/lib/event_engine/thread_pool/thread_count.h
+  - src/core/lib/event_engine/thread_pool/thread_pool.h
+  - src/core/lib/event_engine/thread_pool/work_stealing_thread_pool.h
+  - src/core/lib/event_engine/thready_event_engine/thready_event_engine.h
+  - src/core/lib/event_engine/time_util.h
+  - src/core/lib/event_engine/utils.h
+  - src/core/lib/event_engine/windows/grpc_polled_fd_windows.h
+  - src/core/lib/event_engine/windows/iocp.h
+  - src/core/lib/event_engine/windows/native_windows_dns_resolver.h
+  - src/core/lib/event_engine/windows/win_socket.h
+  - src/core/lib/event_engine/windows/windows_endpoint.h
+  - src/core/lib/event_engine/windows/windows_engine.h
+  - src/core/lib/event_engine/windows/windows_listener.h
+  - src/core/lib/event_engine/work_queue/basic_work_queue.h
+  - src/core/lib/event_engine/work_queue/work_queue.h
   - src/core/lib/experiments/config.h
   - src/core/lib/experiments/experiments.h
   - src/core/lib/gprpp/atomic_utils.h
   - src/core/lib/gprpp/bitset.h
   - src/core/lib/gprpp/cpp_impl_of.h
   - src/core/lib/gprpp/down_cast.h
+  - src/core/lib/gprpp/dual_ref_counted.h
   - src/core/lib/gprpp/dump_args.h
   - src/core/lib/gprpp/glob.h
+  - src/core/lib/gprpp/load_file.h
   - src/core/lib/gprpp/manual_constructor.h
+  - src/core/lib/gprpp/notification.h
   - src/core/lib/gprpp/orphanable.h
   - src/core/lib/gprpp/per_cpu.h
   - src/core/lib/gprpp/ref_counted.h
   - src/core/lib/gprpp/ref_counted_ptr.h
+  - src/core/lib/gprpp/ref_counted_string.h
   - src/core/lib/gprpp/status_helper.h
   - src/core/lib/gprpp/time.h
+  - src/core/lib/gprpp/time_averaged_stats.h
   - src/core/lib/iomgr/closure.h
   - src/core/lib/iomgr/combiner.h
   - src/core/lib/iomgr/error.h
   - src/core/lib/iomgr/exec_ctx.h
   - src/core/lib/iomgr/executor.h
+  - src/core/lib/iomgr/grpc_if_nametoindex.h
   - src/core/lib/iomgr/iomgr_internal.h
+  - src/core/lib/iomgr/port.h
+  - src/core/lib/iomgr/resolved_address.h
+  - src/core/lib/iomgr/sockaddr.h
+  - src/core/lib/iomgr/sockaddr_posix.h
+  - src/core/lib/iomgr/sockaddr_windows.h
+  - src/core/lib/iomgr/socket_mutator.h
+  - src/core/lib/iomgr/socket_utils.h
   - src/core/lib/promise/activity.h
   - src/core/lib/promise/context.h
   - src/core/lib/promise/detail/basic_seq.h
@@ -10666,9 +11062,14 @@ targets:
   - src/core/lib/resource_quota/thread_quota.h
   - src/core/lib/slice/percent_encoding.h
   - src/core/lib/slice/slice.h
+  - src/core/lib/slice/slice_buffer.h
   - src/core/lib/slice/slice_internal.h
   - src/core/lib/slice/slice_refcount.h
   - src/core/lib/slice/slice_string_helpers.h
+  - src/core/lib/surface/channel_stack_type.h
+  - src/core/lib/surface/init_internally.h
+  - src/core/lib/uri/uri_parser.h
+  - src/core/telemetry/tcp_tracer.h
   - src/core/util/latent_see.h
   - src/core/util/ring_buffer.h
   - src/core/util/spinlock.h
@@ -10677,21 +11078,78 @@ targets:
   src:
   - src/core/ext/upb-gen/google/protobuf/any.upb_minitable.c
   - src/core/ext/upb-gen/google/rpc/status.upb_minitable.c
+  - src/core/lib/address_utils/parse_address.cc
+  - src/core/lib/address_utils/sockaddr_utils.cc
+  - src/core/lib/backoff/backoff.cc
+  - src/core/lib/channel/channel_args.cc
   - src/core/lib/debug/trace.cc
   - src/core/lib/debug/trace_flags.cc
+  - src/core/lib/event_engine/ares_resolver.cc
+  - src/core/lib/event_engine/cf_engine/cf_engine.cc
+  - src/core/lib/event_engine/cf_engine/cfstream_endpoint.cc
+  - src/core/lib/event_engine/cf_engine/dns_service_resolver.cc
+  - src/core/lib/event_engine/channel_args_endpoint_config.cc
+  - src/core/lib/event_engine/default_event_engine.cc
+  - src/core/lib/event_engine/default_event_engine_factory.cc
+  - src/core/lib/event_engine/event_engine.cc
+  - src/core/lib/event_engine/forkable.cc
+  - src/core/lib/event_engine/posix_engine/ev_epoll1_linux.cc
+  - src/core/lib/event_engine/posix_engine/ev_poll_posix.cc
+  - src/core/lib/event_engine/posix_engine/event_poller_posix_default.cc
+  - src/core/lib/event_engine/posix_engine/internal_errqueue.cc
+  - src/core/lib/event_engine/posix_engine/lockfree_event.cc
+  - src/core/lib/event_engine/posix_engine/native_posix_dns_resolver.cc
+  - src/core/lib/event_engine/posix_engine/posix_endpoint.cc
+  - src/core/lib/event_engine/posix_engine/posix_engine.cc
+  - src/core/lib/event_engine/posix_engine/posix_engine_listener.cc
+  - src/core/lib/event_engine/posix_engine/posix_engine_listener_utils.cc
+  - src/core/lib/event_engine/posix_engine/tcp_socket_utils.cc
+  - src/core/lib/event_engine/posix_engine/timer.cc
+  - src/core/lib/event_engine/posix_engine/timer_heap.cc
+  - src/core/lib/event_engine/posix_engine/timer_manager.cc
+  - src/core/lib/event_engine/posix_engine/traced_buffer_list.cc
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_eventfd.cc
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_pipe.cc
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_posix_default.cc
+  - src/core/lib/event_engine/resolved_address.cc
+  - src/core/lib/event_engine/slice.cc
+  - src/core/lib/event_engine/slice_buffer.cc
+  - src/core/lib/event_engine/tcp_socket_utils.cc
+  - src/core/lib/event_engine/thread_pool/thread_count.cc
+  - src/core/lib/event_engine/thread_pool/thread_pool_factory.cc
+  - src/core/lib/event_engine/thread_pool/work_stealing_thread_pool.cc
+  - src/core/lib/event_engine/thready_event_engine/thready_event_engine.cc
+  - src/core/lib/event_engine/time_util.cc
+  - src/core/lib/event_engine/utils.cc
+  - src/core/lib/event_engine/windows/grpc_polled_fd_windows.cc
+  - src/core/lib/event_engine/windows/iocp.cc
+  - src/core/lib/event_engine/windows/native_windows_dns_resolver.cc
+  - src/core/lib/event_engine/windows/win_socket.cc
+  - src/core/lib/event_engine/windows/windows_endpoint.cc
+  - src/core/lib/event_engine/windows/windows_engine.cc
+  - src/core/lib/event_engine/windows/windows_listener.cc
+  - src/core/lib/event_engine/work_queue/basic_work_queue.cc
   - src/core/lib/experiments/config.cc
   - src/core/lib/experiments/experiments.cc
   - src/core/lib/gprpp/dump_args.cc
   - src/core/lib/gprpp/glob.cc
+  - src/core/lib/gprpp/load_file.cc
   - src/core/lib/gprpp/per_cpu.cc
+  - src/core/lib/gprpp/ref_counted_string.cc
   - src/core/lib/gprpp/status_helper.cc
   - src/core/lib/gprpp/time.cc
+  - src/core/lib/gprpp/time_averaged_stats.cc
   - src/core/lib/iomgr/closure.cc
   - src/core/lib/iomgr/combiner.cc
   - src/core/lib/iomgr/error.cc
   - src/core/lib/iomgr/exec_ctx.cc
   - src/core/lib/iomgr/executor.cc
+  - src/core/lib/iomgr/grpc_if_nametoindex_posix.cc
+  - src/core/lib/iomgr/grpc_if_nametoindex_unsupported.cc
   - src/core/lib/iomgr/iomgr_internal.cc
+  - src/core/lib/iomgr/sockaddr_utils_posix.cc
+  - src/core/lib/iomgr/socket_mutator.cc
+  - src/core/lib/iomgr/socket_utils_windows.cc
   - src/core/lib/promise/activity.cc
   - src/core/lib/resource_quota/arena.cc
   - src/core/lib/resource_quota/connection_quota.cc
@@ -10701,7 +11159,11 @@ targets:
   - src/core/lib/resource_quota/thread_quota.cc
   - src/core/lib/slice/percent_encoding.cc
   - src/core/lib/slice/slice.cc
+  - src/core/lib/slice/slice_buffer.cc
   - src/core/lib/slice/slice_string_helpers.cc
+  - src/core/lib/surface/channel_stack_type.cc
+  - src/core/lib/surface/init_internally.cc
+  - src/core/lib/uri/uri_parser.cc
   - src/core/util/latent_see.cc
   - test/core/promise/for_each_test.cc
   deps:
@@ -10709,12 +11171,17 @@ targets:
   - upb_mini_descriptor_lib
   - upb_wire_lib
   - absl/base:config
+  - absl/cleanup:cleanup
   - absl/container:flat_hash_map
+  - absl/container:inlined_vector
   - absl/functional:function_ref
   - absl/hash:hash
   - absl/meta:type_traits
   - absl/status:statusor
+  - absl/utility:utility
+  - cares
   - gpr
+  - address_sorting
   uses_polling: false
 - name: fork_test
   gtest: true
@@ -12296,30 +12763,108 @@ targets:
   - src/core/ext/upb-gen/google/protobuf/any.upb_minitable.h
   - src/core/ext/upb-gen/google/rpc/status.upb.h
   - src/core/ext/upb-gen/google/rpc/status.upb_minitable.h
+  - src/core/lib/address_utils/parse_address.h
+  - src/core/lib/address_utils/sockaddr_utils.h
+  - src/core/lib/avl/avl.h
+  - src/core/lib/backoff/backoff.h
+  - src/core/lib/channel/channel_args.h
   - src/core/lib/debug/trace.h
   - src/core/lib/debug/trace_flags.h
   - src/core/lib/debug/trace_impl.h
+  - src/core/lib/event_engine/ares_resolver.h
+  - src/core/lib/event_engine/cf_engine/cf_engine.h
+  - src/core/lib/event_engine/cf_engine/cfstream_endpoint.h
+  - src/core/lib/event_engine/cf_engine/cftype_unique_ref.h
+  - src/core/lib/event_engine/cf_engine/dns_service_resolver.h
+  - src/core/lib/event_engine/channel_args_endpoint_config.h
+  - src/core/lib/event_engine/common_closures.h
+  - src/core/lib/event_engine/default_event_engine.h
+  - src/core/lib/event_engine/default_event_engine_factory.h
+  - src/core/lib/event_engine/extensions/can_track_errors.h
+  - src/core/lib/event_engine/extensions/chaotic_good_extension.h
+  - src/core/lib/event_engine/extensions/supports_fd.h
+  - src/core/lib/event_engine/extensions/tcp_trace.h
+  - src/core/lib/event_engine/forkable.h
+  - src/core/lib/event_engine/grpc_polled_fd.h
+  - src/core/lib/event_engine/handle_containers.h
+  - src/core/lib/event_engine/nameser.h
+  - src/core/lib/event_engine/poller.h
+  - src/core/lib/event_engine/posix.h
+  - src/core/lib/event_engine/posix_engine/ev_epoll1_linux.h
+  - src/core/lib/event_engine/posix_engine/ev_poll_posix.h
+  - src/core/lib/event_engine/posix_engine/event_poller.h
+  - src/core/lib/event_engine/posix_engine/event_poller_posix_default.h
+  - src/core/lib/event_engine/posix_engine/grpc_polled_fd_posix.h
+  - src/core/lib/event_engine/posix_engine/internal_errqueue.h
+  - src/core/lib/event_engine/posix_engine/lockfree_event.h
+  - src/core/lib/event_engine/posix_engine/native_posix_dns_resolver.h
+  - src/core/lib/event_engine/posix_engine/posix_endpoint.h
+  - src/core/lib/event_engine/posix_engine/posix_engine.h
+  - src/core/lib/event_engine/posix_engine/posix_engine_closure.h
+  - src/core/lib/event_engine/posix_engine/posix_engine_listener.h
+  - src/core/lib/event_engine/posix_engine/posix_engine_listener_utils.h
+  - src/core/lib/event_engine/posix_engine/tcp_socket_utils.h
+  - src/core/lib/event_engine/posix_engine/timer.h
+  - src/core/lib/event_engine/posix_engine/timer_heap.h
+  - src/core/lib/event_engine/posix_engine/timer_manager.h
+  - src/core/lib/event_engine/posix_engine/traced_buffer_list.h
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_eventfd.h
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_pipe.h
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_posix.h
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_posix_default.h
+  - src/core/lib/event_engine/query_extensions.h
+  - src/core/lib/event_engine/ref_counted_dns_resolver_interface.h
+  - src/core/lib/event_engine/resolved_address_internal.h
+  - src/core/lib/event_engine/tcp_socket_utils.h
+  - src/core/lib/event_engine/thread_pool/thread_count.h
+  - src/core/lib/event_engine/thread_pool/thread_pool.h
+  - src/core/lib/event_engine/thread_pool/work_stealing_thread_pool.h
+  - src/core/lib/event_engine/thready_event_engine/thready_event_engine.h
+  - src/core/lib/event_engine/time_util.h
+  - src/core/lib/event_engine/utils.h
+  - src/core/lib/event_engine/windows/grpc_polled_fd_windows.h
+  - src/core/lib/event_engine/windows/iocp.h
+  - src/core/lib/event_engine/windows/native_windows_dns_resolver.h
+  - src/core/lib/event_engine/windows/win_socket.h
+  - src/core/lib/event_engine/windows/windows_endpoint.h
+  - src/core/lib/event_engine/windows/windows_engine.h
+  - src/core/lib/event_engine/windows/windows_listener.h
+  - src/core/lib/event_engine/work_queue/basic_work_queue.h
+  - src/core/lib/event_engine/work_queue/work_queue.h
   - src/core/lib/experiments/config.h
   - src/core/lib/experiments/experiments.h
   - src/core/lib/gprpp/atomic_utils.h
   - src/core/lib/gprpp/bitset.h
   - src/core/lib/gprpp/cpp_impl_of.h
   - src/core/lib/gprpp/down_cast.h
+  - src/core/lib/gprpp/dual_ref_counted.h
   - src/core/lib/gprpp/dump_args.h
   - src/core/lib/gprpp/glob.h
+  - src/core/lib/gprpp/load_file.h
   - src/core/lib/gprpp/manual_constructor.h
+  - src/core/lib/gprpp/notification.h
   - src/core/lib/gprpp/orphanable.h
   - src/core/lib/gprpp/per_cpu.h
   - src/core/lib/gprpp/ref_counted.h
   - src/core/lib/gprpp/ref_counted_ptr.h
+  - src/core/lib/gprpp/ref_counted_string.h
   - src/core/lib/gprpp/status_helper.h
   - src/core/lib/gprpp/time.h
+  - src/core/lib/gprpp/time_averaged_stats.h
   - src/core/lib/iomgr/closure.h
   - src/core/lib/iomgr/combiner.h
   - src/core/lib/iomgr/error.h
   - src/core/lib/iomgr/exec_ctx.h
   - src/core/lib/iomgr/executor.h
+  - src/core/lib/iomgr/grpc_if_nametoindex.h
   - src/core/lib/iomgr/iomgr_internal.h
+  - src/core/lib/iomgr/port.h
+  - src/core/lib/iomgr/resolved_address.h
+  - src/core/lib/iomgr/sockaddr.h
+  - src/core/lib/iomgr/sockaddr_posix.h
+  - src/core/lib/iomgr/sockaddr_windows.h
+  - src/core/lib/iomgr/socket_mutator.h
+  - src/core/lib/iomgr/socket_utils.h
   - src/core/lib/promise/activity.h
   - src/core/lib/promise/context.h
   - src/core/lib/promise/detail/basic_seq.h
@@ -12342,9 +12887,14 @@ targets:
   - src/core/lib/resource_quota/thread_quota.h
   - src/core/lib/slice/percent_encoding.h
   - src/core/lib/slice/slice.h
+  - src/core/lib/slice/slice_buffer.h
   - src/core/lib/slice/slice_internal.h
   - src/core/lib/slice/slice_refcount.h
   - src/core/lib/slice/slice_string_helpers.h
+  - src/core/lib/surface/channel_stack_type.h
+  - src/core/lib/surface/init_internally.h
+  - src/core/lib/uri/uri_parser.h
+  - src/core/telemetry/tcp_tracer.h
   - src/core/util/latent_see.h
   - src/core/util/ring_buffer.h
   - src/core/util/spinlock.h
@@ -12353,21 +12903,78 @@ targets:
   src:
   - src/core/ext/upb-gen/google/protobuf/any.upb_minitable.c
   - src/core/ext/upb-gen/google/rpc/status.upb_minitable.c
+  - src/core/lib/address_utils/parse_address.cc
+  - src/core/lib/address_utils/sockaddr_utils.cc
+  - src/core/lib/backoff/backoff.cc
+  - src/core/lib/channel/channel_args.cc
   - src/core/lib/debug/trace.cc
   - src/core/lib/debug/trace_flags.cc
+  - src/core/lib/event_engine/ares_resolver.cc
+  - src/core/lib/event_engine/cf_engine/cf_engine.cc
+  - src/core/lib/event_engine/cf_engine/cfstream_endpoint.cc
+  - src/core/lib/event_engine/cf_engine/dns_service_resolver.cc
+  - src/core/lib/event_engine/channel_args_endpoint_config.cc
+  - src/core/lib/event_engine/default_event_engine.cc
+  - src/core/lib/event_engine/default_event_engine_factory.cc
+  - src/core/lib/event_engine/event_engine.cc
+  - src/core/lib/event_engine/forkable.cc
+  - src/core/lib/event_engine/posix_engine/ev_epoll1_linux.cc
+  - src/core/lib/event_engine/posix_engine/ev_poll_posix.cc
+  - src/core/lib/event_engine/posix_engine/event_poller_posix_default.cc
+  - src/core/lib/event_engine/posix_engine/internal_errqueue.cc
+  - src/core/lib/event_engine/posix_engine/lockfree_event.cc
+  - src/core/lib/event_engine/posix_engine/native_posix_dns_resolver.cc
+  - src/core/lib/event_engine/posix_engine/posix_endpoint.cc
+  - src/core/lib/event_engine/posix_engine/posix_engine.cc
+  - src/core/lib/event_engine/posix_engine/posix_engine_listener.cc
+  - src/core/lib/event_engine/posix_engine/posix_engine_listener_utils.cc
+  - src/core/lib/event_engine/posix_engine/tcp_socket_utils.cc
+  - src/core/lib/event_engine/posix_engine/timer.cc
+  - src/core/lib/event_engine/posix_engine/timer_heap.cc
+  - src/core/lib/event_engine/posix_engine/timer_manager.cc
+  - src/core/lib/event_engine/posix_engine/traced_buffer_list.cc
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_eventfd.cc
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_pipe.cc
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_posix_default.cc
+  - src/core/lib/event_engine/resolved_address.cc
+  - src/core/lib/event_engine/slice.cc
+  - src/core/lib/event_engine/slice_buffer.cc
+  - src/core/lib/event_engine/tcp_socket_utils.cc
+  - src/core/lib/event_engine/thread_pool/thread_count.cc
+  - src/core/lib/event_engine/thread_pool/thread_pool_factory.cc
+  - src/core/lib/event_engine/thread_pool/work_stealing_thread_pool.cc
+  - src/core/lib/event_engine/thready_event_engine/thready_event_engine.cc
+  - src/core/lib/event_engine/time_util.cc
+  - src/core/lib/event_engine/utils.cc
+  - src/core/lib/event_engine/windows/grpc_polled_fd_windows.cc
+  - src/core/lib/event_engine/windows/iocp.cc
+  - src/core/lib/event_engine/windows/native_windows_dns_resolver.cc
+  - src/core/lib/event_engine/windows/win_socket.cc
+  - src/core/lib/event_engine/windows/windows_endpoint.cc
+  - src/core/lib/event_engine/windows/windows_engine.cc
+  - src/core/lib/event_engine/windows/windows_listener.cc
+  - src/core/lib/event_engine/work_queue/basic_work_queue.cc
   - src/core/lib/experiments/config.cc
   - src/core/lib/experiments/experiments.cc
   - src/core/lib/gprpp/dump_args.cc
   - src/core/lib/gprpp/glob.cc
+  - src/core/lib/gprpp/load_file.cc
   - src/core/lib/gprpp/per_cpu.cc
+  - src/core/lib/gprpp/ref_counted_string.cc
   - src/core/lib/gprpp/status_helper.cc
   - src/core/lib/gprpp/time.cc
+  - src/core/lib/gprpp/time_averaged_stats.cc
   - src/core/lib/iomgr/closure.cc
   - src/core/lib/iomgr/combiner.cc
   - src/core/lib/iomgr/error.cc
   - src/core/lib/iomgr/exec_ctx.cc
   - src/core/lib/iomgr/executor.cc
+  - src/core/lib/iomgr/grpc_if_nametoindex_posix.cc
+  - src/core/lib/iomgr/grpc_if_nametoindex_unsupported.cc
   - src/core/lib/iomgr/iomgr_internal.cc
+  - src/core/lib/iomgr/sockaddr_utils_posix.cc
+  - src/core/lib/iomgr/socket_mutator.cc
+  - src/core/lib/iomgr/socket_utils_windows.cc
   - src/core/lib/promise/activity.cc
   - src/core/lib/resource_quota/arena.cc
   - src/core/lib/resource_quota/connection_quota.cc
@@ -12377,7 +12984,11 @@ targets:
   - src/core/lib/resource_quota/thread_quota.cc
   - src/core/lib/slice/percent_encoding.cc
   - src/core/lib/slice/slice.cc
+  - src/core/lib/slice/slice_buffer.cc
   - src/core/lib/slice/slice_string_helpers.cc
+  - src/core/lib/surface/channel_stack_type.cc
+  - src/core/lib/surface/init_internally.cc
+  - src/core/lib/uri/uri_parser.cc
   - src/core/util/latent_see.cc
   - test/core/promise/interceptor_list_test.cc
   deps:
@@ -12385,12 +12996,17 @@ targets:
   - upb_mini_descriptor_lib
   - upb_wire_lib
   - absl/base:config
+  - absl/cleanup:cleanup
   - absl/container:flat_hash_map
+  - absl/container:inlined_vector
   - absl/functional:function_ref
   - absl/hash:hash
   - absl/meta:type_traits
   - absl/status:statusor
+  - absl/utility:utility
+  - cares
   - gpr
+  - address_sorting
   uses_polling: false
 - name: interop_client
   build: test
@@ -12976,30 +13592,108 @@ targets:
   - src/core/ext/upb-gen/google/protobuf/any.upb_minitable.h
   - src/core/ext/upb-gen/google/rpc/status.upb.h
   - src/core/ext/upb-gen/google/rpc/status.upb_minitable.h
+  - src/core/lib/address_utils/parse_address.h
+  - src/core/lib/address_utils/sockaddr_utils.h
+  - src/core/lib/avl/avl.h
+  - src/core/lib/backoff/backoff.h
+  - src/core/lib/channel/channel_args.h
   - src/core/lib/debug/trace.h
   - src/core/lib/debug/trace_flags.h
   - src/core/lib/debug/trace_impl.h
+  - src/core/lib/event_engine/ares_resolver.h
+  - src/core/lib/event_engine/cf_engine/cf_engine.h
+  - src/core/lib/event_engine/cf_engine/cfstream_endpoint.h
+  - src/core/lib/event_engine/cf_engine/cftype_unique_ref.h
+  - src/core/lib/event_engine/cf_engine/dns_service_resolver.h
+  - src/core/lib/event_engine/channel_args_endpoint_config.h
+  - src/core/lib/event_engine/common_closures.h
+  - src/core/lib/event_engine/default_event_engine.h
+  - src/core/lib/event_engine/default_event_engine_factory.h
+  - src/core/lib/event_engine/extensions/can_track_errors.h
+  - src/core/lib/event_engine/extensions/chaotic_good_extension.h
+  - src/core/lib/event_engine/extensions/supports_fd.h
+  - src/core/lib/event_engine/extensions/tcp_trace.h
+  - src/core/lib/event_engine/forkable.h
+  - src/core/lib/event_engine/grpc_polled_fd.h
+  - src/core/lib/event_engine/handle_containers.h
+  - src/core/lib/event_engine/nameser.h
+  - src/core/lib/event_engine/poller.h
+  - src/core/lib/event_engine/posix.h
+  - src/core/lib/event_engine/posix_engine/ev_epoll1_linux.h
+  - src/core/lib/event_engine/posix_engine/ev_poll_posix.h
+  - src/core/lib/event_engine/posix_engine/event_poller.h
+  - src/core/lib/event_engine/posix_engine/event_poller_posix_default.h
+  - src/core/lib/event_engine/posix_engine/grpc_polled_fd_posix.h
+  - src/core/lib/event_engine/posix_engine/internal_errqueue.h
+  - src/core/lib/event_engine/posix_engine/lockfree_event.h
+  - src/core/lib/event_engine/posix_engine/native_posix_dns_resolver.h
+  - src/core/lib/event_engine/posix_engine/posix_endpoint.h
+  - src/core/lib/event_engine/posix_engine/posix_engine.h
+  - src/core/lib/event_engine/posix_engine/posix_engine_closure.h
+  - src/core/lib/event_engine/posix_engine/posix_engine_listener.h
+  - src/core/lib/event_engine/posix_engine/posix_engine_listener_utils.h
+  - src/core/lib/event_engine/posix_engine/tcp_socket_utils.h
+  - src/core/lib/event_engine/posix_engine/timer.h
+  - src/core/lib/event_engine/posix_engine/timer_heap.h
+  - src/core/lib/event_engine/posix_engine/timer_manager.h
+  - src/core/lib/event_engine/posix_engine/traced_buffer_list.h
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_eventfd.h
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_pipe.h
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_posix.h
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_posix_default.h
+  - src/core/lib/event_engine/query_extensions.h
+  - src/core/lib/event_engine/ref_counted_dns_resolver_interface.h
+  - src/core/lib/event_engine/resolved_address_internal.h
+  - src/core/lib/event_engine/tcp_socket_utils.h
+  - src/core/lib/event_engine/thread_pool/thread_count.h
+  - src/core/lib/event_engine/thread_pool/thread_pool.h
+  - src/core/lib/event_engine/thread_pool/work_stealing_thread_pool.h
+  - src/core/lib/event_engine/thready_event_engine/thready_event_engine.h
+  - src/core/lib/event_engine/time_util.h
+  - src/core/lib/event_engine/utils.h
+  - src/core/lib/event_engine/windows/grpc_polled_fd_windows.h
+  - src/core/lib/event_engine/windows/iocp.h
+  - src/core/lib/event_engine/windows/native_windows_dns_resolver.h
+  - src/core/lib/event_engine/windows/win_socket.h
+  - src/core/lib/event_engine/windows/windows_endpoint.h
+  - src/core/lib/event_engine/windows/windows_engine.h
+  - src/core/lib/event_engine/windows/windows_listener.h
+  - src/core/lib/event_engine/work_queue/basic_work_queue.h
+  - src/core/lib/event_engine/work_queue/work_queue.h
   - src/core/lib/experiments/config.h
   - src/core/lib/experiments/experiments.h
   - src/core/lib/gprpp/atomic_utils.h
   - src/core/lib/gprpp/bitset.h
   - src/core/lib/gprpp/cpp_impl_of.h
   - src/core/lib/gprpp/down_cast.h
+  - src/core/lib/gprpp/dual_ref_counted.h
   - src/core/lib/gprpp/dump_args.h
   - src/core/lib/gprpp/glob.h
+  - src/core/lib/gprpp/load_file.h
   - src/core/lib/gprpp/manual_constructor.h
+  - src/core/lib/gprpp/notification.h
   - src/core/lib/gprpp/orphanable.h
   - src/core/lib/gprpp/per_cpu.h
   - src/core/lib/gprpp/ref_counted.h
   - src/core/lib/gprpp/ref_counted_ptr.h
+  - src/core/lib/gprpp/ref_counted_string.h
   - src/core/lib/gprpp/status_helper.h
   - src/core/lib/gprpp/time.h
+  - src/core/lib/gprpp/time_averaged_stats.h
   - src/core/lib/iomgr/closure.h
   - src/core/lib/iomgr/combiner.h
   - src/core/lib/iomgr/error.h
   - src/core/lib/iomgr/exec_ctx.h
   - src/core/lib/iomgr/executor.h
+  - src/core/lib/iomgr/grpc_if_nametoindex.h
   - src/core/lib/iomgr/iomgr_internal.h
+  - src/core/lib/iomgr/port.h
+  - src/core/lib/iomgr/resolved_address.h
+  - src/core/lib/iomgr/sockaddr.h
+  - src/core/lib/iomgr/sockaddr_posix.h
+  - src/core/lib/iomgr/sockaddr_windows.h
+  - src/core/lib/iomgr/socket_mutator.h
+  - src/core/lib/iomgr/socket_utils.h
   - src/core/lib/promise/activity.h
   - src/core/lib/promise/context.h
   - src/core/lib/promise/detail/basic_seq.h
@@ -13030,9 +13724,14 @@ targets:
   - src/core/lib/resource_quota/thread_quota.h
   - src/core/lib/slice/percent_encoding.h
   - src/core/lib/slice/slice.h
+  - src/core/lib/slice/slice_buffer.h
   - src/core/lib/slice/slice_internal.h
   - src/core/lib/slice/slice_refcount.h
   - src/core/lib/slice/slice_string_helpers.h
+  - src/core/lib/surface/channel_stack_type.h
+  - src/core/lib/surface/init_internally.h
+  - src/core/lib/uri/uri_parser.h
+  - src/core/telemetry/tcp_tracer.h
   - src/core/util/latent_see.h
   - src/core/util/ring_buffer.h
   - src/core/util/spinlock.h
@@ -13041,21 +13740,78 @@ targets:
   src:
   - src/core/ext/upb-gen/google/protobuf/any.upb_minitable.c
   - src/core/ext/upb-gen/google/rpc/status.upb_minitable.c
+  - src/core/lib/address_utils/parse_address.cc
+  - src/core/lib/address_utils/sockaddr_utils.cc
+  - src/core/lib/backoff/backoff.cc
+  - src/core/lib/channel/channel_args.cc
   - src/core/lib/debug/trace.cc
   - src/core/lib/debug/trace_flags.cc
+  - src/core/lib/event_engine/ares_resolver.cc
+  - src/core/lib/event_engine/cf_engine/cf_engine.cc
+  - src/core/lib/event_engine/cf_engine/cfstream_endpoint.cc
+  - src/core/lib/event_engine/cf_engine/dns_service_resolver.cc
+  - src/core/lib/event_engine/channel_args_endpoint_config.cc
+  - src/core/lib/event_engine/default_event_engine.cc
+  - src/core/lib/event_engine/default_event_engine_factory.cc
+  - src/core/lib/event_engine/event_engine.cc
+  - src/core/lib/event_engine/forkable.cc
+  - src/core/lib/event_engine/posix_engine/ev_epoll1_linux.cc
+  - src/core/lib/event_engine/posix_engine/ev_poll_posix.cc
+  - src/core/lib/event_engine/posix_engine/event_poller_posix_default.cc
+  - src/core/lib/event_engine/posix_engine/internal_errqueue.cc
+  - src/core/lib/event_engine/posix_engine/lockfree_event.cc
+  - src/core/lib/event_engine/posix_engine/native_posix_dns_resolver.cc
+  - src/core/lib/event_engine/posix_engine/posix_endpoint.cc
+  - src/core/lib/event_engine/posix_engine/posix_engine.cc
+  - src/core/lib/event_engine/posix_engine/posix_engine_listener.cc
+  - src/core/lib/event_engine/posix_engine/posix_engine_listener_utils.cc
+  - src/core/lib/event_engine/posix_engine/tcp_socket_utils.cc
+  - src/core/lib/event_engine/posix_engine/timer.cc
+  - src/core/lib/event_engine/posix_engine/timer_heap.cc
+  - src/core/lib/event_engine/posix_engine/timer_manager.cc
+  - src/core/lib/event_engine/posix_engine/traced_buffer_list.cc
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_eventfd.cc
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_pipe.cc
+  - src/core/lib/event_engine/posix_engine/wakeup_fd_posix_default.cc
+  - src/core/lib/event_engine/resolved_address.cc
+  - src/core/lib/event_engine/slice.cc
+  - src/core/lib/event_engine/slice_buffer.cc
+  - src/core/lib/event_engine/tcp_socket_utils.cc
+  - src/core/lib/event_engine/thread_pool/thread_count.cc
+  - src/core/lib/event_engine/thread_pool/thread_pool_factory.cc
+  - src/core/lib/event_engine/thread_pool/work_stealing_thread_pool.cc
+  - src/core/lib/event_engine/thready_event_engine/thready_event_engine.cc
+  - src/core/lib/event_engine/time_util.cc
+  - src/core/lib/event_engine/utils.cc
+  - src/core/lib/event_engine/windows/grpc_polled_fd_windows.cc
+  - src/core/lib/event_engine/windows/iocp.cc
+  - src/core/lib/event_engine/windows/native_windows_dns_resolver.cc
+  - src/core/lib/event_engine/windows/win_socket.cc
+  - src/core/lib/event_engine/windows/windows_endpoint.cc
+  - src/core/lib/event_engine/windows/windows_engine.cc
+  - src/core/lib/event_engine/windows/windows_listener.cc
+  - src/core/lib/event_engine/work_queue/basic_work_queue.cc
   - src/core/lib/experiments/config.cc
   - src/core/lib/experiments/experiments.cc
   - src/core/lib/gprpp/dump_args.cc
   - src/core/lib/gprpp/glob.cc
+  - src/core/lib/gprpp/load_file.cc
   - src/core/lib/gprpp/per_cpu.cc
+  - src/core/lib/gprpp/ref_counted_string.cc
   - src/core/lib/gprpp/status_helper.cc
   - src/core/lib/gprpp/time.cc
+  - src/core/lib/gprpp/time_averaged_stats.cc
   - src/core/lib/iomgr/closure.cc
   - src/core/lib/iomgr/combiner.cc
   - src/core/lib/iomgr/error.cc
   - src/core/lib/iomgr/exec_ctx.cc
   - src/core/lib/iomgr/executor.cc
+  - src/core/lib/iomgr/grpc_if_nametoindex_posix.cc
+  - src/core/lib/iomgr/grpc_if_nametoindex_unsupported.cc
   - src/core/lib/iomgr/iomgr_internal.cc
+  - src/core/lib/iomgr/sockaddr_utils_posix.cc
+  - src/core/lib/iomgr/socket_mutator.cc
+  - src/core/lib/iomgr/socket_utils_windows.cc
   - src/core/lib/promise/activity.cc
   - src/core/lib/resource_quota/arena.cc
   - src/core/lib/resource_quota/connection_quota.cc
@@ -13065,7 +13821,11 @@ targets:
   - src/core/lib/resource_quota/thread_quota.cc
   - src/core/lib/slice/percent_encoding.cc
   - src/core/lib/slice/slice.cc
+  - src/core/lib/slice/slice_buffer.cc
   - src/core/lib/slice/slice_string_helpers.cc
+  - src/core/lib/surface/channel_stack_type.cc
+  - src/core/lib/surface/init_internally.cc
+  - src/core/lib/uri/uri_parser.cc
   - src/core/util/latent_see.cc
   - test/core/promise/map_pipe_test.cc
   deps:
@@ -13073,12 +13833,17 @@ targets:
   - upb_mini_descriptor_lib
   - upb_wire_lib
   - absl/base:config
+  - absl/cleanup:cleanup
   - absl/container:flat_hash_map
+  - absl/container:inlined_vector
   - absl/functional:function_ref
   - absl/hash:hash
   - absl/meta:type_traits
   - absl/status:statusor
+  - absl/utility:utility
+  - cares
   - gpr
+  - address_sorting
   uses_polling: false
 - name: match_test
   gtest: true
