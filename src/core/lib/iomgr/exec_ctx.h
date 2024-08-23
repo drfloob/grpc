@@ -272,7 +272,7 @@ class GRPC_DLL ExecCtx : public latent_see::ParentScope {
 class GRPC_DLL ApplicationCallbackExecCtx {
  public:
   /// Default Constructor
-  ApplicationCallbackExecCtx() : grpc_core::ApplicationCallbackExecCtx(0u) {}
+  ApplicationCallbackExecCtx() : ApplicationCallbackExecCtx(0u) {}
 
   /// Parameterised Constructor
   explicit ApplicationCallbackExecCtx(uintptr_t fl) : flags_(fl) {
@@ -305,7 +305,7 @@ class GRPC_DLL ApplicationCallbackExecCtx {
       // server-specific engines.
       exec_ctx->engine_ =
           grpc_event_engine::experimental::GetDefaultEventEngine(
-              grpc_core::SourceLocation());
+              SourceLocation());
       CALLBACK_EXEC_CTX = exec_ctx;
     }
   }
