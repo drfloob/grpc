@@ -96,7 +96,8 @@ class AlarmImpl : public grpc::internal::CompletionQueueTag {
       if (event_engine_->Cancel(cq_timer_handle_)) {
         OnCQAlarm(absl::CancelledError("cancelled"));
       } else {
-        // Slow path on cancellation. If the timer can't be cancelled, wait until it has completed.
+        // Slow path on cancellation. If the timer can't be cancelled, wait
+        // until it has completed.
         // TODO(C++20): atomic wait?
         while (queued_.load() != executed_.load()) {
           absl::SleepFor(absl::Milliseconds(100));
