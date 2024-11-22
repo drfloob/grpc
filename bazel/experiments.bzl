@@ -58,6 +58,9 @@ EXPERIMENTS = {
             "core_end2end_test": [
                 "event_engine_client",
             ],
+            "cpp_end2end_test": [
+                "event_engine_client",
+            ],
             "endpoint_test": [
                 "tcp_frame_size_tuning",
                 "tcp_rcv_lowat",
@@ -75,6 +78,9 @@ EXPERIMENTS = {
             "resource_quota_test": [
                 "free_large_allocator",
                 "unconstrained_max_quota_buffer_size",
+            ],
+            "xds_end2end_test": [
+                "event_engine_client",
             ],
         },
         "on": {
@@ -140,6 +146,9 @@ EXPERIMENTS = {
             "core_end2end_test": [
                 "event_engine_client",
             ],
+            "cpp_end2end_test": [
+                "event_engine_client",
+            ],
             "endpoint_test": [
                 "tcp_frame_size_tuning",
                 "tcp_rcv_lowat",
@@ -157,6 +166,9 @@ EXPERIMENTS = {
             "resource_quota_test": [
                 "free_large_allocator",
                 "unconstrained_max_quota_buffer_size",
+            ],
+            "xds_end2end_test": [
+                "event_engine_client",
             ],
         },
         "on": {
