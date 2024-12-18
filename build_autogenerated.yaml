@@ -21698,16 +21698,6 @@ targets:
   - absl/status:statusor
   - gpr
   uses_polling: false
-- name: smoke_test
-  gtest: true
-  build: test
-  language: c++
-  headers: []
-  src:
-  - test/core/event_engine/smoke_test.cc
-  deps:
-  - gtest
-  - grpc_test_util_unsecure
 - name: sockaddr_resolver_test
   gtest: true
   build: test
