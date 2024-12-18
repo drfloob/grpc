@@ -41,8 +41,8 @@
 #include "test/core/test_util/fuzz_config_vars.h"
 #include "test/core/test_util/test_config.h"
 
-using ::grpc_event_engine::experimental::FuzzingEventEngine;
 using ::grpc_event_engine::experimental::DefaultEventEngineScope;
+using ::grpc_event_engine::experimental::FuzzingEventEngine;
 
 bool squelch = true;
 
