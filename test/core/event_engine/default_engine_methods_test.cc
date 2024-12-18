@@ -69,7 +69,7 @@ class DefaultEngineTest : public testing::Test {
         const DNSResolver::ResolverOptions& /* options */) override {
       return nullptr;
     };
-    void Run(Closure* /* closure */) override{};
+    void Run(Closure* /* closure */) override {};
     void Run(absl::AnyInvocable<void()> /* closure */) override{};
     TaskHandle RunAfter(Duration /* when */, Closure* /* closure */) override {
       return {-1, -1};
@@ -84,7 +84,7 @@ class DefaultEngineTest : public testing::Test {
   class CountingEngine : public FakeEventEngine {
    public:
     struct EngineOpCounts {
-      EngineOpCounts() : constructed(0), destroyed(0), ran(0), ran_after(0){};
+      EngineOpCounts() : constructed(0), destroyed(0), ran(0), ran_after(0) {};
       int constructed;
       int destroyed;
       int ran;
@@ -93,7 +93,7 @@ class DefaultEngineTest : public testing::Test {
     explicit CountingEngine(EngineOpCounts& counter) : counter_(counter) {
       counter_.constructed++;
     }
-    ~CountingEngine() { counter_.destroyed++; }
+    ~CountingEngine() override { counter_.destroyed++; }
     void Run(Closure* /* closure */) override { counter_.ran++; };
     void Run(absl::AnyInvocable<void()> /* closure */) override {
       counter_.ran++;
