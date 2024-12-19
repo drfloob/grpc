@@ -118,9 +118,9 @@ void ShutdownDefaultEventEngine(bool wait) {
 void EventEngineFactoryReset() {
   grpc_core::MutexLock lock(&*g_mu);
   auto factory = g_event_engine_factory.exchange(nullptr);
-  if (factory != nullptr) {
-    delete factory;
-  }
+
+  delete factory;
+
   g_weak_internal_event_engine->reset();
 }
 
