@@ -44,7 +44,7 @@ class DefaultEngineTest : public testing::Test {
       : public grpc_event_engine::experimental::MockEventEngine {
    public:
     struct EngineOpCounts {
-      EngineOpCounts() : constructed(0), destroyed(0), ran(0), ran_after(0){};
+      EngineOpCounts() : constructed(0), destroyed(0), ran(0), ran_after(0) {};
       int constructed;
       int destroyed;
       int ran;
@@ -53,7 +53,7 @@ class DefaultEngineTest : public testing::Test {
     explicit CountingEngine(EngineOpCounts& counter) : counter_(counter) {
       counter_.constructed++;
     }
-    ~CountingEngine() { counter_.destroyed++; }
+    ~CountingEngine() override { counter_.destroyed++; }
     void Run(Closure* /* closure */) override { counter_.ran++; };
     void Run(absl::AnyInvocable<void()> /* closure */) override {
       counter_.ran++;
