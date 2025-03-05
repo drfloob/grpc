@@ -159,6 +159,14 @@ Experiments LoadExperimentsFromConfigVariable() {
 }
 
 Experiments& ExperimentsSingleton() {
+#ifdef GRPC_DO_NOT_INSTANTIATE_POSIX_POLLER
+  // TODO(hork): delete this once GRPC_DO_NOT_INSTANTIATE_POSIX_POLLER is no
+  // longer needed
+  ForceEnableExperiment("event_engine_client", false);
+  ForceEnableExperiment("event_engine_listener", false);
+  ForceEnableExperiment("event_engine_dns", false);
+  ForceEnableExperiment("event_engine_dns_non_client_channel", false);
+#endif  // GRPC_DO_NOT_INSTANTIATE_POSIX_POLLER
   // One time initialization:
   static NoDestruct<Experiments> experiments{
       LoadExperimentsFromConfigVariable()};
