@@ -80,6 +80,7 @@ grpc_cc_library(
         "lib/event_engine/extensions/can_track_errors.h",
         "lib/event_engine/extensions/chaotic_good_extension.h",
         "lib/event_engine/extensions/supports_fd.h",
+        "lib/event_engine/extensions/supports_win_sockets.h",
         "lib/event_engine/extensions/tcp_trace.h",
     ],
     external_deps = [
@@ -2587,6 +2588,8 @@ grpc_cc_library(
         "dump_args",
         "error",
         "event_engine_common",
+        "event_engine_extensions",
+        "event_engine_query_extensions",
         "event_engine_tcp_socket_utils",
         "event_engine_thread_pool",
         "event_engine_utils",
