@@ -27,6 +27,7 @@
 #include <stdlib.h>
 
 #include "absl/log/check.h"
+#include "absl/log/log.h"
 #include "src/core/lib/iomgr/port.h"
 #include "src/core/util/crash.h"
 #include "test/core/test_util/port.h"
@@ -62,6 +63,7 @@ static int isolated_pick_unused_port_or_die(void) {
     if (port == 5985) {
       continue;
     }
+    LOG(ERROR) << "DO NOT SUBMIT: returning isolated port " << port;
     return port;
   }
 }

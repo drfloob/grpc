@@ -762,8 +762,10 @@ inline auto MaybeAddNullConfig(
       GTEST_SKIP() << "event_engine_dns_non_client_channel experiment breaks " \
                       "fuzzing currently";                                     \
     }                                                                          \
+    grpc_init();                                                               \
     CoreEnd2endTest_##suite##_##name(config, &msg, #suite).RunTest();          \
     grpc_event_engine::experimental::ShutdownDefaultEventEngine();             \
+    grpc_shutdown();                                                           \
   }                                                                            \
   CORE_END2END_TEST_P(suite, name)                                             \
   CORE_END2END_FUZZER(suite, name)                                             \

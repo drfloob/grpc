@@ -38,14 +38,44 @@ namespace {
 constexpr size_t kDefaultTargetReadSize = 8192;
 constexpr int kMaxWSABUFCount = 16;
 
-void DumpSliceBuffer(SliceBuffer* buffer, absl::string_view context_string) {
+std::string HexDump(SliceBuffer* buffer) {
+  std::string out;
   for (size_t i = 0; i < buffer->Count(); i++) {
     auto str = buffer->MutableSliceAt(i).as_string_view();
-    GRPC_TRACE_LOG(event_engine_endpoint, INFO)
-        << context_string << " [" << i + 1 << "/" << buffer->Count()
-        << "]: " << str;
+    constexpr size_t chars_per_line = 16u;
+    auto address = 0;
+    for (size_t i = 0; i < (str.length() % chars_per_line) + 1; i++) {
+      auto hol = i * chars_per_line;
+      auto len = std::min(chars_per_line, str.length() - hol);
+      if (hol > buffer->Length()) break;
+      // add address
+      absl::StrAppendFormat(&out, "%08d  ", address);
+      for (int j = hol; j < hol + len; j++) {
+        if (j > buffer->Length()) break;
+        // print hex
+        absl::StrAppendFormat(&out, "%2x ", str[j]);
+      }
+      absl::StrAppend(&out, "  ");
+      for (int j = hol; j < hol + len; j++) {
+        if (j > buffer->Length()) break;
+        // print alpha
+        absl::StrAppendFormat(&out, "%c ", str[j]);
+      }
+      absl::StrAppend(&out, "\n");
+      address += chars_per_line;
+    }
   }
+  return out;
 }
+
+// void DumpSliceBuffer(SliceBuffer* buffer, absl::string_view context_string) {
+//   for (size_t i = 0; i < buffer->Count(); i++) {
+//     auto str = buffer->MutableSliceAt(i).as_string_view();
+//     GRPC_TRACE_LOG(event_engine_endpoint, INFO)
+//         << context_string << " [" << i + 1 << "/" << buffer->Count()
+//         << "]: " << str;
+//   }
+// }
 
 }  // namespace
 
@@ -75,6 +105,7 @@ void WindowsEndpoint::AsyncIOState::DoTcpRead(SliceBuffer* buffer) {
   GRPC_TRACE_LOG(event_engine_endpoint, INFO)
       << "WindowsEndpoint::" << endpoint << " attempting a read";
   if (socket->IsShutdown()) {
+    LOG(ERROR) << "DO NOT SUBMIT: socket is shut down. running read event";
     socket->read_info()->SetErrorStatus(
         absl::InternalError("Socket is shutting down."));
     thread_pool->Run(&handle_read_event);
@@ -91,28 +122,35 @@ void WindowsEndpoint::AsyncIOState::DoTcpRead(SliceBuffer* buffer) {
   DWORD bytes_read = 0;
   DWORD flags = 0;
   // First try a synchronous, non-blocking read.
+  LOG(ERROR) << "DO NOT SUBMIT: doing WSARecv";
   int status =
       WSARecv(socket->raw_socket(), wsa_buffers, (DWORD)buffer->Count(),
               &bytes_read, &flags, nullptr, nullptr);
   int wsa_error = status == 0 ? 0 : WSAGetLastError();
+  LOG(ERROR) << "DO NOT SUBMIT: done with WSARecv";
   if (wsa_error != WSAEWOULDBLOCK) {
     // Data or some error was returned immediately.
     socket->read_info()->SetResult(wsa_error, bytes_read, "WSARecv");
     thread_pool->Run(&handle_read_event);
+    LOG(ERROR) << "DO NOT SUBMIT: running continuation in thread pool";
     return;
   }
   // If the endpoint has already received some data, and the next call would
   // block, return the data in case that is all the data the reader expects.
   if (handle_read_event.MaybeFinishIfDataHasAlreadyBeenRead()) {
+    LOG(ERROR) << "DO NOT SUBMIT: sync read complete. returning";
     return;
   }
   // Otherwise, let's retry, by queuing a read.
+  LOG(ERROR) << "DO NOT SUBMIT: doing a 2nd WSARecv";
   socket->NotifyOnRead(&handle_read_event);
   status = WSARecv(socket->raw_socket(), wsa_buffers, (DWORD)buffer->Count(),
                    nullptr, &flags, socket->read_info()->overlapped(), nullptr);
+  LOG(ERROR) << "DO NOT SUBMIT: 2nd WSARecv done";
   wsa_error = status == 0 ? 0 : WSAGetLastError();
   if (wsa_error != 0 && wsa_error != WSA_IO_PENDING) {
     // The async read attempt returned an error immediately.
+    LOG(ERROR) << "DO NOT SUBMIT: errored in 2nd WSARecv";
     socket->UnregisterReadCallback();
     socket->read_info()->SetResult(
         wsa_error, 0, absl::StrFormat("WindowsEndpoint::%p Read failed", this));
@@ -292,11 +330,11 @@ void WindowsEndpoint::HandleReadClosure::Run() {
     DCHECK_GT(io_state.use_count(), 0);
     // Either the endpoint is shut down or we've seen the end of the stream
     if (GRPC_TRACE_FLAG_ENABLED(event_engine_endpoint_data)) {
-      LOG(INFO) << "WindowsEndpoint::" << this << " read 0 bytes.";
-      DumpSliceBuffer(
-          &last_read_buffer_,
-          absl::StrFormat("WindowsEndpoint::%p READ last_read_buffer_: ",
-                          io_state->endpoint));
+      LOG(INFO) << "WindowsEndpoint::" << this << " read 0 bytes. "
+                << absl::StrFormat(
+                       "WindowsEndpoint::%p READ last_read_buffer_: ",
+                       io_state->endpoint)
+                << HexDump(&last_read_buffer_);
     }
     buffer_->Swap(last_read_buffer_);
     if (buffer_->Length() == 0) {
@@ -328,10 +366,12 @@ bool WindowsEndpoint::HandleReadClosure::MaybeFinishIfDataHasAlreadyBeenRead() {
         << " finishing a synchronous read";
     buffer_->Swap(last_read_buffer_);
     if (GRPC_TRACE_FLAG_ENABLED(event_engine_endpoint_data)) {
-      DumpSliceBuffer(buffer_, "finishing synchronous read");
+      LOG(INFO) << "finishing synchronous read. \n" << HexDump(buffer_);
     }
-    io_state_->thread_pool->Run(
-        [cb = ResetAndReturnCallback()]() mutable { cb(absl::OkStatus()); });
+    io_state_->thread_pool->Run([cb = ResetAndReturnCallback()]() mutable {
+      LOG(ERROR) << "DO NOT SUBMIT: running read callback";
+      cb(absl::OkStatus());
+    });
     return true;
   }
   return false;

@@ -62,7 +62,9 @@ typedef struct freereq {
 
 static std::string get_port_server_address() {
   // must be kep in sync with tools/run_tests/python_utils/start_port_server.py
-  return grpc_core::LocalIpAndPort(32766);
+  auto addr = grpc_core::LocalIpAndPort(32766);
+  LOG(ERROR) << "DO NOT SUBMIT: addr: " << addr;
+  return addr;
 }
 
 static void destroy_pops_and_shutdown(void* p, grpc_error_handle /*error*/) {
